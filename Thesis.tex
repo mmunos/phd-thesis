@@ -15,6 +15,9 @@
 %   Packages	 %
 %%%%%%%%%
 
+
+\input{./extras/macros}
+
 % Floats
 \usepackage{graphicx}
 \usepackage{float}
@@ -167,21 +170,142 @@
 
 \pagenumbering{arabic}
 
+%==========================
+
 \chapter[INTRODUCTION]{Introduction}
-\input{./chapters/introduction.tex}
 
-\chapter[CHAPTER 1]{Chapter 1} \label{ch1}
-\input{./chapters/chapter1.tex}
+\section{Setting}
 
-\chapter[CHAPTER 2]{Chapter 2} \label{ch2}
-\input{./chapters/chapter2.tex}
 
-\chapter[CONCLUSIONS]{Conclusions}
-\input{./chapters/conclusions.tex}
+%==========================
+
+\chapter[PRELIMINARIES]{Preliminaries}
+
+\section{Document Spanners}
+
+\section{Enumeration Algorithms}
+
+%==========================
+
+\chapter[ENUMERATION FOR NESTED QUERIES]{Enumeration for nested queries} \label{ch1}
+
+\section{Introduction}
+
+\section{Streaming Evaluation with output-linear delay}
+
+\section{Visibly Pushdown Annotators}
+
+\section{Outline of the results}
+
+\section{Enumerable Compact Sets}
+
+\section{Evaluating Visibly Pushdown Annotators with Output-linea Delay}
+
+\section{Document Spanners and Extraction Grammars}
+
+\section{Related Work}
+
+
+%==========================
+
+\chapter[ENUMERATION FOR ANNOTATED GRAMMARS]{Enumeration for Annotated Grammars} \label{ch2}
+
+\section{Introduction}
+
+%\input{./chapters/grammars/intro}
+
+\section{Grammars and Annotators}\label{gram:sec:models}
+
+%\input{./chapters/grammars/models}
+
+\section{Unambiguous Grammars} \label{gram:sec:cubic}
+
+%\input{./chapters/grammars/cubicres}
+
+%\paragraph{Enumerable sets}
+%\input{./chapters/grammars/ds}
+
+%\paragraph{Arity-two normal form}
+%\input{./chapters/grammars/arity2}
+
+%\paragraph{Enumeration algorithm}
+%\input{./chapters/grammars/intervals}
+
+%\paragraph{Lower bounds}
+%%\input{./chapters/grammars/cubiclowerbound}
+
+\section{Rigid Grammars} \label{gram:sec:quadratic}
+%\input{./chapters/grammars/quadres}
+
+%\subsection{Definitions}
+\label{gram:sec:profile}
+%\input{./chapters/grammars/profiles}
+
+%\paragraph{Enumeration algorithm}
+%%\input{./chapters/grammars/quadalg}
+%
+%\paragraph{Optimality}
+%%\input{./chapters/grammars/quadlowerbound}
+
+\section{Pushdown Annotators} \label{gram:sec:linear}
+
+%\input{./chapters/grammars/linear-alg}
+
+\section{Application: Document Spanners} \label{gram:sec:spanners}
+
+%\input{./chapters/grammars/spanners_short}
+
+\section{Conclusions and Future Work}
+%\input{./chapters/grammars/conclusions}
+
+
+%==========================
+
+\chapter[ENUMERATION ON SLP-COMPRESSED DOCUMENTS]{Enumeration on SLP-Compressed Documents} \label{ch3}
+
+\section{Introduction}\label{slps:sec:introduction}
+
+\input{./chapters/slps/intro}
+
+\section{Setting and main problem}\label{slps:sec:setting}
+
+\input{./chapters/slps/setting}
+
+\section{Enumerable compact sets with shifts}\label{slps:sec:ecs}
+
+%\input{./chapters/slps/ecsnew}
+
+\section{Evaluation of annotated automata over SLP-compressed strings}\label{slps:sec:evaluation}
+
+%\input{./chapters/slps/eval}
+
+\section{Applications in regular spanners}\label{slps:sec:spanners}
+
+%\input{./chapters/slps/appl}
+
+\section{Constant-delay preserving complex document editing}\label{slps:sec:edits}
+
+%\input{./chapters/slps/edits}
+
+\section{Future work}\label{slps:sec:conclusions}
+
+%\input{./chapters/slps/concl}
+
+%==========================
+
+\chapter[CLOSING WORDS]{Closing words}
+
+\section{Summary of contributions}
+
+\section{Future work}
+
+%\input{./chapters/conclusions.tex}
 
 %%%%%%%%%%%%%
 %       REFERENCES        %
 %%%%%%%%%%%%%
+
+\bibliography{../extras/biblio}
 
 \cleardoublepage
 \phantomsection \label{references}
