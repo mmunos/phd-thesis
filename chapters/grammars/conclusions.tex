@@ -1,15 +1,12 @@
-%
-%
+In Chapter~\ref{ch2} we presented our formalism of annotated grammars and our results on the efficient enumeration of all annotations of an input string. 
+Our results achieve output-linear delay, and cubic-time preprocessing if the grammar is unambiguous, quadratic-time if it is rigid, and linear-time for profiled-deterministic PDAnns.
 
-We have presented our formalism of annotated grammars and our results on the
-efficient enumeration of all annotations of an input string. Our results achieve
-output-linear delay, and cubic-time preprocessing if the grammar is unambiguous,
-quadratic-time if it is rigid, and linear-time for profiled-deterministic PDAnns.
-
-The main question left open in this chapter is that of the precise complexity of
+The main question left open in the chapter is that of the precise complexity of
 this task, depending on the grammar formalism. For instance, can we improve the 
 $\cO(n^3)$ algorithm to match the complexity of Valiant's parser? For which grammar
 classes can we extend the linear-time preprocessing approach? We believe,
-however, that a complete classification is out of reach, given that classifying
+however, that an absolute classification is out of reach, given that classifying
 the fine-grained complexity of parsing is still open to a large extent even in
-the case of unannotated CFGs.
+the case of unannotated CFGs. 
+
+Given that the enumeration task is at least as difficult as parsing, it would be interesting to know about a tighter lower bound for enumeration in some fragment that is not immediately derivable from the parsing task itself.

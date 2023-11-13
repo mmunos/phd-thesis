@@ -38,9 +38,9 @@ or JSON documents), over the source code of programs, or possibly over
 natural language texts. 
 
 In this thesis, we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
-These are: (1.) nested automata over document streams, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
-Each of these formalisms is either strictly more expressive than regular spanners, or deals with instances of data presented with further restrictions.
+These are: (1.) Automata over streams of nested documents, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
+Each of these formalisms is either strictly more expressive than regular spanners, or deals with instances of data presented a certain restriction.
 
-It is worthy of note that these tasks are largely inspired by Document Spanners, but the results are all developed for queries that define languages of valid {\it annotations} of the input data. Namely, the enumeration task receives a data instance $d$ and an annotation query $Q$ which defines a set $Q(d)$ that contains the desired annotations of $d$.
+It is worthy of note that these tasks are largely inspired by Document Spanners, but the results are all developed for queries that define languages of valid {\it annotations} of the input data. Namely, the enumeration task receives a data instance $d$ and an annotation query $Q$ which defines a set $Q(d)$ that contains the desired annotations of $d$. The way our results can be used for document spanners is by reducing such an instance into the adequate annotation queries model, then performing our algorithm, and converting the outputs into the desired mappings.
 
 

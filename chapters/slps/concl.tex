@@ -1,15 +1,11 @@
 %!TEX root = ../../Thesis.tex
 
-%We showed an enumeration algorithm which efficiently evaluates queries defined by annotated automata over SLP-compressed documents. This result implies algorithm for spanner evaluation on highly-compressed documents in which the document is compressed first, and then evaluated over the query.
-
-%We believe that the algorithm that was presented has a simple presentation, and would not be majorly complicated to implement in practice. Other algorithms for regular spanners have been implemented, achieving good performance, so having a practical algorithm that receives a compressed document, or compresses the document itself, might allow much faster running times for the same problem.
-
-One natural direction for future work is to study which other compression schemes allow output-linear delay enumeration for evaluating annotated automata. To the best of our knowledge, the only model for compressed data in which spanner evaluation has been studied is SLPs. However, other models (such as some based on run-length encoding) allow better compression rates and might be more desirable results in practice.
+With regards to Chapter~\ref{ch3}, one natural direction for future work is to study which other compression schemes allow output-linear delay enumeration for evaluating annotated automata. To the best of our knowledge, the only model for compressed data in which spanner evaluation has been studied is SLPs. However, other models (such as some based on run-length encoding) allow better compression rates and might be more desirable results in practice.
 
 Regarding the \dsabbr data structure, it would be interesting to see how further one could extend the data structure while still allowing output-linear delay enumeration. Another aspect worth studying is whether there are enumeration results in other areas that one can improve using \dsabbr.
 
-%Another aspect that might be improvable in Shift-ECS, or even the original ECS data structure, is the fact that output-linear delay allows an enumeration scheme where the user waits $O(|w|)$ time to see a single symbol of $w$. It would be interesting to find a more fine-grained enumeration bound which produces each output symbol in an output string with constant-delay.
+Another aspect that might be improvable in Shift-ECS, or even the original ECS data structure, is the fact that output-linear delay allows an enumeration scheme where the user waits $O(|w|)$ time to see a single symbol of $w$. Is there more fine-grained enumeration bound which produces each output symbol in an output string with constant-delay?
+
+One more direction is seeing if the extending the concisely annotated automata model complex models of computation, such as Tree Automata or Pushdown Automata allows for further improvements in known results related to spanner evaluation.  
 
 Lastly, it would be interesting to study whether one can apply fast matrix multiplication techniques to Algorithm~\ref{slps:alg:evaluation} to improve the running time to sub-cubic time in the number of~states.
-
-%One more direction is seeing if the extending the concisely annotated automata model complex models of computation, such as Tree Automata or Pushdown Automata allows for further improvements in known results related to spanner evaluation.  

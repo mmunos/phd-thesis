@@ -1,0 +1,8 @@
+This thesis showcases several models in which output-linear delay enumeration is possible. In some cases, they are strict improvements over established results in the literature.
+
+We attribute these achievements to two main factors:
+
+\begin{enumerate}
+	\item The use of an intuitive model for the query instances, namely, annotation queries. While document spanners have been studied extensively and with reasonable success, the task of enumerating span assignments can be simplified, in our opinion, a lot by forgetting about the spans themselves. Annotated automata and their derivatives can be seen as a version of document spanners in which a ever-present difficulty, which is having multiple symbols per document position, is completely avoided.
+	\item Using a modular data structure which is almost fully independent to the query language to represent the enumerable output data. Although the algorithm itself that builds the structure can be derived from already known results for circuits, the Enumerable Compact Sets and Enumerable Compact Sets with Shifts data structures streamline the building process significantly. The differences between our framework and previous algorithms for circuits are most patent in Chapter~\ref{ch1}, as it is used to update the complete data structure in constant (data-independent) time.
+\end{enumerate}
