@@ -1,0 +1,88 @@
+
+\begin{proof}
+	(a) The existence and lower bound for $\cT_1$ is a corollary of Theorem 4.5 in~\cite{BarYossefFJ07}. The proof of this result implies that for the XPath query $Q = {\tt / / a[b\ and\ c]}$, any streaming algorithm that verifies if an XML document matches $Q$ (the problem $\textsc{booleval}_Q$) and any integer $r \geq 1$, there exists a document of depth at most $r + C$, where $C$ is a constant value, on which the algorithm requires $\Omega(r)$ bits of space.
+	
+	The \vpann $\cT_1$ is shown in Figure~\ref{nested:fig-vpt-depthlowerbound}. It can simulate the query $Q$ for a direct mapping $\nu$ of the documents that are constructed in~\cite{BarYossefFJ07}, where $\nu({\tt \langle a \rangle}) = \op{{\sf a}}$, $\nu({\tt \langle / a \rangle}) = \cl{{\sf a}}$, $\nu({\tt \langle b/ \rangle}) = {\sf b}$, and $\nu({\tt \langle c/ \rangle}) = {\sf c}$. Note that for any well-nested document $w$ the set $\sem{\cT}(w)$ is either empty or $\{\eps\}$. Now suppose there is a streaming evaluation algorithm $\enumE$ that solves \enumvpann{}. We can solve $\textsc{booleval}_Q$ by receiving an XML stream $\Stream$, and running $\enumE$ with input $\cT$ while applying the mapping $\nu$ to each character. Let $w$ be the resulting string. At the end of the stream, we enumerate the set $\sem{\cT}(w)$ and it will enumerate the output $\eps$ iff $\Stream$ matches $Q$. We conclude that $\enumE$ runs in $\Omega(r)$ space.
+	
+	\begin{figure}[t]
+		\centering
+		\begin{subfigure}[b]{0.45\textwidth}
+	
+			\begin{tikzpicture}[scale=0.7,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,state/.style={circle,draw}, color=black, initial text= {},
+				initial distance= {5mm}]
+				\node[state,initial] (q0) at (0,0) {$q_0$};
+				\node[state] (q1) at (3,0) {$q_1$};
+				\node[state] (q2) at (5,1.2) {$q_2$};
+				\node[state] (q3) at (5,-1.2) {$q_3$};
+				\node[state] (q4) at (7,0) {$q_4$};
+				\node[state,accepting] (q5) at (10,0) {$q_5$};
+				
+				\draw (q0) to[loop above] node {$*$} ();
+				\draw (q1) to[loop above] node {$*$} ();
+				\draw (q2) to[loop above] node {$*$} ();
+				\draw (q3) to[loop above] node {$*$} ();
+				\draw (q4) to[loop above] node {$*$} ();
+				\draw (q5) to[loop above] node {$*$} ();
+				\draw (q0) to node [above] {$\op{\sf a}/{\sf A}$} (q1);
+				\draw (q1) to node [above, xshift=-3pt] {${\sf b}$} (q2);
+				\draw (q1) to node [below left, xshift=3pt, yshift=-1pt] {${\sf c}$} (q3);
+				\draw (q2) to node [xshift=-3pt] {${\sf c}$} (q4);
+				\draw (q3) to node [below right, xshift=-3pt, yshift=1pt] {${\sf b}$} (q4);
+				\draw (q4) to node [above] {$\cl{\sf a},{\sf A}$} (q5);
+				
+%				\draw (q0) to[in=105,out=135,loop] node [above] {$\op{a}/{\sf A}$} ();
+%				\draw (q0) to[in=45,out=75,loop] node [above] {$\cl{a},{\sf A}$} ();
+%				\draw (q0) to[in=-105,out=-135,loop] node [below] {$b$} ();
+%				\draw (q0) to[in=-45,out=-75,loop] node [below] {$c$} ();
+				
+				
+				
+%				\draw (q0) to[loop above] node [above, align=center] {$\op{a} / {\tt A}$} (q0);
+%				\draw (q0) to[loop below] node [below, align=center] {$b$} (q0);
+%				\draw (q1) to[out=120,in=-120] node [left] {$\op{a} / {\tt B}$} (q2);
+%				\draw (q2) to[loop left] node [left, align=center] {$\op{a}/ {\tt A}$} (q2);
+%				\draw (q2) to[loop right] node [right, align=center] {$\cl{a}, {\tt A}$} (q2);
+%				\draw (q2) to[in=105,out=135,loop] node {$b$} (q2);
+%				\draw (q2) to[in=45,out=75,loop] node {$c$} (q2);
+%				\draw (q2) to[out=-60,in=60] node [right] {$\cl{a}, {\tt B}$} (q1);
+%				\draw (q1) to node [above] {$c$} (q3);
+%				\draw (q3) to[loop above] node [above, align=center] {$\cl{a}, {\tt A}$} (q3);
+%				\draw (q3) to[loop below] node [below, align=center] {$c$} (q3);
+			\end{tikzpicture}
+		\centering
+			\caption{$\cT_1$}
+			\label{nested:fig-vpt-depthlowerbound}
+		\end{subfigure}
+		\hfill
+		\begin{subfigure}[b]{0.45\textwidth}
+			\centering
+			\begin{tikzpicture}[scale=0.7,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,state/.style={circle,draw}, color=black, initial text= {},
+				initial distance= {5mm}]
+				\node[state,draw=none,scale=0.1] (in) at (-1,0) {};
+				\node[state] (q0) at (0,0) {$q_0$};
+				\node[state, accepting] (q1) at (3,0) {$q_1$};		
+				\draw (in) to (q0);
+				\draw (q0) to[loop above] node [above, align=center] {${\sf a}$} (q0);
+				\draw (q0) to[loop below] node [below, align=center] {${\sf b}: {\sf x}$} (q0);
+				\draw (q0) to node [above] {$\$$} (q1);
+			\end{tikzpicture}
+			\caption{$\cT_2$}
+			\label{nested:fig-vpt-lowerbound}
+		\end{subfigure}
+		\caption{\vpanns used in the proof of Proposition~\ref{nested:alg:spacebound}. On $\cT_1$, a loop over a node $p$ labeled by $*$ represents the four transitions $(p,\op{{\sf a}}, p, {\sf X})$, $(p,\cl{{\sf a}}, {\sf X}, p)$, $(p,{\sf b},p)$ and $(p,{\sf c},p)$.}
+		\label{nested:fig:three graphs}
+	\end{figure}
+
+	(b) The existence and lower bound for $\cT_2$ uses the main ideas of the proof of Theorem 1 in~\cite{BarYossefFJ05}. Here, the authors describe a set-computing communication complexity problem. In the problem $\mathcal P$, Alice and Bob compute a two-argument function $p(\cdot, \cdot)$, defined as follows. Alice's input is a subset $A\subseteq\{1,\ldots,k\}$, Bob's input is a bit $\beta \in \{0,1\}$, and $p(A, \beta)$ is defined to be $A$, if $\beta = 1$, and~$\emptyset$ otherwise. Proposition 1 in~\cite{BarYossefFJ05} proves that the one-way communication complexity of $\mathcal P$ is at~least~$k$.
+	
+	Let $\cT_2 = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$ be a \vpann such that $\noS = \{{\sf a}, {\sf b}, \$\}$, $\oalph = \{{\sf x}\}$, and $Q$, $\Delta$, $\qinit$, $F$ be as presented in Figure~\ref{nested:fig-vpt-lowerbound}. Let $w \in (\noS)^*$ be a word such that $i_1 < i_2 < \ldots < i_k \leq |w|$  are all positions of $w$ where $w[i_\ell] = b$ for every $\ell \leq k$. Then one can check that $\cT_2$ defines the following function:
+	$$
+	\sem{\cT_2}(w) = \begin{cases}
+		\{({\sf x}, i_1) \ldots ({\sf x}, i_k)\} & 
+		\text{if } w \text{ ends in } \$\\
+		\emptyset &\text{otherwise}.
+	\end{cases}	
+	$$	
+	
+	Consider an arbitrary algorithm $\enumE$ that solves $\enumvpann$ with input $\cT_2$. We will now present a reduction that creates a protocol for ${\mathcal P}$ which makes use of the algorithm $\enumE$. Here, Alice receives the set $A$ and generates a word $w$ of size $k$ such that $w[i] = {\sf b}$ if $i\in A$ and $w[i] = {\sf a}$ otherwise. Alice then executes $\enumE$ on input $\cT_2$ and $w$ as the first $k$ characters of a stream. She sends the state of the algorithm to Bob, who receives the bit $\beta$, and does the following: If $\beta = 1$ he continues running $\enumE$ as if the last character of the input was $\$$. If $\beta = 0$, he stops executing $\enumE$ immediately. In either case, the output given by $\enumE$ contains all the information necessary to compute the set $p(A,\beta)$, so the reduction is correct.  This proves that $\enumE$ requires at least $k$ bits for an input of size less than $k$, and so $\enumE$ for any $n \geq 1$, requires at least $n$ bits of space in a worst-case stream $\Stream$, which is in $\Omega(\outgap(\cT_2, S[1,n]))$.
+\end{proof}

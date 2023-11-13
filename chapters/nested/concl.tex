@@ -1,0 +1,12 @@
+%!TEX spellcheck = en_US
+%!TEX root = ../main/main.tex
+
+The work detailed in this chapter offers several directions for future work. One direction is to find a streaming evaluation algorithm with polynomial update-time for non-deterministic \vpann (i.e., in the size of the \vpann). In~\cite{AmarilliBMN19}, the authors provided a polynomial-time offline algorithm for non-deterministic word annotators (called vset automata). 
+They extended this result to trees in~\cite{AmarilliBMN19pods}. One could use these techniques in Algorithm~\ref{nested:alg:preprocessing}; however, it is unclear how to extend ECS to eliminate duplicates in a natural way. 
+Regarding space resources, another direction is to find an ``instance optimal'' streaming evaluation algorithm for \vpann. 
+As we mentioned, this problem generalizes the weak evaluation problem stated in~\cite{SegoufinV02}, given that it also considers the space to represent the output compactly. Finally, it would be interesting to explore practical implementations. 
+We believe that the data structure and algorithm presentation are well-suited for this and that they leave space for pertinent optimizations.
+
+
+%##### PREVIOUS VERSION
+%This paper presented a one-pass enumeration algorithm with output-linear delay to evaluate VPT over nested words. We believe that the data structure and algorithm presentation are more manageable than previous algorithms over tree structures and permit more space to implement and optimize the evaluation task. One possible direction for future work is to improve the complexity of the update-time. Our algorithm is cubic in the number of states and transitions; however, it may be possible to derive an algorithm with a better complexity by using other determinization construction. Another direction is to find a one-pass enumeration algorithm with polynomial update-time for the case of non-deterministic VPT. In~\cite{AmarilliBMN19}, the authors provided a polynomial-time algorithm for non-deterministic word transducers (called vset automata), and they extended this result to automata over trees in~\cite{AmarilliBMN19pods}. We believe that one could develop these techniques to provide an algorithm for the non-deterministic case. However, it is not yet clear how to extend ECS to deal with ambiguity naturally.

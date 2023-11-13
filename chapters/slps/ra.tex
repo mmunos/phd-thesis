@@ -1,0 +1,58 @@
+%!TEX root = main.tex
+
+In this section, we present the definition of \rtname, which is an extension of regular automata to produce outputs. We use \rtnames as our computational model to represent queries with output. 
+	
+	A \emph{\rtname} (\rt for short) is a tuple $\cA = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ where $Q$ is a state set, $\Sigma$ is an input alphabet, $\oalph$ is an output alphabet, $\qinit \subseteq Q$ and $F \subseteq Q$ and $\Delta \subseteq Q \times (\Sigma \times \oalph) \times Q \,\cup\, Q \times \Sigma \times Q $ is the transition relation, which contains {\em read-write transitions} of the form $(p, (a, \oout), q)\in Q\times(\Sigma\times\oalph)\times Q$, and {\em read transitions} of the form  $(p, a, q)\in Q\times\Sigma\times Q$.
+	
+	As usual for transducers, a symbol $a \in \Sigma$ is an input symbol that the machine reads and $\oout \in \oalph$ is a symbol that indicates what the machine prints in an output tape.
+	A run $\rho$ of $\cA$ over a document $d = a_1a_2\ldots a_n \in\Sigma^*$ is a sequence of the form
+	$
+	%\rho = (q_1, \sigma_1) \xrightarrow{s_1/\!\ooutscr_1} (q_2, \sigma_2) \xrightarrow{s_2/\!\ooutscr_2} \ldots  \xrightarrow{s_n/\!\ooutscr_n} (q_{n+1}, \sigma_{n+1})
+	\rho = q_0 \xrightarrow{b_1} q_1 \xrightarrow{b_2} \ldots \xrightarrow{b_n} q_{n}
+	$
+	where $q_0 \in I$, and for each $i\in [1,n]$ one of the following holds: (1) $b_i = a_i$ and there is a transition $(q_{i-1}, a_i, q_i)\in \Delta$ or (2) $b_i = (a_i, \oout)$ and there is a transition $(q_{i-1}, a_i, \oout, q_i)\in \Delta$. We say that $\rho$ is accepting if $q_n\in F$.
+	
+	Finally, we define the {\em annotation} of $\rho$ as:
+	$
+	\ann(\rho) =  \ann(b_1)\cdot \ldots \cdot \ann(b_n)
+	$
+	such that $\ann(b_i) = (\oout, i)$ if $b_i = (a, \oout)$, and $\ann(b_i) = \eps$ otherwise, for each $i\in[1, n]$.
+	%Note that in $\nu = \oout_1 \cdots \oout_n$, $\oeps$ is a symbol that may be present in the word, whereas $\eps$ indicates an empty word. 
+	Given a \rtname $\cA$ and a document $d \in\Sigma^*$, we define the set $\sem{\cA}(d)$ of all outputs of $\cA$ over $d$ as:
+	%$$
+	%\sem{\cA}(w) \ = \ \{ \out(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cA$ over $w$}\}.
+	%$$
+	$
+	\sem{\cA}(d) = \{ \ann(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cA$ over $d$}\}.
+	$
+	
+	
+	We say that a \rt $\cA = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ is %\emph{input/output deterministic} (I/O-deterministic for short) 
+	{\it deterministic} if $|\qinit| = 1$ and $\Delta$ is a partial function of the form $\Delta: (Q \times \Sigma \, \cup\, Q\times (\Sigma\times\oalph)) \to Q$.
+	%for each triple $(p, a, \oout) \in Q \times \opS \times \oalph$,  there is at most one tuple $(q, \mathtt{x}) \in Q \times \Gamma$ such that $(p, a, \oout, q, \mathtt{x})\in\Delta$, 
+	%for each tuple $(p, a, \oout, \mathtt{x})\in Q \times \clS \times \oalph \times \Gamma$ there is at most one $q\in Q$ such that $(p, a, \oout, \mathtt{x}, q)\in\Delta$, 
+	%and for each triple  $(p, a, \oout) \in Q \times \noS \times \oalph$ there is at most one $q\in Q$ such that $(p, a, \oout, q) \in \Delta$. 
+	On the other hand, we say that $\cA$ is 
+	%\emph{input/output unambiguous} (I/O-unambiguous for short) 
+	{\it unambiguous} if for every $d\in \Sigma^*$ and every $\nu \in \sem{\cA}(d)$ there is exactly one accepting run $\rho$ of $\cA$ over $d$ such that $\nu = \ann(\rho)$. 
+	Note that an 
+	%I/O-deterministic 
+	deterministic \rt is also 
+	%I/O-unambiguous.
+	unambiguous. The definition of deterministic is in line with the notion of I/O-deterministic variable automata of~\cite{FlorenzanoRUVV20} and unambiguous is a generalization of this idea that is enough for the purpose of our enumeration algorithm. Actually, one can easily show that for every \rt $\cA$ there exists an equivalent deterministic \rt and, therefore, an equivalent unambiguous \rt. 
+	\begin{lemma}\label{slps:ra:det}
+		For every \rtname $\cA$ there exists an deterministic \rtname $\cA'$ such that $\sem{\cA}(d) = \sem{\cA'}(d)$ for every $d\in\Sigma^*$.
+	\end{lemma}
+	
+	We are interested on the following enumeration problem for \rts. Let $\bigcal{C}$ be a class of \rt (e.g. deterministic \rt). 
+	
+	\begin{center}
+		\framebox{
+			\begin{tabular}{rl}
+				\textbf{Problem:} & $\enumraa[\bigcal{C}]$\\
+				\textbf{Input:} & a \rt $\cA \in \bigcal{C}$ and $d\in \Sigma^*$ \\
+				\textbf{Output:} & Enumerate $\sem{\cA}(d)$
+			\end{tabular}
+		}
+	\end{center}
+

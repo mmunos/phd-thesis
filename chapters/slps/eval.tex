@@ -1,0 +1,190 @@
+
+This section shows our algorithm for evaluating an annotated automaton over an SLP-compressed document. This evaluation is heavily inspired by the preprocessing phase in~\cite{SchmidS21}, as it primarily adapts the algorithm to the \dsabbr{} data structure. In a nutshell, we keep matrices of \dsabbr{} nodes, where each matrix represents the outputs of all partial runs of the annotated automaton over fragments of the compressed strings. We extend the operations of \dsabbr{} over matrices of nodes, which will allow us to compose matrices, and thus compute sequences of compressed strings. Then the algorithm proceeds in a dynamic programming fashion, where matrices are computed bottom-up for each non-terminal symbol. Finally, the matrix that corresponds to the start symbol of the SLP will contain all the outputs. The result of this process is that each matrix entry succinctly represents an output set 
+%can be operated in constant time, 
+that can enumerated with output-linear delay.
+
+%For the rest of this section, we start by extending \dsabbr{} for matrices of nodes to finish with the presentation of the main algorithm. 
+
+\paragraph{Matrices of nodes} 
+The main ingredient for the evaluation algorithm are matrices of nodes for encoding partial runs of annotated automata. To formalize this notion, fix an unambiguous \rt $\cA = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ and a \dsabbr{} $\cD = (\infAlph, V, \lch, \rch, \lambda, \bot, \epsilon)$. We define a \emph{partial run} $\rho$ of $\cA$ over a document $d = a_1a_2\ldots a_n \in\Sigma^*$ as a sequence 
+\[
+\rho \ := \ p_1 \xrightarrow{b_1} \ldots \xrightarrow{b_n} p_{n+1}
+\]
+such that $p_1\in Q$, and for each $i\in[1,n]$ either $b_i = a_i$ and $(q_{i}, a_i, q_{i+1})\in \Delta$, or $b_i = (a_i, \oout)$ and $(q_{i}, (a_i, \oout), q_{i+1})\in \Delta$. Additionally, we say that the partial run $\rho$ is from state $p$ to state $q$ if $p_1 = p$ and $p_{n+1} = q$. In other words, partial runs are almost equal to runs, except they can start and end at any states $p$ and $q$, respectively.
+ 
+For the algorithm, we use the set of all $Q\times Q$ matrices where entry $M[p,q]$ is a node in~$V$ for every $p,q \in Q$.
+Each node $M[p,q]$ represents all annotations %$\sem{\cD}(M[p,q])$ 
+of partial runs from state $p$ to  state $q$, which can be enumerated with output-linear delay by Theorem~\ref{slps:theo:data-structure-eps}. Further, $M[p,q] = \bot$ represents that there is no run, and $M[p,q] = \epsilon$ that there is a single run without outputs (i.e., a run that produces the $\epsilon$ output). 
+
+To combine matrices over $\cD$-nodes, we define two operations.
+The first operation is the \emph{matrix multiplication} over the semiring $(2^{(\oalph\times \int)^*}, \cup, \cdot, \emptyset, \{\epsilon\})$ but represented over $\cD$. Formally, let $Q = \{q_1, \ldots, q_{m}\}$ with $m = |Q|$. Then, for two $m \times m$ matrices $M_1$ and $M_2$, we define $M_1 \otimes M_2$ such that for every $p,q \in Q$:
+\[
+(M_1 \otimes M_2)[p, q] := \union_{i=1}^{m} \bigg( \prod\big(M_1[p, q_i], M_2[q_i, q]\big) \bigg)
+\]
+where $\union_{i=1}^{m} E_i := \union(\ldots \union(\union(E_1, E_2), E_3)\ldots,E_m)$. 
+That is, the node $(M_1 \otimes M_2)[p, q]$ represents the set $\bigcup_{i=1}^{m} \big( \sem{\cD}(M_1[p, q_i]) \cdot \sem{\cD}(M_2[q_i, q]) \big)$.% which is constructed with operations over $\cD$.
+
+The second operation for matrices is the extension of the \emph{shift operation}. Formally, $\shiftop(M,k)[p,q] := \shiftop(M[p,q], k)$ for a matrix $M$, $k \in \int$, and $p,q \in Q$.  
+Since each operation over $\cD$ takes constant time, overall multiplying $M_1$ with $M_2$ takes time $\cO(|Q|^3)$ and shifting $M$ by $k$ takes time $\cO(|Q|^2)$.
+
+\let\oldReturn\Return
+\renewcommand{\Return}{\State\oldReturn}
+\newcommand{\lenx}{\operatorname{len}}
+
+\begin{algorithm*}[t]
+	\caption{The enumeration algorithm of an unambiguous AnnA $\cA = (Q,\Sigma, \oalph, \Delta,\qinit,F)$ over an SLP $S = (N, \Sigma, R, S_0)$.}\label{slps:alg:evaluation}
+	\smallskip
+	\begin{varwidth}[t]{0.50\textwidth}
+		\begin{algorithmic}[1]
+			\Procedure{Evaluation}{$\cA,S$}
+			\State Initialize $\cD$ as an empty \dsabbr
+			\State $\textproc{NonTerminal}(S_0)$
+			\State $v \gets \bot$
+			\ForEach{$p\in\qinit, q \in F$} 
+			\State $v \gets \union(v, M_{S_0}[p, q])$
+			\EndFor
+			\State $\textproc{Enumerate}(v, \cD)$
+			
+			\EndProcedure
+			\smallskip
+			
+			\Procedure{Terminal}{$a$}
+			\State $M_a \gets \{[p,q] \to \bot \mid p,q \in  Q\}$
+			\ForEach{$(p,(a,\oout), q) \in \Delta$} 
+			\State $M_a[p,q] \gets \union(M_a[p,q],\, \add(\oout))$
+			\EndFor
+			\ForEach{$(p,a,q) \in \Delta$} 
+			\State $M_a[p,q] \gets \union(M_a[p,q], \, \epsilon)$
+			\EndFor
+			\State $\lenx_a \gets 1$
+			\EndProcedure
+			\algstore{myalg}
+		\end{algorithmic}
+	\end{varwidth} \ \ \ \ \ 
+	\begin{varwidth}[t]{0.50\textwidth}
+		\begin{algorithmic}[1]
+			\algrestore{myalg}
+			\Procedure{NonTerminal}{$X$}
+			\State $M_X \gets \{[p,q] \to \bot \mid p,q \in  Q, p \neq q\} \, \cup$ \par\hspace{2.7em} $\{[p,q] \to \epsilon \mid p,q \in  Q, p = q\}$
+			\State $\lenx_X \gets 0$
+			\For{$i=1$ \textbf{to} $|R(X)|$}
+			\State $Y \gets R(X)[i]$
+			\If{$M_Y$ is not defined}
+			\If{$Y \in \Sigma$}
+			\State $\textproc{Terminal}(Y)$
+			\Else
+			\State $\textproc{NonTerminal}(Y)$
+			\EndIf 
+			\EndIf 
+			\State $M_X \gets M_X \otimes \shiftop(M_Y, \lenx_X)$
+			\State $\lenx_X \gets \lenx_X + \lenx_Y$
+			\EndFor 
+			\EndProcedure
+		\end{algorithmic}
+	\end{varwidth} 
+	\smallskip
+\end{algorithm*}
+
+\paragraph{The algorithm} 	
+We present the evaluation algorithm for the $\enumraa$ problem in Algorithm~\ref{slps:alg:evaluation}. As expected, the main procedure \textproc{Evaluation} receives as input an unambiguous annotated automaton $\cA = (Q,\Sigma, \oalph, \Delta,\qinit,F)$ and an SLP  $S = (N, \Sigma, R, S_0)$, and enumerates all outputs in $\sem{\cA}(\doc(S))$. To simplify the notation, in Algorithm~\ref{slps:alg:evaluation} we assume that $\cA$ and $S$ are globally defined, and we can access them in any subprocedure. Similarly, we use a \dsabbr{} $\cD$, and matrix $M_X$ and integer $\lenx_X$ for every $X \in N \cup \Sigma$, which can globally be accessed at any place as well.
+
+The main purpose of the algorithm is to compute $M_X$ and $\lenx_X$ recursively. On one hand, $M_X$ is a $Q\times Q$ matrix where each node entry $M_X[p,q]$ represents all outputs of partial runs from $p$ to $q$. On the other hand, $\lenx_X$ is the length of the string $R^*(X)$ (i.e., the string produced from $X$). Both $M_X$ and $\lenx_X$ start undefined, and we compute them recursively, beginning from the non-terminal symbol $S_0$ and by calling the method $\textproc{NonTerminal}(S_0)$~(line 3). After $M_{S_0}$ was computed, we can retrieve the set $\sem{\cA}(S)$ by taking the union of all partial run's outputs from an initial state $p\in\qinit$ to a state $q \in F$, and storing it in node $v$ (lines 4-6). Finally, we can enumerate  $\sem{\cA}(S)$ by enumerating all outputs represented by~$v$~(line 7). 
+
+The workhorses of the evaluation algorithm are procedures \textproc{NonTerminal} and \textproc{Terminal} in Algorithm~\ref{slps:alg:evaluation}. The former computes matrices $M_X$ recursively whereas the latter is in charge of the base case $M_a$ for a terminal $a \in \Sigma$. For computing the base case, we can start with $M_a$ with all entries equal to the empty node $\bot$ (line 9). Then if there exists a read-annotate transition $(p, (a, \oout), q) \in \Delta$, we add an output node $\oout$ to $M_a[p,q]$, by making the union between the current node at $M_a[p,q]$ with the node $\add(\oout)$ (line 11). Also, if a read transition $(p, a, q) \in \Delta$ exists, we do the same but with the $\epsilon$-node (line 13). Finally, we set the length of $\lenx_a$ to $1$, and we have covered the base case. 
+
+For the recursive case (i.e., procedure $\textproc{NonTerminal}(X)$), we start with a sort of ``identity matrix'' $M_X$ where all entries are set up to the empty-node except the ones where $p = q$ that are set up to the $\eps$-node, and the value $\lenx_X = 0$ (lines 16-17). Then we iterate sequentially over each symbol $Y$ of $R(X)$, where we use $R(X)[i]$ to denote the $i$-th symbol of $R(X)$ (lines 18-19). If $M_Y$ is not defined, then we recursively compute $\textproc{Terminal}(Y)$ or $\textproc{NonTerminal}(Y)$ depending on whether $Y$ is in $\Sigma$ or not, respectively (lines 20-24). The matrix $M_Y$ is memorized (by having the check in line 20 to see if it is defined or not) so we need to compute it at most once.
+After we have retrieved $M_Y$, we can compute all outputs for $R(X)[1] \ldots R(X)[i]$ by multiplying the current version of $M_X$ (i.e., the outputs of $R(X)[1] \ldots R(X)[i-1]$), with the matrix $M_Y$ shifted by the current length $\lenx_X$ (line~25).  Finally, we update the current length of $X$ by adding $\lenx_Y$ (line 26). 
+\begin{theorem}\label{slps:theo:evaluation}
+	Algorithm~\ref{slps:alg:evaluation} enumerates the set $\sem{\cA}(S)$ correctly for every unambiguous \rt $\cA$ and every SLP-compressed document $S$, with output-linear delay and after a preprocessing phase that takes time $\cO(|\cA| + |S|\times|Q|^3)$.
+\end{theorem}
+\begin{proof}
+%	Regarding correctness, the algorithm follows a direct matrix evaluation over the SLP grammar, where its correctness depends on the \dsabbr{} $\cD$. Notice that, although all operations over nodes are not necessarily duplicate-free, we know that the runs from an initial state $q\in\qinit$ to the final states are unambiguous. As a consequence, the operations used for the final output are duplicate-free.
+	
+	The correctness of the algorithm will follow after proving that for each $M_X$, for an $X\in\Sigma\cup N$ that is reachable from $S_0$, the set $\sem{\cD}(M_X[p,q])$ contains the annotations of all partial runs of $\cA$ over $\doc(X)$ that start on $p$ and end on $q$. First, let $X = a\in\Sigma$. This case can be quickly verified by inspecting the procedure {\sc Terminal}$(a)$, as for each index, the set $\sem{\cD}(M_a[p,q])$ contains $\eps$, and the annotations $\oout$ in the pair $(\oout, 1)$ whenever they correspond. Now, let $X$ be a non-terminal and let $R(X) = \alpha$. Let $\alpha' Y$ be a nonempty prefix of $\alpha$ where $Y$ is its last symbol. Note that for the empty string, a run of size one $\rho = q$ is always valid for any $q\in Q$, so we can safely consider that the set $M_X$, as declared in line 16 stores the correct nodes for the runs that read the empty string, and start and end on the same node. The proof will follow inductively by proving that $M_X$, at the iteration $i = |\alpha'Y|$ of line 18, satisfies that $\sem{\cD}(M_X[p,q])$ contains all partial annotations from a run of $\cA$ over $\doc(\alpha' Y)$ that starts on $p$ and ends on $q$; that is, after assuming that in line 24, the set $\sem{\cD}(M_X[p,q])$ contained all partial annotations from a run of $\cA$ over $\doc(\alpha)$ that starts on $p$ and ends on~$q$. We have assumed that the nodes in $M_Y$ store all annotations properly, so the inductive hypothesis is proven from the definition of the operator $\otimes$, as any possible annotation that should be added can be described by two partial runs, one that starts on $p$, reads $\doc(\alpha)$ and ends on $q'$, and a second that starts on $q'$, reads $\doc(Y)$ and ends on $q$, so it is properly added to the $\sem{\cD}(M_X[p,q])$ as the operator $\otimes$ does consider this $q'$. Plus, it can be seen that the positions that were obtained from $M_Y$ are properly shifted when added to $M_X$ by assuming the $\lenx_X$ variable is storing the correct length. From this reasoning, we can conclude that the set $\sem{\cD}(M_X[p,q])$ contains exactly the annotations from $\sem{A}(\doc(\alpha))$.
+	
+	To see that the operators $\add$, $\union$, $\prod$ and $\shiftop$ are done following all assumptions, we would like to note that $\union$ and $\prod$ are always called by respecting the duplicate-free property. However, this is not necessarily true, at least for the $\union$ case since $\cA$ is allowed to be ambiguous in partial runs that do not form part of an accepting run. For simplicity, all statements in the rest of the proof are assumed to be said with respect to indices $M_X[p,q]$ which are reached when building an output string. In other words, that there exists an accepting run $\rho = p_1 \xrightarrow{b_1} \ldots \xrightarrow{b_n} p_{n+1}$ such that $p = p_\ell$, $q = p_r$ with $\ell \leq r$, and  $a_1\ldots a_{\ell-1}Xa_r\ldots a_n$ is reachable from $S_0$ by following production rules in $R$.
+	In the case of $\prod$, proving the duplicate-free property is straightforward, since it is only done in line 25, and the positions on the left side (i.e., the ones taken from $M_X$) are all less or equal than the value $\lenx_X$ has at that point, so by shifting the values from $M_Y$ by this amount, the sets from either side do not contain any annotation in common. In the case of $\union$, one can check by inspection that in lines 11 and 13, this is done properly, since transitions do not appear more than once, and one can check that in line 25, if any of the calls to $\union$ done inside the $\otimes$ operation is done with duplicates, this implies that there is some annotation that appears in two distinct calls, since each of the $\union$ calls is done over a different index in the matrices $M_Y$ and $M_X$,  contradicting the assumption that $\cA$ is unambiguous. Therefore, we conclude that the operators $\add$, $\union$, $\prod$ and $\shiftop$ are done properly, and the statement of the theorem follows.
+	
+	Regarding performance, the main procedure calls \textproc{NonTerminal} or \textproc{Terminal} at most once for every symbol. After making all calls to \textproc{Terminal}, each transition in $\Delta$ is seen exactly once, and \textproc{NonTerminal} takes time at most $\cO(|R(X)|\times|Q|^3)$ not taking into account the calls inside. Overall, the preprocessing time is $\cO(|\cA| + |S|\times|Q|^3)$.
+\end{proof}
+
+We want to finish by noticing that, contrary to~\cite{SchmidS21}, our evaluation algorithm does not need to modify the grammar $S$ into Chomsky's normal form (CNF) since we can evaluate $\cA$ over $S$ directly. Although passing $S$ into CNF can be done in linear time over $S$~\cite{SchmidS21}, this step can incur an extra cost, which we can avoid in our approach. 
+
+
+
+
+
+%\cristian{Here starts the previous version.}
+%The goal of this section is to describe an algorithm that takes an unambiguous \rt $\cT = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ plus a SLP $S$ for a string $w$, and enumerates the set $\br{\cT}(w)$ with $\cO(|\cT| + |S|\times|Q|^3)$ preprocessing time and output-linear delay. The techniques used in this section are heavily inspired by the preprocessing phase in~\cite{SchmidS21}, as it is mostly an adaptation of the algorithm into the ECS model.
+%
+%In addition to runs of $\cT$ over a string $w$, consider the natural extension of partial runs of $\cT$ over a string $w'$ starting on a state $q \in Q$, and extend the function $\ann$ to accept partial runs as well. To be clear, the function $\ann$ only receives the partial run and builds the pairs $(\oout, i)$ by taking the index of each transition {\em relative to the partial run}. For instance, extending the partial run to the left would change the indices of all pairs in the output. 
+%
+%Fix the \rt $\cT$ and SLP $S = (N,\Sigma,R,S_0)$ for a string $w$.
+%We first consider a collection of matrices that contain the desired output sets, but are not built explicitly. 
+%For each non-terminal $A$ in $S$ consider a $|Q|\times |Q|$ matrix $M_A$ where each index $M_A[p, q]$ contains the set of all outputs $\mu$ such that $p$ can reach $q$ through a partial run $\rho^*$ over the word $D(A)$ and $\mu = \ann(\rho^*)$.
+%
+%\begin{lemma}\label{eval:end}
+%$\br{\cT}(w) = \bigcup_{p\in I, q\in F}M_{S_0}[p, q]$.
+%\end{lemma}
+%\begin{proof}
+%	This is straightforward.
+%\end{proof}
+%
+%\begin{lemma}\label{eval:2}
+%	For all non-terminals $A$ with productions of the form $A\to a$, the matrices $M_A$ can be built explicitly in $O(|\cT|)$.
+%\end{lemma}
+%\begin{proof}
+%	This can be done by simply checking every transition in $\Delta$.
+%\end{proof}
+%
+%The algorithm makes use of an $\eps$-ECS $\cD$ that is defined over the infinite alphabet $\Omega \times \int$. The shifting function associated to it is $\shift_s((\oout, i)) = (\oout, i+s)$. Define an operator $\odot_s$ which joins outputs after shifting the one on the right: Let $\mu = \mu_1 \odot_s \mu_2 = \mu_1 \cdot \shift_s(\mu_2)$. Recall that for a string $\mu = x_1\cdots x_n$, $\shift_s(\mu)$ is defined as $\shift_s(x_1)\cdots \shift_s(x_n)$. Define $\odot_s$ over sets of strings in the analogous way.
+%
+%For the following lemma, we will consider only outputs $\mu$ that will eventually be part of the output set we produce at the end. We call the indices that store these outputs {\em useful}. More precisely, an index $M_A[p,q]$ is useful if there is an accepting run $\rho$ of $\cT$ over $d$ that can be trimmed into a partial run $\rho'$ that starts in $p$, ends in $q$ and its input characters form the string $D(A)$.
+%
+%\begin{lemma}\label{eval:half-unique}
+%	Consider a production $A\to BC$ and a output $\mu \in M_A[p,q]$ where $M_A[p,q]$ is useful. There exists a unique $q^*$ such that $\mu = \mu_1 \odot_{|D(B)|} \mu_2$ where $\mu_1 \in M_B[p, q^*]$ and $\mu_2 \in M_C[q^*, q]$.
+%\end{lemma}
+%%\cristian{Este resultado no es verdadero necesariamente. Tampoco veo que este resultado sea necesario. Podrías perfectamente asumir que harás productos que no son unambiguous, pero que estos no llegarán al resultado final.}
+%\begin{proof}
+%	Since $\cT$ is I/O-unambiguous and $\mu$ is useful, there exists only one partial run $\rho^*$ of $\cT$ over $D(A)$ that starts on $p$ such that $\ann(\rho^*) = \mu$. The $(|D(B)|+1)$-th state reached in $\rho^*$ is this $q^*$.
+%\end{proof}
+%
+%We now address the algorithm itself. Consider a collection of matrices $R_A$ of size $|Q|\times|Q|$ defined for each non-terminal $A$ in $S$:
+%\begin{itemize}
+%	\item If we have $A\to a$, let $M_A[p,q] = \{(\oout_1, 1), \ldots,(\oout_k, 1)\}$ or $M_A[p,q] = \{(\oout_1, 1), \ldots,(\oout_k, 1), \eps\}$ as it corresponds. Each index $R_A[p,q]$ is a node $v$ built through the operations $\add$ and $\union$ so that it satisfies $\cL_{\cD}(v) = M_A$. If $M_A$ is empty, then $v$ is assigned a flag {\tt null}.
+%	
+%	\item If we have $A\to BC$, then each index $R_A[p,q]$ stores a node $v$ that defines the following output set:
+%	$$
+%		\cL_{\cD}(v) = \bigcup_{q'\in Q} \cL_{\cD}(R_B[p,q'])\odot_{|D(B)|} \cL_{\cD}(R_C[q', q]). \label{form} 
+%	$$
+%	The way the nodes in each index $R_A[p,q]$ are built can be deduced from~(\ref{form}) by using the operations $\prod$ with the shift value $s = |D(B)|$, and $\union$. 
+%	These operations are extended slightly to handle \nullv flags in the following way: If $(\cD', v') = \prod(v, \nullv)$ or $(\cD', v') = \prod(\nullv, v)$, then $\cD' = \cD$ and $v' = \nullv$. If $(\cD', v') = \union(v, \nullv)$ or $(\cD', v') = \union(\nullv, v)$, then $\cD' = \cD$ and $v' = v$.
+%\end{itemize}
+%
+%The preprocessing phase thus consists of building these matrices in the typical order. That is, the order used in Lemma~\ref{slp:sizes} to calculate the size of each $|D(A)|$. 
+%
+%For the following lemma we need to use a condition over $\cD$ as indexed by $R_A$ that is less restricted than unambiguous that we call {\em eventually unambiguous}. This condition holds if for every useful index $R_A[p,q]$ (defined identically as indices $M_A[p,q]$) we have that (1) for every union node $v\in R_A[p,q]$ it holds that $\cL_{\cD}(\lch(v))$ and $\cL_{\cD}(\rch(v))$ are disjoint, and (2) for every product node $v\in R_A[p,q]$ and for every $\mu \in \L_{\D}(v)$, there exists a unique way to decompose $\mu = \mu_1 \cdot \mu_2$ such that $\mu_1 \in \L_{\D}(\lch(v))$ and $\mu_2 \in \L_{\D}(\rch(v))$.
+%
+%\begin{lemma}
+%	The matrices $R_A$ for all non-terminals $A$ in $S$ can be built in $\cO(|\cT| + |S|\times|Q|^3)$. Furthermore, the resulting $\eps$-ECS $\cD$ at each step is eventually unambiguous.
+%\end{lemma}
+%\begin{proof}
+%	This can be done since each of the indices $R_A[p,q]$ can be built in $\cO(|Q|)$ time, considering that each operation $\add$, $\union$ and $\prod$ takes constant time.
+%	
+%	To prove the second half of the statement, first note that for non-terminals that appear in a production $A\to a$, this is trivially true. Then for terminals that appear in $A\to BC$ , we make use of the following lemma, which is a direct consequence of the way the algorithm is built:
+%	
+%	\begin{lemma}\label{eval:correct}
+%		For each non-terminal $A$, the node $v$ in each index $R_A[p,q]$ satisfies $\cL_{\cD}(v) = M_A[p,q]$.
+%	\end{lemma}
+%	
+%	Note now that when building the index $R_A[p,q]$ the operation $\prod(v_1, v_2, s)$ will always be valid since $s = |D(B)|$, and the indices that appear in $\cL_{\cD}(v_1)$ range from $1$ to $|D(B)|$. Assume now that the operation $\union(v_1, v_2, 0)$ is not valid at some point, in some useful index $R_A[p,q]$. This would imply that there is an output $\mu\in \cL_{\cD}(R_A[p,q])$ that is also included in $\cL_{\cD}(R_B[p,q'])\odot_{|D(B)|} \cL_{\cD}(R_C[q', q])$ and $\cL_{\cD}(R_B[p,q''])\odot_{|D(B)|} \cL_{\cD}(R_C[q'', q])$ for some $q' \neq q''$, which contradicts Lemma~\ref{eval:half-unique}.
+%\end{proof}
+%
+%After building each $R_A$, we iterate for each pair of nodes $p\in I$ and $q\in F$ and build a node $v$ that is the union of the nodes in each $R_{S_0}[p,q]$. The output set is then $\cL_{\cD}(v)$ due to Lemma~\ref{eval:end}. By using Lemma~\ref{eval:correct} and Theorem~\ref{theo:data-structure-eps} we obtain the main result of this paper:
+%
+%\begin{theorem}
+%	The set $\br{\cT}(w)$ can be enumerated with output-linear delay after a preprocessing phase that takes time $\cO(|\cT| + |S|\times|Q|^3)$.
+%\end{theorem}
+
+
+ 

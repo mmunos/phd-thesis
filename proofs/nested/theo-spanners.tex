@@ -1,0 +1,55 @@
+
+\begin{proof}
+	
+	To link the model of visibly pushdown extraction grammars and visibly pushdown automata we define another class of automata based on the ideas in~\cite{liatpaper}. Let $\cA$ be an {\em extraction visibly pushdown automaton} (EVPA) if $\cA = (X,Q,\Sigma,\Gamma,\Delta,I,F)$ where $X$ is a set of variables, $Q$ is a set of states, $\Sigma = (\opS,\clS,\noS)$ is a visibly pushdown alphabet, $\Gamma$ is a stack alphabet, $\Delta \subseteq
+	(Q \times \opS \times Q \times \Gamma) \ \cup (Q \times \clS \times \Gamma \times Q) \ \cup (Q \times (\noS\cup\varcaptures{X}) \times Q)$, $I$ is a set of initial states, and $F$ is a set of final states. Note that this is a simple extension of \vpa where neutral transitions are allowed to read neutral symbols or captures in $X$. 
+	We define the runs as we did for \vpa, except the input in an EVPA is a ref-word $r\in(\Sigma\cup\varcaptures{X})^*$, and we say that $r\in\L(\cA)$ if and only if there is an accepting run of $\cA$ on $r$. Furthermore, we say that $\cA$ is functional if every $r\in\cL(\cA)$ is valid for $X$, and $\cA$ is unambiguous if for every ref-word $r\in (\Sigma\cup\varcaptures{X})^*$ there exists at most one accepting run of $\cA$ over~$r$. It is clear that this is a direct counterpart to visibly pushdown extraction grammars. Therefore, we can use the ideas in \cite{AlurM04} to obtain a one-to-one conversion from one to another.
+	
+	\begin{claim}\label{nested:appendix:spannerclaim}
+		For a given VPEG $G$ there exists an EVPA $\cA_G$ such that $\L(G) = \L(\cA_G)$. Moreover, $\cA_G$ is unambiguous iff $G$ is unambiguous, and $\cA_G$ can be constructed in time $\cO(\vert G\vert)$.
+	\end{claim}
+	\begin{proof}
+		Let $G = (X, V, \Sigma, S, P)$ be a VPEG. We construct an EVPA $\cA_G = (X,Q,\Sigma,\Gamma,\Delta,I,F)$ such that $\L(G) = \L(\cA_G)$ using an almost identical construction to the one in Theorem 6 of~\cite{AlurM04}. The only differences arise from our structure being defined for well-nested words, which makes the construction a bit simpler, and from the case where a production is of the form $X\to aY$, for which we add the possibility that $a\in\varcaptures{X}$. This construction provides one transition in $\Delta$ per production in $P$, and in some cases, it needs to check if a variable is {\it nullable} (see~\cite{AlurM04}). Checking if a single variable is nullable is costly, but by a constant number of traversals in $P$ it is possible to check which variables in $X$ are nullable or not, which can be done before building $\Delta$. Therefore, this construction can be done in time $\cO(\vert P\vert)$. Finally, $\cA_G$ is unambiguous if and only if $G$ is unambiguous, which is another consequence of Theorem 6 of~\cite{AlurM04}.	
+	\end{proof}
+	We define the spanner $\br{\cA}$ for a given EVPA $\cA$ identically as in the definition of an extraction grammar. Note that from the proof it follows that if $G$ is functional, then $\cA_G$ is functional~as~well.
+	
+	For the next part of the proof, assume that $\cA_G$ is functional and unambiguous. We will show that for an EVPA $\cA$ and stream $\Stream$, the set $\br{\cA}(d)$, can be enumerated with output-linear delay and update-time $\cO(\vert\cA_G\vert^3)$, for $d = \Stream[1,n]$. Towards this goal, we will start with an unambiguous $\cA_G = (X,Q,\Sigma,\Gamma,\Delta,I,F)$ and convert it into a \vpann $\cT_G$ with output symbol set $2^{\varcaptures{X}}$, and then use our algorithm to enumerate the set $\br{\cT_G}(d')$ where $d' = d\#$, using a dummy symbol $\#$.
+	We will show that this construction is correct because $\br{\cT_G}(d') = \{\textsf{enc}(\mu)\mid \mu\in\sem{A_G}(d)\}$.
+	
+	Let $\cT_G = (Q', \Sigma', \Gamma, \oalph, \Delta', \qinit, F')$ 
+	where $Q' = Q\cup\{q_f\}$, 
+	$\Sigma' = (\opS,\clS,\noS_{\#})$ 
+	such that $\noS_{\#} = \noS\cup\{\#\}$, $\oalph = 2^{\varcaptures{X}}$ and $F' = \{q_f\}$. 
+	To define $\Delta'$ we introduce a {\sf merge} operation on a path over $\cA_G$. 
+	This is defined for any non-empty sequence of transitions $t = (p_0,v_1,p_1)(p_1,v_2,p_2)\cdots(p_{m-1},v_m,p_m)\in\Delta^*$ such that $v_i\in\varcaptures{X}$ for $i\in[1,m]$.
+	If these conditions hold, we say that $t$ is a v-path ending in $p_m$. 
+	Let $t$ be such a v-path and let $S = \{v_1,\ldots,v_m\}$. For $\op{a}\in\opS$, and a transition $(p,\op{a},\gamma,q)$ such that $p = p_m$, we define ${\sf merge}(t, (p,\op{a},\gamma,q)) := (p_0,\op{a},S,\gamma,q)$. For $\cl{a}\in\clS$ and a transition $(p,\cl{a},q,\gamma)$ such that $p = p_m$, we define ${\sf merge}(t,(p,\cl{a},q,\gamma)) := (p_0,\cl{a},S,q,\gamma)$. For $a\in\noS$ and a transition $(p,a,q)$ such that $p = p_m$, we define ${\sf merge}(t,(p,a,q)) := (p_0,a,S,q)$. We now define $\Delta'$ as follows:
+	\begin{align*}
+		\Delta' \ = \ &\big(\Delta\setminus (Q\times\varcaptures{X}\times Q)\big) \ \cup\\
+		&\{{\sf merge}(t,(p,\op{a},\gamma,q))\mid\text{there is a v-path $t\in\Delta^*$ ending in $p$ and }(p,\op{a},\gamma,q)\in\Delta\}\ \cup\\
+		&\{{\sf merge}(t,(p,\cl{a},q,\gamma))\mid\text{there is a v-path $t\in\Delta^*$ ending in $p$ and }(p,\cl{a},q,\gamma)\in\Delta\}\ \cup\\
+		&\{{\sf merge}(t,(p,a,q))\mid\text{there is a v-path $t\in\Delta^*$ ending in $p$ and }(p,a,q)\in\Delta\}\ \cup\\
+		&\{{\sf merge}(t,(p,\#,q_f))\mid\text{there is a v-path $t\in\Delta^*$ ending in $p$ and } p\in F\}.
+	\end{align*}
+	Since $\cA_G$ is functional, the $\varcaptures{X}$-transitions in $\Delta$ define a DAG over $Q$, from which we deduce that $\Delta$ is well-defined.
+	Let us make note that we will use the symbol $\omega$ to refer to an output of a \vpann to avoid confusion with mappings.
+	
+	Before proving the equivalence between these two structures, let us note that a v-path $t = (p_0, v_1, p_1)(p_1, v_2, p_2)\ldots(p_{m-1}, v_{m}, p_{m})$ can be translated directly into a subrun:
+	\[
+	\rho_t \ = \ p_0\xrightarrow{v_1}p_1\xrightarrow{v_2}\ldots \xrightarrow{v_m} p_{m}.
+	\]
+	We indistinguishably apply the operation ${\sf merge}$ over v-paths or subruns of this form. Also, note that if $\cA$ is unambiguous, and ${\sf merge}$ is done on a subrun of an accepting run, then the operation is reversible.
+	
+	Let $\mu\in\sem{\cA_G}(d)$, and let $r\in \L(\cA_G)$ such that $r$ is valid for $X$, $\text{\sf plain}(r) = d$ and $\mu^r = \mu$. Let $\rho$ be the accepting run of $\cA_G$ over $r$, and consider a run $\rho'$ that is obtained from $\rho$ by applying $\textsf{merge}$ over every maximal sequence $t$ of variable transitions. From the construction of $\Delta'$, it can be seen that this is a valid and accepting run of $\cT_G$ over $d'$, and that $\out(\rho') = \textsf{enc}(\mu)$. We conclude that $\{\textsf{enc}(\mu)\mid \mu\in\sem{A_G}(d)\}\subseteq \br{\cT_G}(d')$.
+	
+	Now, let $\omega = \br{\cT_G}(d')$, and let $\rho$ be an accepting run of $\cT_G$ over $d'$ with output $\omega$. Consider the run $\rho'$ that is obtained from $\rho$ by applying the reverse of ${\sf merge}$ on every transition in it that contains an output. Since $\rho$ was over $d\cdot\#$ and accepting, clearly $\rho'$ is a valid run of $\cA_G$ over $d$, and ends in a state in $F$. One can also check that the sequence of symbols in $\rho$ forms a ref-word $r$ for which $\textsf{enc}(\mu^r) = \omega$ and that $\rho$ is valid for $X$ because it is accepting and $\cA_G$ is functional.  We conclude that  $\br{\cT_G}(d') \subseteq \{\textsf{enc}(\mu)\mid \mu\in\sem{\cA_G}(d)\}$, and from the previous paragraph we obtain that these sets are equal.
+	
+	To see that $\cT_G$ is unambiguous, one simply needs to see that (1) every accepting run $\rho$ of $\cT_G$ has a unique counterpart $\rho'$ of $\cA_G$, as it was stated in the previous part of the proof, and (2) the $\textsf{merge}$ operation has only one possible output. Therefore, if two runs $\rho_1$ and $\rho_2$ of $\cT_G$ have the same output, their counterparts $\rho_1'$ and $\rho_2'$  of $\cA_G$ satisfy $\rho_1' = \rho_2'$. Clearly, applying the $\textsf{merge}$ operation over these runs renders $\rho_1$ and $\rho_2$, so we conclude that they are equal, and thus, $\cT_G$ is unambiguous.
+	
+	The size of $\Delta$ is bounded by the number of valid v-paths there could exist in $\cA_G$. Recall that $\cA_G$ is functional, and thus, every v-path in $\cA_G$ contains at most one instance of each element in $\varcaptures{X}$. From this, it follows that the size of $\cT_G$ is in $\cO(\vert\Delta\vert\vert 2^{\varcaptures{X}}\vert)$. Furthermore, since the transitions in $\Delta$ form a DAG over $Q$, each of these v-paths can be found by a single traversal over $\cA_G$, so building $\cT_G$ takes extra time $\cO(\vert\Delta\vert)$.
+	
+	By using the algorithm detailed in Section~\ref{nested:sec:eval} we can enumerate the set $\br{\cT_G}(d)$ with update-time $\cO(\vert\cT_G\vert^3)$ and output-linear delay. 
+	However, with a more fine-grained analysis of the algorithm, we note that the update-time is bounded by $\vert Q'\vert^2\vert\Delta'\vert\in \cO(\vert Q\vert^2\vert\Delta\vert\vert 2^{\varcaptures{X}}\vert)$. We modify the enumeration algorithm slightly so that for each output $\omega\in\br{\cT_G}(d)$, there is an extra step of building the expected output in $\br{G}(d)$. We do this by checking $\omega$ symbol by symbol and building a mapping $\mu\in\br{G}(d)$, which can be done in time $\cO(\vert\mu\vert)$, since clearly $|\omega| \leq |\mu|$. It follows that this enumeration can be done with update-time $\cO(\vert G\vert^3)$ and output-linear delay.
+	
+	Finally, we address the case where $G$ is an arbitrary VPEG. The way we deal with this case is by determinizing the EVPA constructed in Claim~\ref{nested:appendix:spannerclaim}. This can be done in time $\cO(2^{\vert \cA_G\vert})$. From here, we can follow the reasoning given for the unambiguous case to prove the statement.
+\end{proof}

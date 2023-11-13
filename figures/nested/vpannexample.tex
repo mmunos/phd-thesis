@@ -1,0 +1,34 @@
+%!TEX root = ../main/main.tex
+
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}[node distance=0.5cm]
+		\node[anchor=west] (n1) at (0,5) {\small$\Sigma = (\{\texttt{<}\}, \{\texttt{>}\}, \emptyset),\ \ \oalph = \{\triangleright, \triangleleft\},\ \ \Gamma = \{\textsf{X}, \textsf{Y}\}$};
+		\node[below=of n1.west, anchor=west] (n3) {\small$Q = \{{\sf p},{\sf q},{\sf r}\},\ \ I = \{{\sf p}\},\ \ F = \{{\sf r}\}$};
+		\node[below=of n3.west, anchor=west] (n5) {\small$\Delta = \{\, ({\sf p},\texttt{<}, {\sf p},\textsf{X}),\ ({\sf p},\texttt{>}, \textsf{X}, {\sf p})$};
+		\node[below=of n5.west, anchor=west] (nd4) {\small$\ \ \ ({\sf p},(\texttt{<},\triangleright), {\sf q},\textsf{Y}),\ ({\sf q},\texttt{<}, {\sf q},\textsf{X}),\ ({\sf q},\texttt{>}, \textsf{X},{\sf q})$};
+		\node[below=of nd4.west, anchor=west] (nd7) {\small$\ \ \ ({\sf q},(\texttt{>},\triangleleft),\textsf{Y},{\sf r}),\ ({\sf r},\texttt{<}, {\sf r},\textsf{X}),\ ({\sf r},\texttt{>}, \textsf{X},{\sf r})\,\}$};
+		
+	\end{tikzpicture}
+\hspace{2em}
+	\begin{tikzpicture}[scale=1.0,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,state/.style={circle,draw}, color=black, initial text= {},
+		initial distance={5mm}]
+		%\node[state,draw=none,scale=0.1] (in) at (0,0) {};
+		\node[state,initial] (q0) at (0,0) {${\sf p}$};
+		\node[state] (q1) at (2.3,0) {${\sf q}$};
+		\node[state, accepting] (q2) at (4.6,0) {${\sf r}$};
+		%\draw (in) to (q0);
+		\draw (q0) to[loop above] node {$\texttt{<} / {\sf X}$} (q0);
+		\draw (q0) to[loop below] node {$\texttt{>}, {\sf X} $} (q0);
+		\draw (q0) to node [above] {$\texttt{<} / {\sf Y} : \triangleright$} (q1);
+		\draw (q1) to[loop above] node {$\texttt{<} / {\sf X} $} (q2);
+		\draw (q1) to[loop below] node {$\texttt{>}, {\sf X} $} (q2);
+		\draw (q1) to node [above] {$\texttt{>} / {\sf Y} : \triangleleft$} (q2);
+		\draw (q2) to[loop above] node {$\texttt{<} / {\sf X}  $} (q2);
+		\draw (q2) to[loop below] node {$ \texttt{>}, {\sf X} $} (q2);
+		\node[white] at (0,-1) {.};
+	\end{tikzpicture}
+	\caption{An example of a \vpann $\cT$ that marks all pairs of positions that correspond to matching brackets.}
+	\label{nested:fig-vpann-ex}
+\end{figure}

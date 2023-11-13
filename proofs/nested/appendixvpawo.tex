@@ -1,0 +1,302 @@
+%!TEX root = main.tex
+
+\subsection{Proof of Proposition \ref{nested:prop:msovpt}}
+
+To precisely state the proposition, we need to show how we encode words as logical structures. 
+This is done, as usual, with an order predicate and unary predicates to represent the order and the letters of each positions of the word, respectively. 
+More formally, fix a structured alphabet $\Sigma$ and let $w \in \wnS$ be a word of length $n$. 
+We encode $w$ as a structure $\langle [1,n], \leq, (P_a)_{a\in\Sigma}\rangle$ where $[1,n]$ is the domain, $\leq$ 
+is the total order over $[1, n]$, and $P_a = \{i \mid w[i] = a\}$. 
+We also have a binary relation $\sf{match}$ over $[1,n]$ that corresponds to the matching relation of open and close symbols: $\textsf{match}(i, j)$ is true iff $w[i]$ is an open symbol and $w[j]$ is its matching close symbol.
+By some abuse of notation, we also use $w$ to denote its corresponding logical structure. A $\msom$ formula $\varphi$ over $\Sigma$ is given by:
+\[
+\ \ \ \ \ \ \, \varphi \ :=\ P_a(x) \ \mid\  x \in X \ \mid \ x \leq y \ \mid \ \textsf{match}(x, y) \ \mid \ \neg \varphi \ \mid \ \varphi \vee \varphi \ \mid \ \exists x.\varphi \ \mid \ \exists X.\varphi 
+\]
+where $a\in\Sigma$, $x$ and $y$ are first-order variables and $X$ is a monadic second order variable (i.e. a set variable). 
+We write $\varphi(\bar{x}, \bar{X})$ where $\bar{x}$ and $\bar{X}$ are the sets of free first-order and monadic second-order variables of $\varphi$, respectively. 
+An assignment $\sigma$ for $w$ is a function $\sigma\colon \bar{x}\cup \bar{X}\to 2^{[1,n]}$ such that $|\sigma(x)| = 1$ for every $x \in \bar{x}$ (note that we treat first-order variables as a special case of monadic second-order variables). 
+As usual, we denote by $\textsf{dom}(\sigma) = \bar{x}\cup \bar{X}$ the domain of the function $\sigma$. 
+Then we write $(w, \sigma) \models \varphi(\bar{x}, \bar{X})$ when $\sigma$ is an assignment over $w$, $\textsf{dom}(\sigma) = \bar{x}\cup \bar{X}$, and $w$ satisfies $\varphi(\bar{x}, \bar{X})$ when each variable in $\bar{x}\cup \bar{X}$ is instantiated by $\sigma$. 
+Given a formula $\varphi(\bar{x},\bar{X})$, we define $\sem{\varphi}(w) = \{\sigma \mid (w, \sigma) \models \varphi(\bar{x},\bar{X})\}$. 
+For the sake of simplification, from now on we will only use $\bar{X}$ to denote the free variables of $\varphi(\bar{X})$ and use $X \in \bar{X}$ for an first-order or monadic second-order variable.
+
+For any assignment $\sigma$ over $w$, we define the support of $\sigma$, denoted by $\textsf{supp}(\sigma)$, as the set of positions mentioned in $\sigma$; formally, $\textsf{supp}(\sigma) = \{i \mid \exists v \in  \textsf{dom}(\sigma)\text{ s.t. } i \in  \sigma(v)\}$. 
+Furthermore, we encode assignments as sequences over the support as follows:
+Let $\textsf{supp}(\sigma) = \{i_1,\ldots, i_m\}$ such that $i_j < i_{j+1}$ for every $j < m$. 
+Then, we define the (word) encoding of $\sigma$ as:
+$$
+\textsf{enc}(\sigma) = (\bar{X}_1, i_1)(\bar{X}_2, i_2) \ldots (\bar{X}_m, i_m)
+$$
+such that $\bar{X}_j = \{X \in \textsf{dom}(\sigma) \mid i_j \in \sigma(X)\}$ for every $j \leq m$. 
+That is, we represent $\sigma$ as an increasing sequence of positions, where each position is labeled with the variables of $\sigma$ where it belongs.
+
+The statement of the proposition can be formulated as follows:
+\begin{proposition}[Proposition~\ref{nested:prop:msovpt}]
+	Fix a structured alphabet $\Sigma$. Let $\bar{X}$ be a set of MSO variables and ${\pazocal X} = 2^{\bar{X}}$. 
+	\begin{enumerate}
+		\item For any $\msom$ formula $\varphi(\bar{X})$ there exists a VPT $\cT$ with output alphabet ${\pazocal X}$ such that for every $w\in \wnS$:
+		$$
+		\sem{\cT}(w) \ \ = \ \ \{\textsf{enc}(\sigma)\mid \sigma\in\sem{\varphi}(w)\}.
+		$$
+		\item For any VPT $\cT$ with output alphabet ${\pazocal X}$ there exists a  $\msom$ formula $\varphi(\bar{X})$ such that for every $w\in \wnS$:
+		$$
+		\{\textsf{enc}(\sigma)\mid \sigma\in\sem{\varphi}(w)\} \ \ = \ \  \sem{\cT}(w).
+		$$
+	\end{enumerate}
+\end{proposition}
+
+The proof of this proposition is largely based on the proof of Theorem 4 in~\cite{AlurM04}.
+To prove (1) we can follow the exact same argument as the {\em if} direction of the proof and be left with a VPA $\cA$ over the input alphabet $\Sigma^{\bar{X}} = \Sigma \times {\pazocal X}$ whose language is the set of words which encode a valuation $\sigma$ of $\bar{X}$ along with a word $w$ for which $(w, \sigma)\models\varphi(\bar{X})$. 
+We define a straighforward transformation of transitions from this VPA to VPT as follows: $f(t) = t'$ iff $t$ has input symbol $(a, V)$ and $t'$ has input symbol $a$ and output symbol $V$.
+We obtain the desired VPT $\cT$ by replacing solely the transition relation $\Delta$ in $\cA$ by $\{f(t)\mid t\in\Delta\}$.
+
+To prove (2) we convert $\cT$ into a VPA $\cA$ with input alphabet $\Sigma^{\bar{X}}$ in the opposite way as in (1) and use the result of~\cite{AlurM04} itself to obtain a $\msom$ formula with no free variables $\varphi'$ over the same input alphabet. We replace any instance of $P_{(a, V)}(x)$ in $\varphi$ by the expression $P_a(x) \wedge \bigwedge_{X\in V}x\in X\wedge \bigwedge_{X\in\bar{X}\setminus V}x\not\in X$ to obtain a formula $\varphi(\bar{X})$ over $\Sigma$ which proves the statement.
+
+
+\subsection{XPath query examples}
+In this section we show two examples of XPath queries and their translations into VPT. 
+The type of XPath query we focus on here are {\em full-fledged evaluation} queries, where the expected output set contains the nodes selected by the query. 
+The way we translate an XPath query $\cQ$ into a VPT $\cT$ is as follows:  
+Let $\tau$ be a function which encodes unranked trees as nested strings by a depth-first traversal. 
+In our setting, a node labeled $a$ is encoded as the pair of open/close symbols $\op{a}$, $\cl{a}$. 
+Let $\Sigma_{\cQ}$ be the set of labels on trees mentioned in $\cQ$, and let $\opS$ and $\clS$ be the sets of open and close symbols that encode the labels in $\Sigma_{\cQ}$. 
+Let $\cQ(D)$ be the set of nodes in $D$ that match $\cQ$. 
+Furthermore, consider the set $\cI_{\cQ, D}$ of positions in $\tau(D)$ that correspond to nodes in $\cQ(D)$.
+A VPT $\cT$ is a translation of a query $\cQ$ if and only if its input alphabet is $(\opS, \clS)$, and for a given tree $D$, the set $\br{\cT}(\tau(D))$ contains exactly the strings $({\sf L}, i)$ for which $i\in\cI_{\cQ, D}$. 
+This notion of translation into VPT is quite natural since the output set of the VPT can be used straightforwardly to reconstruct $\cQ(D)$ with a single pass over $D$.
+
+The VPT in this section are shown graphically using the following notation: An open transition $(p,\op{s},\oout,q,\gamma)$ is represented by an edge from $p$ to $q$ with the label $\op{s} / \gamma$ if $\oout = \eps$ and with the label $\op{s} / \gamma : \oout$ if $\oout \neq \eps$. A close transition $(p,\cl{s},\eps,\gamma,q)$ is represented with the label $\cl{s}, \gamma$. As is customary, we extend this notation by representing multiple transitions that differ only by their input symbol as a single transition over the set of these symbols. We also use the symbol $|$ to group transitions that start and end in the same states.
+
+As a first example, consider the XPath query $\cQ_1 = {\tt //}a{\tt /}b$. This query can be translated into the VPT shown in Figure~\ref{nested:fig-xpath-vpt-small}. 
+
+\input{xpathvptsmall2}
+
+As a more involved example, consider the following XPath query over the tree alphabet $\{a, b, c\}$: 
+$$
+\cQ_2 = \texttt{child:}a\texttt{/descendant:}b[\texttt{following-sibling:}c]
+$$
+
+A VPT that translates this query is shown in Figure~\ref{nested:fig-xpath-vpt}.
+	
+\input{xpathvpt}
+
+
+\subsection{Proof of Lemma \ref{nested:vpawo:det}}
+
+Let $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$.
+We will construct an input-output deterministic \vpt $\cT' = ( Q', \Sigma, \Gamma', \oalph, \delta^\dets, S_{I}, F')$ as follows:
+Let $Q' = 2^{Q\times Q}$ and $\Gamma' = 2^{Q\times\Gamma\times Q}$. 
+Let $S_I = \{(q,q)\mid q\in \qinit\}$ and let $F' = \{S\mid (p,q)\in S\text{ for some }p\in I \text{ and } q\in F \}$. 
+Let $\delta$ be defined as follows:
+\begin{itemize}
+	\item For $\op{a}\in \opS$ and $\oout\in\Omega$, $\delta(S,\op{a},\oout) = (S',T)$, where:
+	\begin{align*}
+		T &= \{(p,\gamma,q)\mid (p,p')\in S \text{ and } (p',\op{a},\oout,\gamma,q)\in\Delta\text{ for some }q\in Q \},\\
+		S'&= \{(q,q)\mid(p,p')\in S\text{ and }(p',\op{a},\oout,\gamma,q)\in\Delta\text{ for some }p,p'\in Q \text{ and } \gamma\in\Gamma\}
+	\end{align*}
+	\item For $\cl{a}\in\clS$ and $\oout\in\Omega$, $\delta(S,\cl{a},\oout,T) = S'$ where, if $T\subseteq Q\times\Gamma\times Q$, then: 
+	\begin{align*}
+		S' &= \{(p,q)\mid(p,\gamma,p')\in T\text{ and }(p',q')\in S\text{ and }(q',\cl{a},\oout,\gamma,q)\in\Delta\ \ \ \ \ \ \ \ \ \ \ \\ &\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \text{ for some }p',q'\in Q,\gamma\in\Gamma\},
+	\end{align*}
+	\item For $a\in\noS$ and $\oout\in\Omega$, $\delta(S,a) = S'$ where:
+	\begin{align*}
+		S' &= \{(q,q'')\mid (q,q')\in S\text{ and }(q',a,\oout,q'')\in\Delta\text{ for some }q'\in Q\}.
+	\end{align*}
+\end{itemize}
+One can immediately check that this automaton is input-output determinstic since the transition relation is modelled as a partial function.
+
+We will prove that $\cT$ and $\cT'$ are equivalent by induction on well-nested words. To aid our proof, we will introduce a couple of ideas. First, we extend the definition of a run to include sequences that start on an arbitary configuration. Also, given a run 
+
+$$
+\rho = (q_1, \sigma_1) \xrightarrow{s_1/\!\ooutscr_1} (q_2, \sigma_2) \xrightarrow{s_2/\!\ooutscr_2} \cdots  \xrightarrow{s_n/\!\ooutscr_n} (q_{n+1}, \sigma_{n+1}),
+$$
+
+\noindent and a span $\spanc{i}{j}$, define a subrun of $\rho$ as the subsequence
+
+$$
+\rho\spanc{i}{j} = (q_i, \sigma_i) \xrightarrow{s_{i}/\!\ooutscr_{i}} (q_{i+1}, \sigma_{i+1}) \xrightarrow{s_{i+1}/\!\ooutscr_{i+1}} \cdots  \xrightarrow{s_{j-1}/\!\ooutscr_{j-1}} (q_j, \sigma_j).
+$$
+
+In this proof, we only consider subruns such that $w\spanc{i}{j} = s_{i}s_{i+1}\cdots s_{j-1}$ is a well-nested word. 
+A second definition we will use is that of a \vpt with arbitrary initial states. 
+Formally, let $S \subseteq Q$. 
+We define $\cT_{q}$ as the \vpt that simulates $\cT$ by starting on the configuration $(q,\eps)$. 
+Note that for a run $\rho = (q_1, \sigma_1) \xrightarrow{s_1/\!\ooutscr_1} \cdots  \xrightarrow{s_n/\!\ooutscr_n} (q_{n+1}, \sigma_{n+1})$ of $\cT$ over $w = s_1\cdots s_n$ and a well-nested span $\spanc{i}{j}$, the subrun $\rho\spanc{i}{j}$ is one of the runs of $\cT_{q}$ over $w\spanc{i}{j}$ modulo $\sigma_i$, which is present in all of the stacks in $\rho$ as a common suffix.
+
+We shall prove first that $\br{\cT}(w) \subseteq \br{\cT'}(w)$ for every well-nested word $w$. This is done with the aid of the following result:
+
+\begin{claim}
+	For a well-nested word $w$, output sequence $\mu$, states $p,q\subseteq Q$, and a set $S$ that contains $(p,q)$, if there is a run of $\cT_q$ over $w$ and $\mu$ such that its last state is $q'$, the (only) run of $\cT'_{S}$ over $w$ and $\mu$ ends in a state $S'$ which contains $(p,q')$.
+\end{claim}
+
+\begin{proof}
+	We will prove the claim by induction on $w$.
+	
+	If $w = \eps$, the proof is trivial since $q = q'$. If $w = a\in\noS$ the proof follows straightforwardly from the construction of $\delta$.
+	
+	If $w,v\in\wnS$, and $\mu, \kappa \in \oalph^*$, let $p,q\in Q$, let $S$ be a set that contains $(p,q)$, and let $\rho$ be a run of $\cT_q$ over $wv$ and $\mu\kappa$, which ends in a state $q'$. 
+	Our goal is to prove that the run $\rho'$ of $\cT'_S$ over $wv$ and $\mu\kappa$ ends in a state that contains $(p,q')$. 
+	Let $n = \vert w\vert$, $m = \vert v \vert$, and let $q^w$ be the last state of the subrun $\rho[1,n+1\rangle$. 
+	Consider as well $\rho[n+1,n+m+1\rangle$, which is a run of $\cT_{q^w}$ over $v$ and $\varkappa$ that ends in $q'$. 
+	From the hypothesis two conditions follow: 
+	(1) In the run of $\cT'_S$ over $w$ and $\mu$ the last state $S'$ contains $(p,q^w)$, and 
+	(2) in the run of $\cT'_{S'}$ over $v$ and $\kappa$ the last state contains $(p,q')$. 
+	It can be seen that $\rho'$ is the concatenation of these two runs, so this proves the claim.
+	
+	If $w\in\wnS$, $\op{a}\in\opS$, $\cl{b}\in\clS$, $\mu\in\oalph^*$, and $\oout_1,\oout_2\in\oalph$, let $p,q\in Q$, let $S$ be a set that contains $(p,q)$, and let $\rho$ be a run of $\cT_q$ over $\op{a}w\cl{b}$ and $\oout_1\!\mu\oout_2$. 
+	Let $n = \vert w\vert$, and let $q, q_2, \ldots, q_{n+2}, q_{n+3}$ be the states of $\rho$ in order. 
+	Our goal is to prove that the run $\rho'$ of $\cT'_S$ over $\op{a}w\cl{b}$ and $\oout_1\!\mu\oout_2$ ends in a state that contains $(p,q_{n+3})$. 
+	Let $(q_2,\mathtt{x})$ be the second configuration of $\rho$. 
+	This implies that $(q,\op{a},\oout_1,q_2,\gamma)\in\Delta$ and $(q_{n+2},\cl{b},\oout_2,\gamma,q_{n+3})\in\Delta$.
+	Let $S'$ and $T$ be such that $\delta(S,\op{a},\oout_1) = (S',T)$.
+	Therefore, $(q_2,q_2)\in S'$ and $(p,\gamma,q_2)\in T$.
+	Consider the subrun $\rho[2,n+2\rangle$, which is a run of $\cT_{q_2}$ over $w$ and $\mu$ that ends in $q_{n+2}$ modulo the stack suffix $\gamma$.
+	Since $(q_2,q_2)\in S'$, from the hypothesis it follows that the run of $\cT'_{S'}$ over $w$ and $\mu$ ends in a state $S''$ that contains $(q_2,q_{n+2})$.
+	This run starts on the configuration $(S',\eps)$ and ends in $(S'',\eps)$, so a run on the same automaton that starts on $(S',T)$ and reads the same symbols will end in $(S'', T)$, which is the case for the subrun $\rho'[2,n+2\rangle$.
+	Therefore, the construction of $\delta$ implies that $(p,q_{n+3})$ is contained in the last state of $\rho'$, which proves the claim.
+\end{proof}
+
+Let now $w$ be a well-nested word and $\mu$ be an output sequence such that $\cT$ accepts $(w, \mu)$. Let $\rho$ be an accepting run of $\cT$ over $(w,\mu)$ which starts on a state $p\in I$ and ends in a state $q\in F$. Note that $\cT_p$ also accepts $(w,\mu)$. Note that $\cT = \cT'_{S_{I}}$, and since $(p,p)\in S_{I}$ the claim implies that the run of $\cT$ over $(w,\mu)$ ends in a state which contains $(p,q)$, and so this run is accepting. This proves that $\br{\cT}(w) \subseteq \br{\cT'}(w)$.
+
+
+To prove that $\br{\cT'}(w) \subseteq \br{\cT}(w)$ we use a similar result:
+
+\begin{claim}
+	For a well-nested word $w$, output sequence $\mu$, states $q,p,q'\subseteq Q$, and a set $S$ that contains $(p,q)$, if the run of $\cT'_S$ over $w$ and $\mu$ ends on a state $S'$ that contains $(p,q')$, then there is a run of $\cT_q$ over $w$ and $\mu$ such that its last state is $q'$.
+\end{claim}
+\begin{proof}
+	We will prove the claim by induction on $w$.
+	
+	If $w = \eps$, the proof is trivial since $q = q'$. If $w = a\in\noS$ the proof follows straightforwardly from the construction of $\delta$.
+	
+	If $w,v\in\wnS$, and $\mu, \kappa \in \oalph^*$, let $p,q,q'\in Q$, let $S$ be a set that contains $(p,q)$, and let $\rho$ be the run of $\cT'_S$ over $wv$ and $\mu\kappa$, which ends in a state $S'$ that contains $(p,q')$. 
+	Our goal is to prove that there is a run $\rho'$ of $\cT_q$ over $wv$ and $\mu\kappa$ such that its last state is $q'$.
+	Let $n = \vert w\vert$, $m = \vert v \vert$, and let $S^w$ be the last state of the subrun $\rho[1,n+1\rangle$. 
+	Consider as well $\rho[n+1,n+m+1\rangle$, which is a run of $\cT'_{S^w}$ over $v$ and $\kappa$ that ends in $S'$.
+	From the construction of $\delta$, it is clear that if a non-empty state $S'$ follows from $S$ in a run of $\cT'$, then $S$ is not empty.
+	Let $(p,q^w)\in S^w$.
+	From the hypothesis two conditions follow: 
+	(1) There is a run $\rho_1$ of $\cT_q$ over $w$ and $\mu$ such that its last state is $q^w$
+	(2) There is a run $\rho_2$ of $\cT_{q^w}$ over $v$ and $\kappa$ such that its last state is $q'$. 
+	We then construct $\rho'$ by concatenating $\rho_1$ and $\rho_2$ which ends in $q'$, and this proves the claim.
+	
+	If $w\in\wnS$, $\op{a}\in\opS$, $\cl{b}\in\clS$, $\mu\in\oalph^*$, and $\oout_1,\oout_2\in\oalph$, let $p,q,q'\in Q$, let $S$ be a set that contains $(p,q)$, and let $\rho$ be the run of $\cT'_S$ over $\op{a}w\cl{b}$ and $\oout_1\!\mu\!\oout_2$. 
+	Let $n = \vert w\vert$, let $S, S_2, \ldots, S_{n+2}, S_{n+3}$ be the states of $\rho$ in order, and suppose there is a pair $(p,q')\in S_{n+3}$.
+	Our goal is to prove that there is a run $\rho'$ of $\cT_q$ over $\op{a}w\cl{b}$ and $\oout_1\!\mu\!\oout_2$ that ends in $q'$. 
+	Let $(S_2,T)$ be the second configuration of $\rho$.
+	From the construction of $\delta$, there exist $q_2,q_{n+2}\in Q$ and $x\in\Gamma$ such that $(q_{n+2},\cl{b},\oout_2,\gamma,q_{n+3})\in\Delta$, $(p,\gamma,q_2)\in T$ and $(q_2,q_{n+2})\in S_{n+2}$.
+	Since $w$ is well-nested, this $T$ could only have been pushed after reading $\op{a}/\!\oout_1$, which implies that $(q,\op{a},\oout_1,q_2,\gamma)\in\Delta$. This, in turn, means that $(q_2,q_2)\in S_2$.
+	Let us consider the subrun $\rho[2,n+2\rangle$, which is a run of $\cT'_{S_2}$ over $w$ and $\mu$ that ends in $S_{n+2}$ modulo the common stack suffix $T$.
+	We now have that $(q_2,q_2)\in S_2$ and $(q_2,q_{n+2})\in S_{n+2}$, and so, from the hypothesis it follows that there is a run $\rho''$ of $\cT_{q_2}$ over $w$ and $\mu$ such that its last state is $q_{n+2}$.
+	In a similar fashion as in the previous claim, we modify the run slightly to obtain one that starts and ends on the stack $\gamma$.
+	This new run can be easily extended with the transitions $(q,\op{a},\oout_1,q_2,\gamma),(q_{n+2},\cl{b},\oout_2,\gamma,q_{n+3})\in\Delta$, and as a result, we obtain a run $\rho'$ of $\cT_q$ that fulfils the conditions of the claim.
+\end{proof}
+
+Let now $w$ be a well nested word and let $\mu$ be an output sequence such that $\cT'$ accepts $(w, \mu)$. Since $\cT' = \cT_{S_I}$ and the run of $\cT'$ over $(w, \mu)$ ends in a state $S\in F'$, we have that $S$ contains an element $(p,q)$ such that $p\in I$ and $q\in F$. Moreover, $(p,p)\in S_I$. From the prevous claim, it follows that there is an accepting run of $\cT_p$ over $(w, \mu)$ such that its last state is $q$. Therefore, $\cT$ accepts $(w, \mu)$. This proves that $\br{\cT'}(w) \subseteq \br{\cT}(w)$.
+
+We conclude that $\br{\cT}(w) = \br{\cT'}(w)$ for every well-nested word $w$.\qed
+
+
+
+\subsection{Proof of Theorem~\ref{nested:vpawo:deltamain}}
+
+The proof of the theorem is a consequence of the following lemma.
+
+\begin{lemma}\label{nested:vpawo:delta}
+	For every I/O-unambiguous \vpt $\cT$ there exists an I/O-unambiguous \vpt $\cT'$ such that $\br{\cT'}(w) = \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(	w[1, i])$ for every $w\in\wnS$. Furthermore, the size of $\cT'$ is linear on the size of $\cT$.
+\end{lemma}
+
+Let $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$ be an I/O-unambiguous \vpt. We construct a VPT $\cT' = (Q', \Sigma, \Gamma, \oalph, \Delta', \qinit, F')$ such that $Q' = Q \times \{1, 2\}$, $\qinit' = \qinit \times\{1\}$, $F' = F \times\{1\}$ and $\Delta'$ is as follows: 
+\begin{align*}
+	\Delta' =\ & \{((p,1),\op{a},\oout,(q,1),\gamma)\mid \op{a}\in\opS\text{ and }(p,\op{a},\oout,q,\gamma)\in\Delta\text{ where either }\!\oout\in\oalph\text{ or }p\not\in F\}\ \cup\\
+	& \{((p,1),\op{a},\eps,(q,2),\gamma)\mid \op{a}\in\opS\text{ and }(p,\op{a},\eps,q,\gamma)\in\Delta\text{ where } p\in F\}\ \cup\\
+	& \{((p,2),\op{a},\oout,(q,1),\gamma)\mid \op{a}\in\opS\text{ and }(p,\op{a},\oout,q,\gamma)\in\Delta\text{ where }\!\oout\in\oalph\}\ \cup\\
+	& \{((p,2),\op{a},\eps,(q,2),\gamma)\mid \op{a}\in\opS\text{ and }(p,\op{a},\eps,q,\gamma)\in\Delta\}.
+\end{align*}
+This construction was only shown for symbols in $\opS$, but it should include analogous constructions for symbols in $\clS$ and $\noS$, which are omitted for convenience.
+The idea behind this construction is to separate the \vpt in two halves. Each run starts on the first half (marked 1) and once it reaches a final state, it changes into the second half (marked 2). The run then stays on the second half until it sees an output symbol, with which it returns to the first half.
+%It is clear that $\cT'$ is I/O-unambiguous since for each state $q\in Q'$, input symbol $a$ and $\oout\in\oalph\cup\{\eps\}$ there is at most one tuple in $\Delta'$ that has $q,a,\oout$ as its first three elements.
+%\cristian{Martin: acá esta mal y la afirmación del resultado también. Cuando haces la construcción partes de un I/O unambiguous y llegas a un I/O unambiguous. Si llegaras a un I/O deterministic, algo esta mal ya que romperias cotas de construcción de automatas, asi que es imposible que sea así. El autómata queda I/O unambiguous, no porque por cada valor $\oout$ llegas a un estado, lo cual no es cierto, si no porque se sigue cumpliendo el hecho de un solo run. Corrigue esto, actualizando el Lemma 16, como también la afirmación en el Teorema 4.}
+
+To show that $\br{\cT'}(w) = \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$ consider a $w\in \wnS$. Let $\mu$ be an output in $\br{\cT'}(w)$ and consider an accepting run $\rho'$ such that $\out(\rho') = \mu$. We can construct an accepting run $\rho$ of $\cT$ over $w$ by starting from $\rho'$ and replacing any appearance of a state $(q, k)$ by $q$. From this it follows that $\mu \in \br{\cT}(w)$. Assume now that $\mu \in \br{\cT}(w[1, i\rangle)$ for some $i < |w|$. From the construction of $\Delta'$ it can be seen that the $i$-th and following states in $\rho'$ are of the form $(q, 2)$, as all of the following transitions in $\rho'$ have $\eps$ as their output symbols. Therefore, $\rho'$ cannot be an accepting run, and we reach a contradiction, from which we conclude that $\mu \in \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$. Let $\mu$ now be an output in $\mu \in \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$ and let $\rho$ be the accepting run of $\cT$ over $w$ such that $\out(\rho) = \mu$. It can be seen from the construction of $\Delta'$ that the run of $\cT'$ over $w$ is identical to $\rho$ except each state $q$ in $\rho$ appears as $(q, k)$ in $\rho'$. We will show that the last state in $\rho'$ is of the form $(q,2)$. Towards a contradiction, assume that it is not. Therefore, in $\rho'$ there is a transition where the first state is of the form $(p,1)$ and the second is of the form $(q,2)$, and furthermore, every transition following this one has $\eps$ as its output symbol. Let $i$ be the step where this happens. From the construction of $\Delta$ we see that the $i$-th state is in $F$, from which it follows that the run $\rho'_i$ built from the first $i$ steps in $\rho'$ is an accepting run of $\cT'$ over $w[1,i\rangle$ and that $\out(\rho'_i) = \mu$. We can do a similar process as a above and construct an accepting run of $\cT$ over $w[1,i\rangle$ that renders the same output $\mu$, which contradicts our assumption that $\mu\not\in\bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$. We conclude that $\br{\cT'}(w) = \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$.
+
+To show that $\cT'$ is unambiguous, consider a $w\in \wnS$. Let $\mu \in \br{\cT'}(w)$ and consider two accepting runs $\rho_1$ and $\rho_2$ such that $\out(\rho_1) = \out(\rho_2) = \mu$. Let us build a run $\rho$ of $\cT$ over $w$ as in the previous part of the proof, which is the same for $\rho_1$ and $\rho_2$ since $\cT$ is unambiguous. This implies that both $\rho_1$ and $\rho_2$ contain the same sequence of states in $Q$. Suppose now that the runs are different, which is only possible if at some step $i$, the $i$-th state in $\rho_1$ and $\rho_2$ are the same, and in the $(i+1)$-th state in $\rho_1$ and $\rho_2$ are different. This cannot the case since from the construction of $\cT'$, for a given transition $t\in \Delta$ that starts in a state $p$, and some $k\in\{1, 2\}$, there exists exactly one transition $t'\in\Delta'$ that starts in $(p,k)$. This is a contradiction, so we prove that $\cT'$ is unambiguous.
+
+\subsection{Proof of Proposition  \ref{nested:alg:spacebound}}
+
+{\bf Part 1.} This proof is a corollary of Theorem 4.5 in~\cite{BarYossefFJ07}. The proof of this result implies that for the XPath query $Q = {\tt / / a[b\ and\ c]}$, any streaming algorithm that verifies if an XML document matches $Q$ (the problem $\textsc{booleval}_Q$) and any integer $r \geq 1$, there exists a document of depth at most $r + C$, where $C$ is a constant value, on which the algorithm requires $\Omega(r)$ bits of space.
+
+Our proof will show a \vpa $\cA$ which can simulate the query $Q$ for a direct mapping $\nu$ of the documents that are constructed in~\cite{BarYossefFJ07}, where $\nu({\tt \langle a \rangle}) = \op{a}$, $\nu({\tt \langle / a \rangle}) = \cl{a}$, $\nu({\tt \langle / b \rangle}) = b$, and $\nu({\tt \langle / c \rangle}) = c$. The \vpa is shown in Figure~\ref{nested:fig-vpt-depthlowerbound}. We convert this \vpa into a \vpt $\cT$ by adding an $\eps$ output symbol on each transition, so the problem of deciding if $\cA$ accepts $w$ is equivalent to deciding if $\br{\cT}(w)$ is empty, or the set $\{\eps\}$. The theorem follows by taking this $\cT$ as the one in the statement, considering an arbitrary streaming evaluation algorithm $\enumE$ that solves \enumvpt{} with input $\cT$, and using this algorithm along with the mapping $\nu$ to solve $\textsc{booleval}_Q$.
+
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}[scale=1,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,state/.style={circle,draw}]
+		\node[state,draw=none,scale=0.1] (in) at (-1,0) {};
+		\node[state] (q0) at (0,0) {$q_0$};
+		\node[state] (q1) at (2.5,0) {$q_1$};
+		\node[state] (q2) at (2.5,2.5) {$q_2$};
+		\node[state, accepting] (q3) at (5,0) {$q_2$};		
+		\draw (in) to (q0);
+		\draw (q0) to[loop above] node [above, align=center] {$\op{a} / {\tt A}$ | $b$} (q0);
+		\draw (q0) to node [above] {$b$} (q1);
+		\draw (q1) to[out=120,in=-120] node [left] {$\op{a} / {\tt B}$} (q2);
+		\draw (q2) to[loop above] node [above, align=center] {$\op{a}/ {\tt A}$ | $\cl{a}, {\tt A}$ | $b$ | $c$} (q2);
+		\draw (q2) to[out=-60,in=60] node [right] {$\cl{a}, {\tt B}$} (q1);
+		\draw (q1) to node [above] {$c$} (q3);
+		\draw (q3) to[loop above] node [above, align=center] {$\cl{a}, {\tt A}$ | $c$} (q3);
+	\end{tikzpicture}
+	
+	\caption{\vpa $\cA$ used in the proof. An open transition $(p,\op{s},q,\gamma)$ is represented by an edge from $p$ to $q$ with the label $\op{s} / \gamma$. A close transition $(p,\cl{s},\gamma,q)$ is represented with the label $\cl{s}, \gamma$. An neutral transition $(p,s,q)$ is represented with the label $s$.}
+	\label{nested:fig-vpt-depthlowerbound}
+\end{figure}
+
+{\bf Part 2.} This proof uses the main ideas of the proof of Theorem 1 in~\cite{BarYossefFJ05}. Here, the authors describe a set-computing communication complexity problem. In the problem $\pazocal P$, Alice and Bob compute a two-argument function $p(\cdot, \cdot)$, defined as follows. Alice's input is a subset $A\subseteq\{1,\ldots,k\}$, Bob's input is a bit $b \in \{0,1\}$, and $p(A, b)$ is defined to be $A$, if $b = 1$, and $\emptyset$ otherwise. Proposition 1 in~\cite{BarYossefFJ05} proves that the one-way communication complexity of $\pazocal P$ is at least $k$.
+
+Let $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$ is defined over the alphabets $\noS = \{a, b, \$\}$, and $\oalph = \{{\sf x}\}$ and have its sets $Q$ $\Delta$, $\qinit$, $F$ be as presented in Figure~\ref{nested:fig-vpt-lowerbound}. It can be seen that it satisfies
+$$
+\sem{\cT}(w) = \begin{cases}
+	\{({\sf x}, i) \mid w[i] = b\}	 &\text{if } w \text{ ends in } \$\\
+	\emptyset &\text{otherwise}.
+\end{cases}	
+$$	
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}[scale=1,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,state/.style={circle,draw}]
+		\node[state,draw=none,scale=0.1] (in) at (-1,0) {};
+		\node[state] (q0) at (0,0) {$q_0$};
+		\node[state, accepting] (q1) at (3,0) {$q_1$};		
+		\draw (in) to (q0);
+		\draw (q0) to[loop above] node [above, align=center] {$a, \eps$ | $b, {\sf x}$} (q0);
+		\draw (q0) to node [above] {$\$,\eps$} (q1);
+	\end{tikzpicture}
+	
+	\caption{\vpt $\cT$ used in the proof. A neutral transition $(p, s, \oout, q)$ is represented by an edge from $p$ to $q$ labeled with $s, \oout$.}
+	\label{nested:fig-vpt-lowerbound}
+\end{figure}
+
+Consider an arbitrary algorithm $\enumE$ that solves $\enumvpt$ with input $\cT$. We will now present a reduction that creates a protocol for ${\pazocal P}$ which makes use of the algorithm $\enumE$. Here, Alice receives the set $A$ and generates a word $w$ of size $k$ such that $w[i] = b$ if $i\in A$ and $w[i] = a$ otherwise. Alice then executes $\enumE$ on input $\cT$ and $w$ as the first $k$ characters of a stream. She sends the state of the algorithm to Bob, who receives the bit $b$, and does the following: If $b = 1$ he continues running $\enumE$ as if the last character of the input was $\$$. If $b = 0$, he stops executing $\enumE$ immediately. In either case, the output given by $\enumE$ contains all the information necessary to compute the set $p(A,b)$, so the reduction is correct.  This proves that $\enumE$ requires at least $k$ bits for an input of size less than $k$, and so $\enumE$ for any $n \geq 1$, requires at least $n$ bits of space in a worst-case stream $\Stream$, which is in $\Omega(\outgap(\cT, S[1,n]))$.
+
+\subsection{Proof of Proposition  \ref{nested:prop:space}}
+
+The time bounds are implied by Theorem~\ref{nested:theo:main}, so we will prove the space bounds. The algorithm has a update phase and an enumeration phase, and the enumeration phase only processes the data structure that was built on the update phase, using at most linear extra space, as is explained in Section~\ref{nested:sec:ds}. As such, we will prove that Algorithm~\ref{nested:alg:preprocessing} on input $(\cT, w)$ uses $\cO((\depth(w) + \outgap(\cT,w))\times|Q|^2|\Delta|)$ space at every point in its execution, which implies the statement of the proposition, where $w = \Stream[1,n]$ for some stream $\Stream$ and $n$.
+
+As it is explained in Section~\ref{nested:sec:eval}, Algorithm~\ref{nested:alg:preprocessing} uses a hash table $S$, and a stack $T$ that stores hash tables. The size of the stack at each point is bounded $\depth(w)$, and the size of each hash table is bounded by $|Q|^2|\Gamma|$, so the size of $S$ and $T$ combined is in $\cO(\depth(w)|Q|^2|\Delta|)$. The rest of the space used is related to the \dsepsabbr $\cD$, which we will now bound by $\cO(\outgap(\cT,w[1,k])|Q|^2|\Delta|)$ at each step $k$.
+
+For every step $k$ of the algorithm, consider an \dsepsabbr $\cD^{\textsf{trim}}_k$ which is composed solely of the nodes that are reachable from of the ones stored in $S^k$, or the ones stored in some hash table in $T^k$ (borrowing the notation from Section~\ref{nested:sec:eval}). A simple induction argument on $k$ shows that the rest of the nodes in $\cD$ can be discarded with no effect over the correctness of the algorithm, so they are not considered in the memory used by it. Therefore, proving that at each step $| \cD^{\textsf{trim}}_k | \in \cO(\outgap(\cT,w[1,k])|Q|^2|\Delta|)$ is enough to complete the proof. 
+
+Let $\cI$ be the set of positions less than $k$ that appear in some output of $\sem{\cT}(w[1,k] \cdot w')$ for some $w \cdot w'\in \pwnS$. We now refer to Lemma~\ref{nested:vpt:steps} since it implies that for each node $v$ stored in $S^k$ or the topmost hash table in $T^k$, each sequence in $\L_{\D}(v)$ corresponds to at least one valid run of $\cT$ over $w[1,k]$, and since $\cT$ is trimmed, each one of these runs is part of an accepting run of $\cT$ over $w[1,k] \cdot w'$, for some word $w'$. Therefore, each of the positions that appear in some of these sets is in $\cI$. Furthermore, we can use this lemma to characterize the positions in the rest of the hash tables in $T^k$, since appending any close symbol $\cl{a}$ to $w[1,k]$ will make the algorithm pop an element from $T$, which will make the next hash table the topmost. This argument can be extended to any of the hash tables in $T^k$, so in all, Lemma~\ref{nested:vpt:steps} implies that all of the positions that appear in some non-empty leaf in $\cD^{\textsf{trim}}_k $ are in $\cI$. Theorem~\ref{nested:theo:main} implies that the set of these positions corresponds exactly to $\cI$, since if there was any position in $\cI$ missing from the leaves in $\cD$, the algorithm would not be correct.
+
+Lastly, we will show that $| \cD^{\textsf{trim}}_k | \leq | \cI | \times |Q|^2|\Delta| \times d$, where $d$ is a constant. Towards this goal, we will bound the number of $\eps$-leaves, non-empty leaves, and product nodes by $\cO(| \cI | \times |Q|^2|\Delta|)$ independently. Union nodes can be bounded by counting the other types of nodes: The only cases where a union node is created are (1) in line 35, only after a product node had been created, (2) during the creation of a product node (as described in Theorem~\ref{nested:theo:data-structure-eps}), (3) in line 46, but only whenever one of the previous lines had created either a product node or a non-empty leaf node, and (4) in line 15, which only happens once at the end of the update phase, and iterates by nodes in $S$, so the number of union nodes created at this for loop at most $| \cD^{\textsf{trim}}_k |$. The number of $\eps$-nodes is at most one, owing to Theorem~\ref{nested:theo:data-structure-eps}, since its proof shows that at the end of step $k$, each of the nodes in $\cD^{\textsf{trim}}_k$ is $\eps$-safe. The number of non-empty leaves can be straightforwardly shown to be $\cO(| \cI | \times |Q|^2|\Delta|)$ since each of these leaves was introduced in some step in $\cI$, and in each one of these steps, the number of operations that the algorithm does is in $\cO(|Q|^2|\Delta|)$. 
+
+To show a bound over the number of product nodes, consider a slight modification of Algorithm~\ref{nested:alg:preprocessing}: 
+product nodes that are created in line 44 are labeled with the step $k$ in which the algorithm is at the moment. 
+Now, for a set of nodes $A$ let $\cD^{\textsf{trim}}_A$ be the \dsepsabbr that is obtained by removing all of the nodes that are not reachable from some node in $A$ from $\cD$.
+Let $\cI_A$ be the set of positions that appear in some non-empty leaf node in $\cD^{\textsf{trim}}_A$, and let ${\pazocal P}_A$ be the set of step labels that appear in some product node in $\cD^{\textsf{trim}}_A$ excluding the steps in $\cI_A$. Also, let $V_k$ be the the set of nodes in $\cD^{\textsf{trim}}_k$. We will show by induction on $k$ that $| {\pazocal P}_A | \leq | \cI_A | - 1$ for any $A\subseteq V_k$ which contains at least one node that is not an $\eps$-node. Consider any set $A \subseteq V_k$. The first observation we make here is that we can partition the nodes in $A$ to a collection $\{A_H\}$ of sets of nodes depending on the hash table $H$ they are reachable from, given that they are in $\cD^{\textsf{trim}}_k$. Let ${\pazocal Q}_A = {\pazocal P}_A \cup \cI_A$. From Lemma~\ref{nested:vpt:steps} we get that for two different sets $A_{H_1}$ and $A_{H_2}$ in the collection, the sets ${\pazocal Q}_{H_1}$ and ${\pazocal Q}_{H_2}$ are disjoint. Therefore, in step $k$, if the algorithm enters $\textsc{CloseStep}$, we only need to focus on the set $A_{S}$, and if the algorithm enters $\textsc{OpenStep}$ on the set and $A_{T^k}$ (note that in this case, $S^k$ is composed only of $\eps$-nodes). The rest of the hash tables were reachable  on a previous step, so the inequality can be reached by adding up the inequalities that held in those steps. First, note that if none of the product nodes in $A$ were created in step $k$, then we can consider the set $B$ of nodes reachable from $A$ that were created in a previous step and notice that ${\pazocal P}_A = {\pazocal P}_B$ and $\cI_B \subseteq \cI_A$, so the statement follows since $B \subseteq V_{k-1}$. Also, note that if the algorithm in step $k$ enters $\textsc{OpenStep}$, all of the product nodes created in this step are directly connected to a non-$\eps$ leaf created in this same step, so the statement also follows. From this point on, we can assume that the algorithm enters $\textsc{CloseStep}$ on step $k$, and all of the nodes in $A$ are reachable from some node in $S^k$, and there is at least one product node in $A$ that was created in step $k$. Let $P$ be the set of product nodes in $A$ that were created on step $k$. Consider the span $\clevel(k) = \spanc{j}{k}$. The \textsf{prod} operation in line 44 either creates a new product node, or makes $v$ reference a node that already existed in $S^{k-1}$ or the topmost table in $T^j$. Furthermore, if a product node is created in line 44, then Theorem~\ref{nested:theo:data-structure-eps} tells us that it must be connected to a node in $S^{k-1}$ that is not an $\eps$-node, and to a node in the topmost table in $T^j$ that is also not an $\eps$-node. Consider now the set of nodes $B$ that is made up of (1) nodes in $A$ that are reachable from $S^{k-1}$ and (2) nodes in $S^{k-1}$ that are connected to a product node in $P$. Consider also the set of nodes $C$ that is made up of (1) nodes in $A$ that are reachable from the topmost table in $T^j$, and nodes in the topmost table in $T^j$ that are connected to a node in $P$. Note that both sets $B$ and $C$ contain a non-$\eps$ node, and are composed of nodes created in a previous step, so assume that $|{\pazocal P}_B| \leq |\cI_B| -1$ and that $|{\pazocal P}_C| \leq |\cI_C| -1$. It can be seen that every node in $\cD^{\textsf{trim}}_A$ is either in $B$, $C$, or was created on step $k$, so we get that ${\pazocal P}_A = {\pazocal P}_B \cup {\pazocal P}_C \cup \{k\}$ and $\cI_A \supseteq \cI_B \cup \cI_C$. From Lemma~\ref{nested:vpt:steps} we get that ${\pazocal Q}_B$ and ${\pazocal Q}_C$ are disjoint, and putting these facts to together gives us that $| {\pazocal P}_A | =  |{\pazocal P}_B| + |{\pazocal P}_C| + 1\leq |\cI_B| + |\cI_C| - 1 \leq |\cI_A|-1$.
+
+Having proven this statement, we can deduce that the number of product nodes in $\cD^{\textsf{trim}}_k$ is in $\cO(| \cI | \times |Q|^2|\Delta|)$ since the number of steps where they are created is bounded by $|\cI|$. Therefore, $| \cD^{\textsf{trim}}_k | \leq | \cI | \times |Q|^2|\Delta| \times d$, for some constant $d$. This concludes the proof.
+
+\subsection{Counterexample that the algorithm is not instance optimal}
+%\cristian{Martin: arregla este ejemplo que antes estaba en el cuerpo, y ahora lo dejaremos en el apendice por espacio.}
+In this section, we show a \vpt for which only logarithmic space in $\outgap(\cT,w)$ is enough for any stream $\Stream$. Let $\oout$ be any output symbol and consider a \vpt $\cT$ for which the output set is $\sem{\cT}(w)  = \{\{(\oout, i)\}\mid 1\leq i\leq \vert w \vert \}$ if the last symbol in $w$ is $\$$ and the empty set otherwise. Clearly, the \ogapname of any $w$ with respect to $\cT$ is linear in $\vert w\vert$. However, one could design a streaming evaluation algorithm that has only a counter that stores the length of the input so far, and produces the correct output set after reading the last symbol in $w$. The enumeration phase can easily be done with output-linear delay (i.e., by counting from $1$ to $\vert w\vert$). This completes the example.

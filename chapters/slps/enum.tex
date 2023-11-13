@@ -1,0 +1,23 @@
+%!TEX root = main.tex
+
+An enumeration problem is defined as a relation $R\subseteq \Omega_{in} \times \Omega_{out}$ for some set of inputs $\Omega_{in}$ and some set of outputs $\Omega_{out}$.
+For each pair $(x, y)\in R$ we view $x$ as the input of the problem and $y$ as a possible output for $x$.
+We define the set $R(x) = \{y\mid(x, y)\in R\}$ as the set of outputs of $x$.
+
+An enumeration algorithm $\mathfrak{A}$ for $R$ is one that operates in two phases: First, $\mathfrak{A}$ receives an input $x$, and builds a certain object $D_x$ which can be used to retrieve the set $R(x)$ -- we call this phase the preprocessing phase. Then, $\mathfrak{A}$ performs a subroutine $\yield$ over $D_x$ to retrieve $R(x)$. There is also a constant value $c$ which is fixed for the algorithm. The subroutine $\yield$ has the following specifications: (1) it can be done immediately over the object $D_x$ for any input $x$, (2) It can be done exactly $|R(x)|+1$ times over $D_x$, (3) the first $|R(x)|$ applications of $\yield$ over $D_x$ produces a different element $y\in R(x)$ and (4) the last application of $\yield$ produces a flag ${\tt end}$.
+
+In an enumeration algorithm, we measure the time taken in the preprocessing phase by a function that depends on $x$, which is the time that it takes to produce the object $D_x$. 
+We also measure the delay, which gives a bound in the time that passes from the moment any of the calls to $\yield$ is made, until an output from $R(x)$ is fully produced -- we refer to this as the time that this call takes.
+Asymptotically, the best delay possible is constant delay, which means that there is a constant value $c$ associated to $\mathfrak{A}$ such that the time that any call to $\yield$ takes is at most $c$. Under a reasonable assumption, constant-delay is limited to only problems in which each element in $R(x)$ has bounded size for any input $x$. We will look at an extension of this notion, called output-linear delay, which is still permissible when outputs have unbounded size. Here, any call to $\yield$ takes at most $c\cdot|y|$ time, where $y\in R(x)$ is the output produced.
+
+
+%By design, enumeration problems are expected to be solved by an algorithm that works in two phases: first, a preprocessing phase in which it receives the input and produces some object $D$ (e.g. a collection of indices, or some new data structure) which stores the expected outputs somehow, and then an enumeration phase which extracts the outputs through $D$.
+%In this paper we will not only look at enumeration algorithms as a solution to a two-part problem, instead we will also be interested in accepting these objects $D$ as part of an input.
+%Another consideration we will have is that we will only talk about output-linear delay as our gold standard for enumeration efficiency. 
+%This is a refinement of the better-known constant-delay bound, which requires (by a reasonable assumption) that each output has constant size. 
+%Output-linear delay is the natural extension of this notion which allows outputs of unbounded size, which requires the delay to be bounded linearly in the size of the current output.
+%More generally, we will look at classes of objects which allow output-linear delay enumeration as schemes which efficiently represent sets of outputs.
+%We can subsequently define enumeration algorithms as those which receive an input, and produce one such scheme.
+
+%Dealing with these objects has to be done with a certain degree of care, since it is easy to miss where the coefficients should come from, and how general they should be.
+

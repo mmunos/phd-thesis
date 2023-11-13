@@ -1,0 +1,173 @@
+\begin{proof}	
+	Let $\D = (\Sigma, V, I, \ell, r, \lambda)$ be a $k$-bounded \dsabbr\ and $v\in V$. We will show that the set $\L_{\D}(v)$ can be enumerated with output-linear delay. To show that this is possible we use a data structure we call an {\em output tree}. This is a dynamic binary tree $T$ which appends itself to an \dsabbr \ $\cD$. We define it as follows: If $v$ is a leaf node in $\cD$, then $v$ is an output tree of $\cD$. If $T$ is an output tree and $v$ is a union node, then $T' = v(T)$ is an output tree of $\cD$. If $T_1$ and $T_2$ are output trees and $v$ is a product node, then $v(T_1,T_2)$ is an output tree of $\cD$. In either case, we say that $T$ is rooted in $v$, and we notate it by ${\sf root}(T) = v$. For an output tree $T$ we define the functions ${\sf child}_T, {\sf lchild}_T$ and ${\sf rchild}_T$ as follows: If $v(T')$ is a subtree of $T$, then ${\sf child}_T(v) = T'$. If $v(T_1,T_2)$ is a subtree of $T$, then ${\sf lchild}_T(v) = T_1$ and ${\sf rchild}_T(v) = T_2$. These functions are not defined in any other case.
+	
+	\begin{definition}
+		Let $\D = (\Sigma, V, I, \ell, r, \lambda)$ be an \dsabbr. An output tree $T$ of $\cD$ is full if for each node $v$ in $T$ the following hold: If $v$ is an union node in $\cD$, then ${\sf child}_T(v)$ is either rooted in $\ell(v)$ or in $r(v)$. If $v$ is a product node in $\cD$, then ${\sf lchild}_T(v)$ is rooted in $\ell(v)$ and ${\sf rchild}_T(v)$ is rooted in $r(v)$.
+	\end{definition}
+	
+	We define the function ${\sf print}(T)$ as follows: If $v$ is a leaf node $v$, then ${\sf print}(T) = \lambda(v)$. If $T = v(T')$ then ${\sf print}(T) = {\sf print}(T')$. If $T = v(T_1, T_2)$ then ${\sf print}(T) = {\sf print}(T_1)\cdot {\sf print}(T_2)$.
+	
+	\begin{lemma}\label{appendix:output-tree-print}
+		Let $\cD$ be an \dsabbr and let $v$ be a node in $\cD$. For a full output tree $T$ of $\cD$ rooted on $v$ it holds that ${\sf print}(T) \in \L_{\cD}(v)$.
+	\end{lemma}
+	\begin{proof}
+		We prove this by induction on the size of $T$. The case $T = v$ where $v$ is a leaf node is trivial. If $T = v(T')$, $v$ is an union node, so the proof follows since ${\sf print}(T)$ is equal to ${\sf print}(T')$ which is either in $\L(\ell(v))$ or $\L(r(v))$, and therefore in $L(v)$. If $T = v(T_1,T_2)$ then $v$ is a product node. We have that ${\sf print}(T_1)\in\L(\ell(v))$ and ${\sf print}(T_2)\in\L(r(v))$, from which it follows that ${\sf print}(T)\in\L(v)$.
+	\end{proof}
+	
+	\begin{lemma}\label{appendix:output-tree-unique}
+		Let $\cD$ be an unambiguous \dsabbr and let $v$ be a node in $\cD$. For each $\mu\in\L_{\cD}(v)$ there exists exactly one full output tree $T_{\mu}$ of $\cD$ rooted in $v$ such that ${\sf print}(T) = \mu$.
+	\end{lemma}
+	\begin{proof}
+		Let ${\sf reach_{\cD}}(v)$ be the number of nodes reachable from $v$ in $\cD$, including itself. We will prove this lemma by induction in ${\sf reach_{\cD}}(v)$. If ${\sf reach_{\cD}}(v) = 1$, then $v$ is a leaf node and the proof follows directly since the only output tree rooted in $v$ is $v$ itself. Assume that it holds for every node $v$ such that ${\sf reach_{\cD}}(v)< s$. Let $v$ be a node such that ${\sf reach_{\cD}}(v) = s$ and let $\mu\in\L(v)$. If $v$ is a union node suppose without loss of generality that $\mu\in\L(\ell(v))$. Note that since $\cD$ is unambiguous we have that $\mu\not\in\L(r(v))$. If $T_{\mu} = v(T')$ and $T'$ was rooted in $r(v)$, Lemma~\ref{appendix:output-tree-print} would imply that ${\sf print}(T_{\mu}) = {\sf print}(T') \in \L(r(v))$ which leads to a contradiction. Therefore, $T_{\mu}$ could only be of the form $v(T')$ where $T'$ is rooted in $\ell(v)$. From our hypothesis, there exists only one full output tree $T_{\mu}'$ such that ${\sf print}(T_{\mu}') = \mu$, so the proof follows from taking $T_{\mu} = v(T_{\mu}')$. If $v$ is a product node note that any full output tree $T$ rooted in $v$ is of the form $v(T_1,T_2)$, where $T_1$ and $T_2$ are rooted in $\ell(v)$ and $r(v)$ respectively. Since $\cD$ is unambiguous, there exists only two strings $\mu_1$ and $\mu_2$ such that $\mu = \mu_1\cdot\mu_2$ and $\mu_1\in\L(\ell(v))$ and $\mu_2\in\L(r(v))$. Let $T_{\mu_1}$ and $T_{\mu_2}$ be the only full output trees that are rooted in $\ell(v)$ and $r(v)$ respectively for which the hypothesis hold. The proof follows by taking $T_{\mu} = v(T_{\mu_1},T_{\mu_2})$.
+	\end{proof} 
+	
+	For an \dsabbr $\cD$ and node $v$ we define a total order over the full output trees rooted in $v$ recursively: If $v$ is a leaf node there exists only one tree rooted in $v$ so the order is trivial. If $v$ is a union node then let $T_1 = v(T_1')$ and $T_2 = v(T_2')$ be full output trees. We have that $T_1 < T_2$ if and only if ${\sf root}(T_1') = \ell(v)$ and ${\sf root}(T_2') = r(v)$, or $T_1' < T_2'$. If $v$ is a product node then let $T = v(T_1,T_2)$ and $T' = v(T_1',T_2')$. We have that $T < T'$ if and only if $T_1 < T_1'$, or $T_1 = T_1'$ and $T_2 < T_2'$.
+	
+	For an \dsabbr $\cD$ and an output tree $T$ on $\cD$ we define the operation ${\sf tilt}(T)$ as follows: If $T = v$, then ${\sf tilt}(T) = v$. If $T = v(T')$ where ${\sf root}(T') = \ell(v)$, then ${\sf tilt}(T) = v({\sf tilt}(T))$. If $T = v(T')$ where ${\sf root}(T') = r(v)$, then ${\sf tilt}(T) = {\sf tilt}(T')$. If $T = v(T_1,T_2)$, then ${\sf tilt}(T) = v({\sf tilt}(T_1),{\sf tilt}(T_2))$. Intuitively, what this operation does is to bypass any union node in $T$ whose child is a right child in $\cD$.
+	
+	\begin{definition}
+		For an \dsabbr $\cD$, an output tree $T$ of $\cD$ is left-tilted if it can be obtained as $T = {\sf tilt}(T')$ where $T'$ is a full output tree.
+	\end{definition}
+	
+	Two left-tilted output trees can be seen in Figure~\ref{fig-output-trees}. The first tree in the figure is also full. Note that since the root could be a union node whose child is a right child, the root of ${\sf tilt}(T)$ could be a different node than the root of $T$. We also notice the following result.
+	
+	\begin{lemma}\label{appendix:enum-first}
+		Let $\cD$ \dsabbr with a node $v$. The first tree $T$ in the ordered sequence of full output trees rooted in $v$ is also left-tilted. In other words, ${\sf tilt}(T) = T$.
+	\end{lemma}
+	\begin{proof}
+		We define the operation ${\sf build}(v)$ as follows. If $v$ is a leaf node, then ${\sf build}(v) = v$. If $v$ is a union node then ${\sf build}(v) = v({\sf build}(\ell(v))$. If $v$ is a product node then ${\sf build}(v) = v({\sf build}(\ell(v)),{\sf build}(r(v)))$. Let $T'$ be a different full output tree rooted in $v$. A straightforward induction shows that $T < T'$.
+	\end{proof}
+	
+	\begin{lemma}
+		Let $\D$ be an \dsabbr with an output tree $T$. We have that ${\sf print}({\sf tilt}(T)) = {\sf print}(T)$.
+	\end{lemma}
+	\begin{proof}
+		The proof follows by a straightforward induction on the tree. 
+	\end{proof}
+	
+	\input{../algorithms/dsenumalg2}
+	
+	\begin{figure}[t]
+		\centering
+		\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.2pt},squarednode/.style={rectangle,inner sep=3pt}]
+			\node [squarednode] (0) at (0, 0) {$a_1$};
+			\node [squarednode] (1) at (2, 0) {$a_2$};
+			\node [squarednode] (2) at (4, 1) {$a_3$};
+			\node [squarednode] (3) at (1, 1) {$\cup$};
+			\node [squarednode] (4) at (2, 2) {$\odot$};
+			\node [squarednode] (5) at (3, 3) {$\cup$};
+			\node [roundnode] (6) at (0, 0.3) {};
+			%\node [roundnode] (7) at (2, 0.3) {};
+			\node [roundnode] (8) at (4, 1.3) {};
+			\node [roundnode] (9) at (1, 1.3) {};
+			\node [roundnode] (10) at (2, 2.3) {};
+			\node [roundnode] (11) at (3, 3.3) {};
+			\draw (3.south west) to (0);
+			\draw (3.south east) to (1);
+			\draw (4.south west) to (3);
+			\draw (4.south east) to (2);
+			\draw (5.south west) to (4);
+			\draw (5.south east) to (2);
+			\draw [dashed, -] [out=200,in=70] (9) to (6);
+			\draw [dashed, -] [out=200,in=70] (10) to (9);
+			\draw [dashed, -] [out=-20,in=130] (10) to (8);
+			\draw [dashed, -] [out=200,in=70] (11) to (10);
+		\end{tikzpicture}
+		\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.2pt},squarednode/.style={rectangle,inner sep=3pt}]
+			\node [squarednode] (0) at (0, 0) {$a_1$};
+			\node [squarednode] (1) at (2, 0) {$a_2$};
+			\node [squarednode] (2) at (4, 1) {$a_3$};
+			\node [squarednode] (3) at (1, 1) {$\cup$};
+			\node [squarednode] (4) at (2, 2) {$\odot$};
+			\node [squarednode] (5) at (3, 3) {$\cup$};
+			%\node [roundnode] (6) at (0, 0.3) {};
+			\node [roundnode] (7) at (2, 0.3) {};
+			\node [roundnode] (8) at (4, 1.3) {};
+			%\node [roundnode] (9) at (1, 1.3) {};
+			\node [roundnode] (10) at (2, 2.3) {};
+			\node [roundnode] (11) at (3, 3.3) {};
+			\draw (3.south west) to (0);
+			\draw (3.south east) to (1);
+			\draw (4.south west) to (3);
+			\draw (4.south east) to (2);
+			\draw (5.south west) to (4);
+			\draw (5.south east) to (2);
+			\draw [dashed, -] [out=-150,in=110] (10) to (7);
+			\draw [dashed, -] [out=-20,in=130] (10) to (8);
+			\draw [dashed, -] [out=200,in=70] (11) to (10);
+		\end{tikzpicture}
+		\caption{An example iteration of an output tree. The subjacent \dsabbr\ $\D$ is represented by solid edges, and the output tree with curve dashed lines. The next tree would be the single node $v$ for which $\lambda(v) = a_3$.}
+		\label{fig-output-trees}
+	\end{figure}
+	
+	
+	We are ready to discuss the enumeration algorithm. Our algorithm receives an unambiguous $k$-bounded \dsabbr $\cD$ along with one of its nodes $v$ and prints the elements in $\L_{\cD}(v)$ one by one. The way this is done is by generating the sequence of left-tilted output trees ${\sf tilt}(T_1),\ldots,{\sf tilt}(T_m)$ for which $T_1 < \cdots < T_m$ is the complete sequence of full output trees rooted in $v$. After generating each tree $T$, the procedure outputs the string ${\sf print}(T)$ which can be easily done with a depth-first traversal on the tree. The procedure is detailed in Algorithm~\ref{alg:dsenum2}.
+	
+	The procedure {\sc BuildTree} builds a completely embedded output tree rooted in $u$. The procedure {\sc NextTree} receives a tree rooted in $u$ and recursively builds the next tree in the sequence ${\sf tilt}(T_1),\ldots,{\sf tilt}(T_m)$ for which $T_1 < \cdots < T_m$ is the sequence of full output trees rooted in $u$. 
+	
+	We can deduce the following from Lemma~\ref{appendix:enum-first}:
+	\begin{corollary}
+		Let $\D$ be an \dsabbr and let $v$ be one of its nodes. {\sc BuildTree}$(\cD,v)$ builds a full output tree $T$ that is the first in the ordered sequence of full output trees rooted in $v$.
+	\end{corollary}
+	
+	We prove the correctness of the algorithm in the following results.
+	
+	\begin{lemma}\label{appendix:enum-correctlemma}
+		Let $\D$ be an \dsabbr and let $v$ be one of its nodes. Let $T_1<\ldots<T_m$ be the sequence of full output trees rooted in $v$. If the procedure {\sc NextTree} receives $(\cD,{\sf tilt}(T_i))$ it returns ${\sf tilt}(T_{i+1})$, or $\emptyset$ if $i = m$.
+	\end{lemma}
+	\begin{proof}
+		We prove this by induction in ${\sf reach}_{\cD}(v)$. If $v$ is a leaf node, the sequence consists only of the tree $v$, so the proof follows directly. 
+		Assume it holds for nodes $v'$ such that ${\sf reach}_{\cD}(v') < s$ and let $v$ be such that ${\sf reach}_{\cD}(v) = s$. 
+		If $v$ is a union node notice that there exists an $e$ such that the sequence of full output trees rooted in $v$ is $T_1<\ldots<T_e<T_{e+1}<\ldots<T_m$ where $T_e = v(T_e')$ and $T_{e+1} = v(T_{e+1}')$, and ${\sf root}(T_e') = \ell(v)$ and ${\sf root}(T_{e+1}') = r(v)$. 
+		If $i < e$ or $i > e$, then the proof follows by induction. Otherwise, if $i = e$, note that the procedure {\sc BuildTree}$(\cD,r(v))$ builds the first full output tree rooted in $r(v)$, which is $T_{e+1}'$, and is equal to ${\sf tilt}(T_{e+1})$. 
+		If $v$ is a product node the proof follows straightforwardly by induction over the algorithm.
+	\end{proof}
+	
+	From the previous results, correctness of the algorithm follows:
+	
+	\begin{claim}
+		{\sc Enumerate} receives an \dsabbr $\D$ and one of its nodes $v$ and outputs all of the elements in $\L_{\cD}(v)$ one by one without repetition.
+	\end{claim}
+	\begin{proof}
+		Let $T_1 <\cdots <T_m$ be the sequence of full output trees rooted in $v$. The algorithm starts by generating $T_1 = {\sf tilt}(T_1)$ as proven by Corollary~\ref{appendix:enum-first}. Then on each step $i$, the algorithm iterates $T$ as ${\sf tilt}(T_i)$ to transform it into ${\sf tilt}(T_i)$, as proven by Lemma~\ref{appendix:enum-correctlemma}. In each step, an element in $\L_{\cD}(v)$ is given as output as proven by Lemma~\ref{appendix:output-tree-print}. Moreover, the sequence $T_1 <\cdots <T_m$ allows the set $\L_{\cD}(v)$ to be produced exhaustively without repetitions, as proven by Lemma~\ref{appendix:output-tree-unique}.
+	\end{proof}
+	
+	The following results ensure that each tree in the sequence can be generated efficiently.
+	
+	\begin{lemma}\label{appendix:next-tree-almost-linear-delay}
+		Let $\cD$ be an \dsabbr, let $v$ one of its nodes, and let $T_1<\cdots<T_m$ be the sequence of full output trees rooted in $v$. If the procedure {\sc NextTree} receives $(\cD,T)$ it returns the tree $T'$ in at most $c(\vert T\vert + \vert T'\vert)$ time, for some constant $c$.
+	\end{lemma}
+	\begin{proof}
+		We choose $c$ as a factor of the number of steps that are taken in {\sc NextTree} without taking into account recursion. That is, the time that it takes to run steps 19-33 without calls. A first observation that we make is that {\sc BuildTree} builds a tree $T$  in time at most $c\vert T\vert$, since each call to {\sc BuildTree} takes less than $c$ steps, and exactly one call to {\sc BuildTree} is done per node in $T$. We prove the lemma by induction on the tree. If $v$ is a leaf node, then the proof is trivial. If $v$ is a product node, let $T = v(T_1,T_2)$, and let $T'$ be the output of {\sc NextTree} such that $T' = v(T_1',T_2')$ or $T' = \emptyset$. If the call in line 22 returns an nonempty tree, then the procedure takes time $c + c(\vert T_2\vert + \vert T_2'\vert)$. Otherwise, line 22 takes time $c\vert T_2\vert$. Then, if the call in line 24 returns a nonempty tree, it takes time $c(\vert T_1\vert + \vert T_1'\vert)$, and then the call in line 27 takes time $c\vert T_2'\vert$; otherwise, it takes time $c\vert T_1\vert$. In each of the routes where $T'$ is not empty, the execution time is bounded by $c(\vert T_1\vert + \vert T_2\vert + \vert T_1'\vert + \vert T_2'\vert+1) \leq c(\vert T\vert + \vert T' \vert)$, and if $T' = \emptyset$, it is bounded by $c(\vert T_1\vert + \vert T_2\vert + 1) = c\vert T\vert$ which proves the statement. If $v$ is a union node, let $T = v(T')$ and let $T_{\out}$ be the output of {\sc NextTree}. If the call in line 30 returns a nonempty tree, it takes time $c(\vert T'\vert + \vert T_{\out}'\vert)$, where $T_{\out} = v(T_{\out}')$, and the procedure takes total time $c + c(\vert T'\vert + \vert T_{\out}'\vert)\leq c(\vert T\vert + \vert T_{\out}\vert)$, which proves the statement. Otherwise,  the call in line 30 takes time $c\vert T'\vert$, and then line 32 takes time $c\vert T_{\out}\vert$, which adds to a total time $c + c(\vert T'\vert + \vert T_{\out}\vert)= c(\vert T\vert + \vert T_{\out}\vert)$, which also proves the statement.
+	\end{proof}
+	
+	\begin{lemma}\label{appendix:tree-size}
+		Let $\cD$ be a $k$-bounded \dsabbr and $T$ be a left-tilted output tree in $\cD$. The size of $T$ is at most $2k\vert {\sf print}(T)\vert$.
+	\end{lemma}
+	\begin{proof}
+		Note that $\vert {\sf print}(T)\vert$ is equal to the number of leaves in $T$. Since $T$ is left-tilted, then  for each union node $v$ in $T$ we have that ${\sf child}_{T}(v)$ is rooted in $\ell(v)$. We also have that $\cD$ is $k$-bounded, so there are at most $k$ nodes between each pair of product nodes in $T$. We know that a binary tree with $e$ leaves has $2e-1$ nodes and $2e-2$ edges. Therefore, if we replace each edge by $k-1$ nodes we obtain a tree whose size is an upper bound for the size of $T$, and the proof follows.
+	\end{proof}
+	
+	From these lemmas we obtain a result that ensures nearly output-linear delay.
+	
+	\begin{claim}\label{appendix:ds-almost-linear-delay}
+		Let $\cD$ be a $k$-bounded \dsabbr and let $v$ be a node in $\cD$. For some sequence $\mu_1,\ldots,\mu_m$ that contains exactly the elements in $\L_{\cD}(v)$ without repetition, {\sc Enumerate} can produce each element $\mu_i$ for $i\in[2,m]$ with delay $c(\vert \mu_{i-1}\vert + \vert \mu_i\vert)$, and $\mu_1$ with delay $c\vert\mu_1\vert$, where $c$ is a constant.
+	\end{claim}
+	\begin{proof}
+		The sequence in question is the one given by the total order $T_1<\cdots <T_m$ of total output trees rooted in $v$, for which $\mu_i = {\sf print}(T_i)$. Let $c'$ be the constant in Lemma~\ref{appendix:next-tree-almost-linear-delay} and let $d$ be a constant such that ${\sf print}(T)$ can be produced in time $d\vert T \vert$. We have that {\sc BuildTree} can build a tree $T$ in size. In Lemma~\ref{appendix:next-tree-almost-linear-delay} it is shown that the first tree $T_1$ in the sequence can be generated in time $c'\vert T_1\vert$, and in Lemma~\ref{appendix:tree-size} we show that $\vert T_1\vert \leq 2k\vert \mu_1\vert$. From this, it follows that $\mu_1$ can be produced in time $2k(c'+d)\vert \mu_1\vert$. For each $i\in[2,m]$ Lemma~\ref{appendix:next-tree-almost-linear-delay} shows that $T_i$ can be generated in time $c'(\vert T_{i-1}\vert + \vert T_i\vert)$. We can bound this number by $2kc'(\vert \mu_{i-1}\vert + \vert \mu_i\vert)$ using Lemma~\ref{appendix:tree-size}. Printing the output takes time $d\vert T_i\vert$, so the total time is $2kc'(\vert \mu_{i-1}\vert + \vert \mu_i\vert) + 2kd\vert \mu_i\vert$, which is bounded by $2k(c'+d)(\vert \mu_{i-1}\vert + \vert \mu_i\vert)$. We conclude the proof by taking $c = 2k(c'+d)$.
+	\end{proof}
+	
+	We optimize this result to obtain the desired statement.
+	
+	\begin{proposition}[Proposition~\ref{ds:lindelay}]
+		Fix $k\in\nat$. Let $\cD$ be an unambiguous and $k$-bounded \dsabbr. Then the set $\L_{\cD}(v)$ can be enumerated with output-linear delay for any node $v$ in $\cD$.
+	\end{proposition}
+
+	\begin{proof}
+		Let $c$ be the constant from Claim~\ref{appendix:ds-almost-linear-delay}, and let $\mu_1,\ldots,\mu_m$ be the elements in $\L_{\cD}(v)$ in the order that the algorithm from Claim~\ref{appendix:ds-almost-linear-delay} produces them.  We have that $\mu_1$ can be produced in $c|\mu_1|$ steps, whereas each other $\mu_i$ can be produced in $c(|\mu_{i-1}|+|\mu_i|)$ steps. 
+		Our algorithm consists in printing the output set in order in an auxiliary tape, and to simply wait $2c\cdot|\mu_i|$ steps to print each output $\mu_i$ to the actual output tape.
+		To see why this is possible to do, note that each output $\mu_i$ will be printed in the auxiliary tape after at most $c|\mu_1| + c(|\mu_1|+|\mu_2|) + c(|\mu_2|+|\mu_3|) + \cdots + c(|\mu_{i-1}|+|\mu_i|)$ steps, which is less than $2c\cdot(|\mu_1|+|\mu_2|+\cdots+|\mu_i|)$. This guarantees that at the moment each output $\mu_i$ need to be printed in the output tape, it will be available in the auxiliary tape.
+		Since this clearly works with output-linear delay, the statement follows.
+		%We utilize this algorithm as an oracle to retrieve each output $\mu_i$ in order. After each output is obtained, it is printed in an auxiliary tape instead of the output tape. Then the oracle is called to obtain the following outputs $\mu_{i+1},\mu_{i+2},\ldots$. Once $c'\vert\mu_i\vert$ steps have been taken in the oracle, $\mu_i$ is printed to the output tape. After this, the call to obtain $\mu_{i+1}$ is resumed. This output is then obtained $c(\vert\mu_{i}\vert + \vert\mu_{i+1}\vert)$ steps after the oracle was called, but only $c\vert\mu_{i+1}\vert$ steps after $\mu_i$ was printed. From this, we have that for each $i\in[1,m]$, printing $\mu_i$ takes time $(2c'+d)\vert \mu_i\vert$, for a $d$ that arises from the modifications to the algorithm presented here. By taking the constant $c = (2c'+d)$ we obtain output-linear delay.
+	\end{proof}
+\end{proof}

@@ -1,0 +1,67 @@
+Having presented enumerable sets, we now present the normal form to
+enforce on annotated grammars. Our results could be shown using the
+commonly known Chomsky normal form (CNF), but we cannot always obtain
+an equivalent CNF of linear size from a grammar. For this
+reason, we use a variant of CNF, the
+\emph{arity-two normal
+form} (2NF)~\cite{lange2009cnf}, which is intuitively like CNF but without
+disallowing rules of the form $X \rightarrow Y$ or $X \rightarrow \epsilon$. Formally,
+  we say that an annotated grammar $(V, \Sigma, \Omega, P, S)$ is in \emph{arity-two normal
+  form} (2NF) if the following hold:
+  \begin{itemize}
+%
+%
+\item Every nonterminal $X$ can derive some
+string, i.e., there exists $\hat{w}\in (\Sigma \cup \Sigma\times \Omega)^*$
+such that $X \ders{\cG} \hat{w}$.
+\item Every nonterminal $X$ can be
+reached from the start symbol $S$, i.e., there exists $\alpha,\beta \in  (V \cup
+\Sigma \cup \Sigma \times \Omega)^*$ such that $S \ders{\cG}
+\alpha X \beta$.
+%
+%
+%
+%
+     \item For every rule $X \rightarrow \alpha$ in~$P$, we have $|\alpha| \leq
+       2$, and if $\alpha = 2$ then it consists of two nonterminals.
+\end{itemize}
+
+We can easily translate annotated grammars to 2NF, as in~\cite{lange2009cnf}:
+
+\begin{proposition}[\cite{lange2009cnf}]
+  \label{gram:prp:2nf}
+  Given any annotated grammar\/ $\mathcal{G}$, we can compute in linear time an annotated
+  grammar $\mathcal{G}'$ in 2NF such that $\mathcal{G}$ and $\mathcal{G}'$ are
+  equivalent. Furthermore, if $\mathcal{G}$ is unambiguous then $\mathcal{G}'$ is unambiguous as well.
+\end{proposition}
+We omit a proof of this statement here since it follows from the reference.
+However, we will prove a stronger version of it in the following sections when further restrictions for grammars are introduced.
+
+By Proposition~\ref{gram:prp:2nf}, we assume that the 
+input grammar~$\cG$ is in 2NF.
+
+We also compute in linear time some more information about $\cG$. First, we precompute which
+nonterminals are \emph{nullable}, i.e., are such that $X \ders{\cG} \epsilon$: if we have a rule
+$X \rightarrow \epsilon$ then $X$ is nullable, and if we have a
+rule $X \rightarrow Y$ where $Y$ is nullable or $X \rightarrow YZ$ where $Y$ and
+$Z$ are nullable then $X$ is also nullable. From this information, we further
+compute for each nonterminal $Y$ a set $\D[Y]$ of all
+nonterminals $X$ such that one of the following rules exist: a rule
+$X\rightarrow Y$, a rule $X\rightarrow YZ$ where $Z$ is nullable, or a rule $X\rightarrow ZY$ where $Z$ is
+nullable. We can clearly compute all of this in linear time (note that each rule contributes at most two
+entries to~$\D$).
+
+Second, as the grammar is assumed to be unambiguous, it also contains
+no \emph{cycles}, %
+i.e., there are no sequence of nonterminals
+$X_1 \dots X_n$ such that for $1\leq i < n$, $X_i\in \D[X_{i+1}]$ and
+$X_1\in \D[X_n]$. Indeed, otherwise 
+%
+there would be infinitely many possible derivations of some string
+starting at~$X_1$, contradicting the unambiguity of~$\cG$.  Thus, we can sort the nonterminals of $\cG$
+in \emph{topological order}, by which we mean that when $Y\in \D[X]$
+then $Y$ is enumerated after $X$. Intuitively, when we consider a nonterminal
+$X$, we want to be done with processing the nonterminals $Y$ such that $X \rightarrow
+Y$ or $X \rightarrow YZ$ or $X \rightarrow ZY$ with $Z$ nullable. This order can also be computed in linear time.
+%
+

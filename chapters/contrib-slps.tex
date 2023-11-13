@@ -1,0 +1,7 @@
+Third, we study the problem of enumerating results from a query over a compressed document. The model we use for compression are straight-line programs (SLPs), which are defined by a context-free grammar that produces a single string. For our queries, we use a model called Annotated Automata, an extension of regular automata that allows annotations on letters. This model extends the notion of regular spanners as it allows arbitrarily long outputs. 
+
+The main result in this chapter is an algorithm that evaluates such a query by enumerating all results with output-linear delay after a preprocessing phase which takes linear time on the size of the SLP, and cubic time over the size of the automaton. We achieve this through a persistent data structure named Enumerable Compact Sets with Shifts which guarantees output-linear delay under certain restrictions.
+These results imply constant-delay enumeration algorithms in the context of regular spanners. 
+
+Further, we use an extension of annotated automata which utilizes succinctly encoded annotations to save an exponential factor from previous results that dealt with constant-delay enumeration over variable-set automata.
+Lastly, we extend our results to allow complex document editing while maintaining the constant delay guarantee.

@@ -1,0 +1,57 @@
+
+For this result, we use the notion of PDA (Definition~\ref{gram:def:pda}) and
+deterministic PDA (Definition~\ref{gram:def:dpda}) that were presented inside a previous proof.
+
+As we have done in previous proofs, the strategy consists on starting with a profiled-deterministic PDAnn $\cP$, and building a PDAnn $\cP'$ by eliminating the output symbols from each transition. This PDAnn behaves almost identically to a pushdown automaton $\cA$ in the sense that if $w\in L(\cA)$,  then $\sem{\cP}(w) = \{\eps\}$, and that if $w\not\in L(\cA)$ then $\sem{\cP}(w) = \emptyset$. Whenever this holds, we say that the PDAnn and the pushdown automaton are \emph{equivalent}. It is simple to see that for this $\cA$ it holds that $L(\cA) = L'$. To conclude the proof, we must show that $\cA$ can be made deterministic. Without loss of generality, we remove from $\cA$ 
+%
+all \emph{inaccessible states}, i.e., all states for which there is no run that goes to the state.
+
+First, we will prove that the PDAnn $\cP'$ is profiled-deterministic. Let $w$ be a string in $\Sigma^*$ and let $\rho_1'$ and $\rho_2'$ be two partial runs of $\cP'$ over $w$ with the same profile, and with last configurations $(q, i)$ and $(q', i)$. There clearly exist partial runs $\rho_1$ and $\rho_2$ of $\cP$ over $w$ with the same profile, which can be obtained by replacing each transition by one of the transitions in $\cP$ it was replaced by. Since $\cP$ is profile-deterministic, then one of the following must hold in $\cP$: (1) $\Delta(q) \cup \Delta(q') \subseteq Q \times (\Sigma \cup \Sigma \times
+\Omega) \times Q$, i.e., all transitions from~$q$ and $q'$ are read or
+read-write transitions; (2) $\Delta(q) \cup \Delta(q') \subseteq Q \times (Q \times \Gamma)$, i.e.,
+all transitions from~$q$ and~$q'$ are push transitions; or (3) $\Delta(q) \cup \Delta(q') \subseteq (Q \times \Gamma) \times Q$, i.e., 
+all transitions from $q$ and $q'$ are pop transitions. Note that if (2) or (3) hold, then in the new PDAnn $\cP$ the condition holds again in $\cP'$ trivially since none of the transitions in $\Delta(q)$ and $\Delta(q')$ was changed. Moreover, if (1) holds, then it can be seen that all of the transitions that belonged in $Q\times (\Sigma\times\Omega)\times Q$ now belong in $Q\times \Sigma\times Q$, which also leaves the condition unchanged in $\cP'$. We conclude that $\cP'$ is profiled-deterministic.
+
+The next step is to use Lemma~\ref{gram:lem:pdtonechoice} from $\cP'$ to obtain an equivalent PDAnn $\cP''$ which is deterministic-modulo-profile. We will argue that if we start with $\cP'$, which was profiled-deterministic, then the resulting $\cP''$ is equivalent to a pushdown automaton $\cA'$ which is also deterministic. Let $w$ be an input string in $\Sigma^*$ and let $\rho''$ be a partial run of $\cA$ over $w$ with last configuration $(S, i)$ and with topmost symbol on the stack $T$. Let us recall what $\cP''$ being deterministic-modulo-profile entails that the following conditions hold:
+  \begin{enumerate}
+	\item There is at most one push transition that
+	starts on $S$; formally, we have:
+        \[\card{\{S', T \in Q'' \times \Gamma'' \mid
+                (S, S', T) \in \Delta\}} \leq 1.\]
+	\item There is at most
+	one pop transition that starts on $S,T$; formally, for each $\gamma$, we
+        have:
+        \[\card{\{S'
+                \in Q \mid (S, \gamma, S') \in \Delta\}} \leq 1.\]
+	\item For each letter $a$, and output $\oout \in \Omega$, there is at most one read-write transition that starts on
+          $S,a,\oout$; formally, we have \[\card{\{S' \in Q'' \mid (S,(a,\oout),S') \in \Delta''\}}
+        \leq 1.\]
+	\item For each letter $a$, there is at most one read transition that starts on
+          $S,a$; formally, we have: \[\card{\{q \in Q'' \mid (S,a,S') \in \Delta''\}}
+        \leq 1.\]
+\end{enumerate}
+We will show that at most one of these conditions holds. Recall that in the transformation, the states of $\cP''$ are sets which contain pairs of states $(p,q)\in Q'\times Q'$, and the stack symbols are triples $(p, \gamma, q)\in Q'\times\Gamma' \times Q'$. Now, recall the claim that was proven in the lemma, on the backwards direction:
+
+If $\cP''$ has a run $\rho''$ on a string $w$, producing output $\mu$, from its initial state to an instantaneous
+description $(S, i), \alpha'$ with $\alpha' =
+T_0, \ldots, T_m$ being the sequence of the stack
+symbols, then for any choice of elements $(q_0, \gamma_0, p_0) \in T_0$,
+$(p_0, \gamma_1, p_1) \in T_1$, ..., $(p_{m-1}, \gamma_m, p_m) \in T_m$
+and $(p_m, q) \in S$ it holds that $\cP'$ has a run $\rho'$ on $w$ producing output $\mu$
+from some initial state $q_0$ to the instantaneous description $(q, i), \alpha$ with
+$\alpha = \gamma_0 q_0, \ldots, \gamma_m q_m$ (writing next to each
+stack symbol the state that annotates it), and $\rho''$ and $\rho'$ have
+the same profile. 
+
+Since $\cP'$ is profiled-deterministic, then each run $\rho'^+$ which continues $\rho'$ by one step must have the same shape. This implies that exactly one of the following conditions must hold:
+\begin{itemize}
+	\item The last transition in $\rho'^+$ is a read or read-write transition. Therefore, all transitions from $q$ are either read or read-write transitions.
+	\item The last transition in $\rho'^+$ is a push transition. Therefore, all transitions from $q$ are pop transitions.
+	\item The last transition in $\rho'^+$ is a pop transition. Therefore, all transitions from $q$ are pop transitions.
+\end{itemize}
+ Assume bullet point 1 holds. Note that there are no read-write transitions in $\cP'$ so there are only read transitions. From here, we prove that only (4) is true simply by inspecting the transformation in the lemma; if (1) held, then there would be a push transition from $q$ in $\cP'$, if (2) held then there would be a pop transition from $q$ and $\gamma$ in $\cP'$, and (3) never holds. Now, assume bullet point 2 holds. From here, we prove that only (1) can be true; if (2) held, then there would be a pop transition from $q$ and $\gamma$ in $\cP'$, if (4) held, then there would be a read transition from $q$ in $\cP'$, and again, (3) is never true. Lastly, assume bullet point 3 holds. From here, we prove that only (2) can be true; if (1) held, then there would be a push transition from $q$ in $\cP'$, if (4) held, then there would be a read transition from $q$ in $\cP'$, and yet again, (3) is never true. We conclude that from the 4 points, at most one of these can be true at the same time.
+
+%
+Now we prove that the equivalent PDA $\cA$ is deterministic.
+Let $q$ be a state of~$\cA$. As all states of~$\cA$ are accessible, pick $\rho''$ to be a run that reaches state~$q$. We have argued that at most one of the points in the list above is true of~$\cP'$, and it cannot be point (3). Now,
+we see that (a) is equivalent to (4), that (b) is equivalent to (1) and (c) is equivalent to (2). Since only one of the conditions among (1), (2) or (4) can be true, the same holds for (a), (b) and (c), from which we conclude that $\cA$ is deterministic. This completes the proof.

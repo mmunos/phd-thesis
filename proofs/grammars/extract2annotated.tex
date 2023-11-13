@@ -1,0 +1,217 @@
+Recall that, in the statement of this result, the formal notion of an
+\emph{equivalent annotated grammar} is the one defined above.
+% (Definition~\ref{def:equivalentannotated}). 
+Recall also the formal definition of
+\emph{ref-words} (Definition~\ref{gram:def:refwords}).
+
+%
+%
+%
+%
+%
+%
+
+Let $r$ be a ref-word in $\Sigma \cup \captures_\var$ and let $\hat{w}$ be an annotated string in $\Sigma \cup (\Sigma \times \Omega_\var)$. We say that $r$ and $\hat{w}$ are \emph{equivalent} if $\splain(r\cdot\#) = \str(\hat{w})$ and $\outf(\eta^{r}) = \ann(\hat{w})$. 
+For example, the ref-word $r_1 = \ \vdash_x\!\texttt{a}\texttt{a}\!\dashv_x\vdash_y\!\texttt{b}\texttt{b}\!\dashv_y\!\texttt{b}$ is equivalent to $\hat{w}_1 = (\texttt{a},\{\vdash_x\})\,\texttt{a}\,(\texttt{b},\{\dashv_x,\vdash_y\})\,\texttt{b}\,\texttt{b}\,(\texttt{b},\{\dashv_y\})\,\#$.
+
+The overall strategy of this proof is going to be to construct an annotated grammar $\cG$ in a way such that for every ref-word $r\in L(\cH)$ there exists an equivalent annotated string $\hat{w}\in L(\cG)$, and vice versa. It is clear that this implies that $\cG$ and $\cH$ are equivalent.
+
+The way we build $\cG$ will look like we are ``pushing'' the variable operations to the next terminal to the right. 
+We will do this process one variable operation at a time.
+
+First, we need to define an intermediate model between those of extraction grammars and annotated grammars. 
+We define \emph{extraction grammars with annotations} as a straightforward
+extension of extraction grammars which allow annotations on terminals that are
+not variable operations. 
+For the set of variables $\var$, recall from Definition~\ref{gram:def:refwords} that
+we define the variable operations  of $\var$ by $\captures_\var = \{ {\vdash_x},
+{\dashv_x} \mid x\in \var\}$,
+and recall from Definition~\ref{gram:def:outputset} that we define $\Omega_\var = 2^{\captures_\var}$. An \emph{extraction grammar with annotations} is a tuple
+$\cF = (V, \Sigma, \var, P, S)$ where 
+$V$ is a finite set of nonterminal symbols, $\Sigma$ is an alphabet and $\var$ is a set of variables, such that $V$, $\Sigma$, $\Sigma\times\Omega_\var$, and $\captures_\var$ are pairwise disjoint, 
+$P$ is a finite set of rules of the form $A \to \alpha$ with $A \in
+V$ and $\alpha \in (V \cup \Sigma \cup (\Sigma\times\Omega_\var) \cup \captures_\var)^*$, and $S \in V$ is the
+start symbol. As in the other models, the semantic of extraction grammars is defined through derivations. Specifically,  the set $P$ defines the (left) derivation relation $\der{\cF} \ \subseteq \, (V \cup \Sigma  \cup (\Sigma\times\Omega_\var) \cup \captures_\var)^* \times (V \cup \Sigma  \cup (\Sigma\times\Omega_\var) \cup  \captures_\var)^*$ such that $\hat{u} A \beta \der{\cF} \hat{u} \alpha \beta$ iff $\hat{u} \in (\Sigma  \cup (\Sigma\times\Omega_\var) \cup \captures_\var)^*$, $A \in V$, $\alpha, \beta \in (V \cup \Sigma \cup (\Sigma\times\Omega_\var) \cup \captures_\var)^*$, and $A \rightarrow \alpha \in P$. We denote by $\der{\cF}^*$ the reflexive and transitive closure of $\der{\cF}$. Then the language defined by $\cF$ is $L(\cF) = \{\hat{w} \in (\Sigma \cup (\Sigma\times\Omega_\var) \cup \captures_\var)^* \mid S \der{\cF}^* \hat{w}\}$. In addition, we assume that no string $\hat{w}$ in $L(\cF)$ has a variable operation as its last symbol.
+
+An extraction grammar with annotations generates
+strings over $\Sigma \cup (\Sigma\times\Omega_\var) \cup \captures_\var$, which we now refer to as \emph{annotated ref-words}, and each annotated ref-word defines an output.
+We will define the semantics of extraction grammars with annotations recursively by using the semantics of annotated grammars as a starting point, that is, by extending the function $\ann$ to receive strings over $\Sigma \cup (\Sigma\times\Omega_\var) \cup \captures_\var$. In particular, for an annotated ref-word $\hat{r}\in (\Sigma \cup (\Sigma\times\Omega_\var))^*$ the result of $\ann(\hat{r})$ stays the same. For a string $\hat{r} = \hat{u} \kappa a \hat{v} \in (\Sigma \cup (\Sigma\times\Omega_\var) \cup \captures_\var)^*$ where $\kappa\in \captures_{\var}$ and $a\in\Sigma$, we define $\ann(\hat{r}) = \ann(\hat{u} (a,\{\kappa\}) \hat{v})$, and for a string $\hat{r} = \hat{u} \kappa (a,\oout) \hat{v} \in (\Sigma \cup (\Sigma\times\Omega_\var) \cup \captures_\var)^*$ where $\oout\in\Omega_\var$, we define $\ann(\hat{r}) = \ann(\hat{u} (a,\oout\cup\{\kappa\}) \hat{v})$.
+
+Further, we extend the function $\str$ to receive strings over $\Sigma \cup (\Sigma\times\Omega_\var) \cup \captures_\var$ as $\str(\hat{r}) = \str(\splain(\hat{r}))$. Therefore, for an extraction grammar with annotations $\cF$ and a string $w\in\Sigma^*$ we define the function $\sem{\cF}$ as: $\sem{\cF}(w) \ := \  \{\ann(\hat{r}) \mid \hat{r} \in L(\cF) \wedge \str(\hat{r}) = w\}$.
+We maintain the notions of equivalency between annotated grammars, extraction grammars, and extraction grammars with annotations. Likewise, we define equality between annotated strings, ref-words and  annotated ref-words in the obvious way. Further, we note that any extraction grammar $\cH = (V, \Sigma, \var, P, S)$ is equivalent to the extraction grammar with annotations $\cF = (V', \Sigma\cup\{\#\}, \var, P', S')$ where $V' = V\cup\{S'\}$ for some $S'\not\in V$, and $P' = P \cup\{S'\to S\# \}$. It is obvious that $\cF$ is unambiguous if and only if $\cH$ is unambiguous.
+
+We proceed as follows. First we convert $\cH$ into a functional extraction grammar.
+As detailed in Peterfreund's work
+\cite[Propositions 10 and 12]{Peterfreund21}, this takes running time 
+$\cO(3^{2k}|\cH|^2)$, and if the initial grammar is unambiguous then so is
+the resulting grammar.
+Note that this implies that every ref-word $r$ which is derivable from $S$ contains each variable operation at most once. Hence we can build an equivalent extraction grammar with annotations $\cF = (V, \Sigma, \var, P, S)$ using the technique above. We then convert $\cF$ into a version of CNF which is slightly more restrictive than arity-two normal form: We allow rules of the form $X\to YZ$, $X\to \eps$ and $X\to \tau$, for nonterminals $X, Y$ and $Z$ and a terminal $\tau$, but rules of the form $X\to Y$ are not permitted.
+Converting to this formalism can be done in linear time in $|\cF|$ while preserving unambiguity,
+%
+e.g., by transforming rules of the form $X \rightarrow Y$ to $X \rightarrow E Y$
+for some fresh nonterminal $E$ with a rule $E \rightarrow \epsilon$, and
+otherwise applying our result on arity-2 normal form (Proposition~\ref{gram:prp:2nf}).
+We pick an order over the variable operations in $\captures_\var$ and for each $\kappa\in\captures_\var$ we do the following:
+
+Define a function $\proc_{\kappa}$ that receives an annotated ref-word
+$\hat{r}\in (\Sigma \cup (\Sigma\times2^{\captures_\var}) \cup
+\captures_\var)^*$ and:
+\begin{enumerate}
+  \item if $\hat{r}\in (\Sigma \cup (\Sigma\times2^{\captures_\var}) \cup (\captures_\var\setminus\{\kappa\}))^*$, then $\proc_{\kappa}(\hat{r}) = \hat{r}$,
+  \item if $\hat{r} = \hat{u}\kappa \beta a\hat{v}$ for some $\hat{u}, \hat{v}\in (\Sigma \cup (\Sigma\times2^{\captures_\var}) \cup (\captures_\var\setminus\{\kappa\}))^*$, $\beta\in (\captures_\var\setminus\{\kappa\})^*$ and $a\in\Sigma$, then $\proc_{\kappa}(\hat{r}) = \hat{u}\kappa \beta (a,\{\kappa\})\hat{v}$,
+  \item if $\hat{r} = \hat{u}\kappa \beta (a,T)\hat{v}$, with $T\subseteq\captures_\var\setminus\{\kappa\}$, then  $\proc_{\kappa}(\hat{r}) = \hat{u}\kappa \beta (a,T\cup\{\kappa\})\hat{v}$, and
+  \item $\proc_{\kappa}$ is undefined in any other case.
+\end{enumerate}
+It is straightforward to see that the annotated ref-words $\hat{r}$ and $\hat{t} = \proc_\kappa(\hat{r})$ are equivalent whenever $\proc_\kappa(\hat{r})$ is defined.\\
+
+
+We build an extraction grammar with annotations $\cF' = (V', \Sigma, \var, P', S')$ where $V' = V_\sfo \cup V_\sfi \cup V_\sfl \cup V_\sfm \cup V_\sfr\cup\{S'\}$, and $V_\mathsf{scr} = \{A^\mathsf{scr} \mid A\in P\}$ for $\mathsf{scr}\in\{\sfo, \sfi, \sfl, \sfm, \sfr\}$, and $P'$ is defined by the following rules:
+\begin{itemize}
+	\item For each rule $S\to AB$ in $P$, we add the rules $S'\to A^{\sfo}B^{\sfo}$, $S'\to A^{\sfi}B^{\sfo}$ and $S'\to A^{\sfl}B^{\sfr}$ to $P'$.
+	\item For each rule $A\to BC$, we add the rules $A^{\sfo} \to B^{\sfo}C^{\sfo}$, $A^{\sfi}\to B^{\sfi}C^{\sfo}$, $A^{\sfi}\to B^{\sfo}C^{\sfi}$, $A^{\sfi}\to B^{\sfl}C^{\sfr}$, $A^{\sfl}\to B^{\sfo}C^{\sfl}$, $A^{\sfl}\to B^{\sfl}C^{\sfm}$, $A^{\sfm}\to B^{\sfm}C^{\sfm}$, $A^{\sfr}\to B^{\sfr}C^{\sfo}$ and $A^{\sfr}\to B^{\sfm}C^{\sfr}$ to $P'$.
+	\item For each rule $A\to a$, $a\in \Sigma$, we add $A^{\sfo}\to a$ and $A^{\sfr}\to(a, \{\kappa\})$.
+\item For each rule $A\to (a, T)$, $a\in \Sigma$ and $T\subseteq\captures_\var\setminus\{\kappa\}$, we add $A^{\sfo}\to (a, T)$ and $A^{\sfr}\to(a, T\cup\{\kappa\})$.
+\item For each rule $A\to \kappa'$, $\kappa'\in\captures_\var\setminus\{\kappa\}$, we add the rules $A^{\sfo}\to\kappa'$ and $A^{\sfm}\to\kappa'$.
+\item For each rule $A\to \kappa$, we add the rule $A^{\sfl}\to\eps$.
+\item For each rule $A\to\eps$, we add the rules $A^{\sfo}\to\eps$ and $A^{\sfm}\to\eps$.
+\end{itemize}
+
+%
+
+Let $\hat{\Sigma}_{\kappa} = \Sigma \cup (\Sigma\times2^{\captures_\var}) \cup \captures_\var\setminus\{\kappa\}$. For each nonterminal $A\in V$ these hold:
+\begin{align*}
+	L(A^{\sfo}) &= \{\hat{w}\mid 
+	A\der{\cF}^* \hat{w}, 
+	\ \text{where } \hat{w} \in  \hat{\Sigma}_{\kappa}^*\}\\
+	L(A^{\sfi}) &= \{\proc_{\kappa}(\hat{w}) \mid 
+	A\der{\cF}^* \hat{w},
+	\ \text{where } \hat{w} = \hat{u}\kappa\beta a \hat{v} \text{ or }\hat{w} = \hat{u}\kappa\beta (a, T) \hat{v},\\ 
+	&\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \  \hat{u}, \hat{v} \in \hat{\Sigma}_{\kappa}^*, \beta\in (\captures_\var\setminus\{\kappa\})^*, a\in\Sigma, T\subseteq\captures_\var\setminus\{\kappa\}\}\\
+	L(A^{\sfl}) &= \{\hat{w}\beta \mid 
+	A\der{\cF}^* \hat{w}\kappa\beta,
+	\ \text{where } \hat{w}\in\hat{\Sigma}_{\kappa}^*, \beta\in(\captures_\var\setminus\{\kappa\})^*\}\\
+	L(A^{\sfr}) &= \{\beta(a, \{\kappa\})\hat{w} \mid 
+	A\der{\cF}^* \beta a \hat{w},
+	\ \text{where } \hat{w}\in \hat{\Sigma}_\kappa^*, \beta\in(\captures_\var\setminus\{\kappa\})^*
+	\} \ \cup\\ 
+	& \!\!\!\{\beta(a, T\cup \{\kappa\})\hat{w} \mid 
+	A\der{\cF}^* \beta (a,T) \hat{w},
+	\ \text{where }\hat{w}\in\hat{\Sigma}_\kappa^*, \beta\in(\captures_\var\setminus\{\kappa\})^*, T\subseteq\captures_\var\setminus\{\kappa\}\}\\
+	L(A^{\sfm}) &= \{\beta\mid A \der{\cF}^*\beta,
+	\ \text{where }\beta\in(\captures_\var\setminus\{\kappa\})^*\}
+\end{align*}
+
+These equalities are given without proof since they are not used, and are just for illustrating the idea behind the proof.
+
+For the rest of our proof we will represent derivations $X\der{}^* \delta$ as the sequence of productions $X_1\der{}\gamma_1, X_2\der{}\gamma_2, \ldots,X_m\der{}\gamma_m$, where $X_1 = X$ and $\gamma_m = \delta$, which uniquely determines the derivation by doing it in the leftmost way. We use this representation to state exactly how derivations in $\cF$ are translated to derivations in $\cF'$ and vice versa.
+
+Another notion we need to address is how, in a given derivation $X\der{}^* \delta$, instances of nonterminals are located with respect to each other. By an \emph{instance of a nonterminal} (or just \emph{instance}), we mean an $X_i$ along with some specific derivation $X_i\der{} \gamma_i$ in the sequence. For some instances $X_i$ and $X_j$, we say that $X_i$ is a \emph{descendant} of $X_j$ if $X_i = X_j$, or if $Y \der{} X_i Z$, or $Y\der{} Z X_i$ for some $Y$ which is a descendant of $X_j$. We say that $X_i$ is \emph{to the left} of $X_j$ (or $X_j$ is \emph{to the right} of $X_i$) if there is a derivation $X\der{} Y Z$ in the sequence such that $X_i$ is a descendant of $Y$ and $X_j$ is a descendant of $Z$. 
+
+We note a few things in our construction: (1) Each $X\in V_\sfo$ only produces terminals (which do not include $\kappa$) and nonterminals in $V_\sfo$; furthermore, every rule $X\to YZ$ in $P$ is copied into $P'$ as $X^\sfo \to Y^\sfo Z^\sfo$. (2) Nonterminals in $V_\sfi$ do not produce any terminals or $\eps$ directly, so they need to derive into some $X\in V_\sfi$ and some $Y\in V_\sfr$ to derive some string. (3) As with $V_\sfo$, each $X\in V_\sfm$ only produces terminals in $\captures_\var\setminus\{\kappa\}$ and nonterminals in $V_\sfm$. (4) Each $X\in V_\sfl$ (resp. $V_\sfr$) produces exactly one nonterminal $X'\in V_\sfl$ (resp. $V_\sfr$), or $\eps$ (resp. $(a, T)$ for some $a\in \Sigma$ and $T\subseteq\captures_\var$ such that $\kappa\in T$); this, as a consequence, means that on each derivation from $\cF'$ where the first production is not $S' \der{} X^\sfo Y^\sfo$ there is exactly one derivation $X\der{}\eps$ such that $X\in V_\sfl$ (resp., exactly one derivation $X\der{} (a, T)$, such that $X\in V_\sfr$).
+
+From point (1) we see that each annotated ref-word $\hat{r}\in L(\cF)$ such that $\hat{r}\in\hat{\Sigma}_\kappa^*$ (this is, which does not mention $\kappa$ at all) can be derived by $S'$ starting by $S'\der{} A^{\sfo}B^{\sfo}$, $S'\der{} a$, $S'\der{} \eps$ or $S'\der{} \kappa'$. 
+
+On the other hand, each annotated ref-word $\hat{r}\in L(\cF')$ which does not have $\kappa$ on any annotation set was necessarily derived through rules of the form $X^\sfo\to Y^\sfo Z^\sfo$ which correspond to the rule $X\to YZ$ in $P$, so we deduce that $\hat{r}\in L(\cF)$.
+
+We shall now prove that for any string $\hat{r} = \hat{u}\kappa \beta a\hat{v}$, or $\hat{r} = \hat{u}\kappa \beta (a,T)\hat{v}$, where $\hat{u}, \hat{v}\in\hat{\Sigma}_\kappa^*$, $\beta\in\captures_\var\setminus\{\kappa\}$, $a\in\Sigma$ and $T\subseteq\captures_\var\setminus\{\kappa\}$ such that $\hat{r}\in L(\cF)$, it holds that $\proc(\hat{r})\in L(\cF')$. 
+W.l.o.g., let $\hat{r} =  \hat{u}\kappa \beta a\hat{v}$ and consider
+some leftmost derivation of $\hat{r}$ from $\cF$:
+\begin{align*}
+	S  &\der{\cF}^* 
+	\hat{u}_1 A \delta \\
+	&\der{\cF} 
+	\hat{u}_1 B C \delta \\
+	&\der{\cF}^* 
+	\hat{u}_1 \hat{u}_2 \kappa \beta_1 C \delta \\
+	&\der{\cF}^*
+	\hat{u}_1 \hat{u}_2 \kappa \beta_1 \beta_2 a \hat{v}_1 \delta \\
+	&\der{\cF}^* 
+	\hat{u}_1 \hat{u}_2 \kappa \beta_1 \beta_2 a \hat{v}_1 \hat{v}_2 = \hat{r},
+\end{align*}
+where we have that $\beta = \beta_1\beta_2$, $\hat{u} = \hat{u}_1\hat{u}_2$ and $\hat{v} = \hat{v}_1\hat{v}_2$. Note that this is an arbitrary derivation, and we are merely identifying these nonterminals $A$, $B$ and $C$. We also identify the nonterminals $D$, which produces $\kappa$, and $E$, which produces $a$. For the rest of the current part of the proof, we only refer to the \emph{instances} of these nonterminals. Using this, we build a derivation from $\cF'$ step by step:
+\begin{enumerate}
+	\item We have $S' \der{\cF'}^* \hat{u}_1 A^{\sfi} \delta'$, where $\delta'$ is obtained by replacing each nonterminal $X$ in $\delta$ by $X^{\sfo}$. We get this by starting with the derivation $S \der{\cF}^* \hat{u}_1 A \delta$, and replacing $X\der{\cF} YZ$ by $X^{\sfi}\der{\cF'} Y^{\sfi}Z^{\sfo}$ if $A$ is a descendant of $Y$, by $X^{\sfi}\der{\cF'} Y^{\sfo}Z^{\sfi}$ if $Z$ is, or by $X^{\sfo}\der{\cF'} Y^{\sfo}Z^{\sfo}$ if none is. We also replace each $X\der{\cF} \tau$, for $\tau\in\Sigma\cup(\Sigma\times 2^{\captures_\var})\cup \captures_\var\setminus\{\kappa\}\cup\{\eps\}$, by $X^\sfo\der{\cF'}\tau$. If $A = S$, we replace $A$ it by $S'$.
+	\item We have the rule $A^{\sfi} \to B^{\sfl} C^{\sfr}$ which was added to $P'$.
+	\item We have $B^\sfl\der{\cF'}^* \hat{u}_2 \beta_1$. We get this by starting from $B\der{\cF}^*\hat{u}_2\kappa\beta_1$, and we replace $X\der{\cF} YZ$ by $X^\sfl\der{\cF'} Y^\sfl Z^\sfm$ if $E$ is a descendant of $D$, by $X^\sfl\der{\cF'} Y^\sfo Z^\sfl$ if $Z$ is, by $X^\sfo\der{\cF'} Y^\sfo Z^\sfo$ if $X$ is to the left of $D$, and by $X^\sfm\der{\cF'} Y^\sfm Z^\sfm$ if it is to the right. We also replace $X\der{\cF} \tau$ by $X^\sfo\der{\cF'}\tau$ if $X$ is to the left of $D$, and by $X^\sfm\der{\cF'}\tau$ if it is to the right. Lastly, we replace $D\der{\cF}\kappa$ by $D^\sfl\der{\cF'}\eps$.
+	\item We have $C^\sfr\der{\cF'}^* \beta_2(a,\{\kappa\})\hat{v}_1$. We get this by starting from $C\der{\cF}^*\beta_2 a \hat{v}_1$, and we replace $X\der{\cF} YZ$ by $X^\sfr\der{\cF'} Y^\sfm Z^\sfr$ if $E$ is descendant of $Z$, or by $X^\sfr\der{\cF'} Y^\sfr Z^\sfo$ if $Y$ is, by $X^\sfm\der{\cF'} Y^\sfm Z^\sfm$ if $X$ is to the left of $E$, and by $X^\sfr\der{\cF'} Y^\sfr Z^\sfr$ if it is to the right. We also replace $X\der{\cF} \tau$ by $X^\sfm\der{\cF'}\tau$ if $X$ is to the left of $E$, and by $X^\sfo\der{\cF'}\tau$ if it is to the right. Lastly, we replace $E\der{\cF} a$ by $E^\sfr\der{\cF'}(a, \{\kappa\})$.
+	\item We have $\delta'\der{\cF'}^*\hat{v}_2$, which we obtain from $\delta\der{\cF}^*\hat{v}_2$ by replacing each $X \der{\cF} YZ$ by $X^\sfo\der{\cF'} Y^\sfo Z^\sfo$, and each $X\der{\cF}\tau$ by $X^\sfo\der{\cF'}\tau$.
+\end{enumerate}
+In the end, we get the following leftmost derivation from $\cF'$:
+\begin{align*}
+	S  &\der{\cF'}^* 
+	\hat{u}_1 A^\sfi \delta'\ (\text{or } \hat{u}_1 S' \delta') \\
+	&\der{\cF'} 
+	\hat{u}_1 B^\sfl C^\sfr \delta' \\
+	&\der{\cF'}^* 
+	\hat{u}_1 \hat{u}_2 \beta_1 C^\sfr \delta' \\
+	&\der{\cF'}^*
+	\hat{u}_1 \hat{u}_2 \beta_1 \beta_2 (a, \{\kappa\}) \hat{v}_1 \delta' \\
+	&\der{\cF'}^* 
+	\hat{u}_1 \hat{u}_2 \beta_1 \beta_2 (a, \{\kappa\}) \hat{v}_1 \hat{v}_2 = \proc_\kappa(\hat{r}),
+\end{align*}
+which proves that $\proc(\hat{r})\in L(\cF')$. 
+
+We will prove that for every $\hat{s} = \hat{u}(a, T)\hat{v}\in L(\cF')$ where $\kappa\in T$ there is $\hat{r}$ such that $\proc_\kappa(\hat{r}) = \hat{s}$ in a similar way. We argue that any leftmost derivation that produces $\hat{s}$ has the following form:
+\begin{align*}
+	S'  &\der{\cF'}^* 
+	\hat{u}_1 A^\sfi \delta_1\ \  (\text{or } \hat{u}_1 S' \delta_1)\\
+	&\der{\cF'} 
+	\hat{u}_1 B^\sfl C^\sfr \delta_1\\
+	&\der{\cF'}^* 
+	\hat{u}_1 \hat{u}_2 D^\sfl \delta_2 C^\sfr \delta_1 \\
+	&\der{\cF'}
+	\hat{u}_1 \hat{u}_2 \delta_2 C^\sfr \delta_1 \\
+	&\der{\cF'}^* 
+	\hat{u}_1 \hat{u}_2 \beta_1 C^\sfr \delta_1 \\
+	&\der{\cF'}^*
+	\hat{u}_1 \hat{u}_2 \beta_1 \beta_2 (a, T) \hat{v}_1 \delta_1 \\
+	&\der{\cF'}^* 
+	\hat{u}_1 \hat{u}_2 \beta_1 \beta_2 (a, T) \hat{v}_1 \hat{v}_2 = \hat{s},
+\end{align*}
+where $\delta\in V_\sfo^*$, $\delta'\in V_\sfm^*$, $\beta_1,\beta_2\in (\captures_\var\setminus\{\kappa\})^*$, $\hat{u} = \hat{u}_1\hat{u}_2$ and $\hat{v} = \hat{v}_1\hat{v}_2$. The reasoning goes as follows:
+\begin{itemize}
+	\item We know that $S'\der{\cF'}^*\hat{u}\beta(a, T)\hat{v}\in L(\cF')$. If $X\der{\cF'}(a, T)$ and $\kappa\in T$, then $X\in V_\sfr$.
+	\item From the way $\cF'$ was built, there must be a production $X\der{\cF'} YZ$ in $S'\der{\cF'}^*\hat{s}$ such that $X\in V_\sfi$ (or $X = S'$), $Y\in V_\sfl$ and $Z\in V_\sfr$, as it is the only way to derive a nonterminal in $V_\sfr$. Let $A^\sfi$ (or $S'$), $B^\sfl$ and $C^\sfr$ be these $X$, $Y$ and $Z$ respectively.
+	\item Seeing the rules in $P'$ we note that every string of terminals that is derivable from $B^\sfl$ is of the form $\hat{w}\beta$, where $\hat{w}\in\hat{\Sigma}_\kappa$ and $\beta\in (\captures_\var\setminus\{\kappa\})^*$. Furthermore, this string satisfies that there is a production $X\der{\cF'}\eps$ for some $X\in V_\sfl$ such that this $\eps$ is exactly at the left of where $\beta$ begins. Let $\hat{u}_2$ be this $\hat{w}$, let $D^\sfl$ be this $X$, and let $\beta_1$ be this $\beta$.
+	\item Likewise, we note that $C^\sfr$ always derives a string of terminals of the form $\beta(a', T')\hat{w}$ for some $\beta\in (\captures_\var\setminus\{\kappa\})^*$ and $\hat{w}\in\hat{\Sigma}_\kappa$. Let $\beta_2$ be this $\beta$ and let $\hat{v}_1$ be this $\hat{w}$.
+	\item Lastly, let $S' \der{\cF'}^* \hat{u}_1 A^\sfi \delta_1$ (or $\hat{u}_1 S' \delta_1$) be the one that derives $\hat{s}$. From the rules in $P'$, we note that $\delta_1$ is composed solely of nonterminals in $V_\sfo$.
+\end{itemize}
+
+An important point that can be seen from this reasoning is that for each instance $X \neq S'$ that appears in the derivation $S'\der{\cF'}^*\hat{s}$, we can deduce the set $V_{\mathsf{scr}}$ for which $X\in V_{\mathsf{scr}}$, among the options $\mathsf{scr}\in\{\sfo, \sfi, \sfl, \sfm, \sfr\}$, by seeing its position in the derivation. To be precise, this is given from how $X$ relates to the instances $D^\sfl\der{}\eps$, and to $E^\sfr\der{}(a, T)$, for the nonterminal $E^\sfr\in V_\sfr$ that satisfies this. (1) If $X$ is to the left of $D^\sfl$, then $X\in V_\sfo$, (2) if $D^\sfl$ is a descendant of $X$, but $E^\sfr$ is not, then $X\in V_\sfl$, (3) if $X$ is to the right of $D^\sfl$, and is to the left of $E^\sfr$, then $X\in V_\sfm$, (4) if $E^\sfr$ is a descendant of $X$, but $D^\sfl$ is not, then $X\in X_\sfr$, (5) if $X$ is to the right of $E^\sfr$, then $X\in V_\sfo$, and (6) if both $D^\sfl$ and $E^\sfr$ are descendants of $X$, then $X\in V_\sfi$. We bring attention to the fact that in this paragraph we referred only to the instances of $D^\sfl$ and $E^\sfr$ on the derivations mentioned above.
+
+Another, more important point, is this reasoning gives us the derivation presented above. This derivation is translated into the following derivation in $\cF$:
+\begin{align*}
+	S  &\der{\cF}^* 
+	\hat{u}_1 A \delta_1'\ \  (\text{or } \hat{u}_1 S \delta_1')\\
+	&\der{\cF} 
+	\hat{u}_1 BC\delta_1'\\
+	&\der{\cF}^* 
+	\hat{u}_1 \hat{u}_2 D \delta_2' C \delta_1' \\
+	&\der{\cF}
+	\hat{u}_1 \hat{u}_2 \kappa \delta_2' C\delta_1' \\
+	&\der{\cF}^* 
+	\hat{u}_1 \hat{u}_2 \kappa \beta_1 C \delta_1' \\
+	&\der{\cF}
+	\hat{u}_1 \hat{u}_2 \kappa \beta_1 \beta_2 (a, T\setminus\{\kappa\}) \hat{v}_1 \delta_1',\ \ \ \ \text{ or}\\
+	&\ \ \ \ \ \ \ \ \ \, \, \,
+	\hat{u}_1 \hat{u}_2 \kappa \beta_1 \beta_2 a \hat{v}_1 \delta_1',\\
+	&\der{\cF}^*
+	\hat{u}_1 \hat{u}_2 \kappa \beta_1 \beta_2 (a, T\setminus\{\kappa\}) \hat{v}_1 \hat{v}_2 = \hat{r},\ \ \ \ \text{ or}\\
+	&\ \ \ \ \ \ \ \ \ \, \, \,
+	\hat{u}_1 \hat{u}_2 \kappa \beta_1 \beta_2 a \hat{v}_1 \hat{v}_2 = \hat{r},
+\end{align*}
+Where $\delta_1'$ and $\delta_2'$ are obtained by replacing each $X^\sfm$ by $X$ in $\delta_1$ and $\delta_2$, respectively. It is direct to see that this is a valid derivation since for every production $X^\mathsf{x} \der{\cF'} Y^\mathsf{y}  Z^\mathsf{z}$ there exists a valid production  $X \der{\cF} Y Z$, for any $\mathsf{x}, \mathsf{y}, \mathsf{z}\in\{\sfi, \sfo, \sfl, \sfm, \sfr\}$. Furthermore, for the production $D^\sfl\der{\cF'}\eps$ there exists $D\der{\cF}\kappa$, and for $C^\sfr\der{\cF'}(a, T)$ there exists $C\der{\cF} (a, T\setminus\{\kappa\})$ if $T \neq \{\kappa\}$, and $C\der{\cF} a$ if $T = \{\kappa\}$. Further, note that $\proc_\kappa(\hat{r}) = \hat{s}$. We conclude that $\hat{r}\in L(\cF)$ for some $\hat{r}$ such that $\proc_\kappa(\hat{r}) = \hat{s}$.\\
+
+From the arguments above, we obtain that for each annotated ref-word $\hat{r}\in L(\cF)$ there exists an equivalent annotated ref-word $\hat{t}\in L(\cF)$, given by $\hat{t} = \proc_\kappa(\hat{r})$. Furthermore, we showed that for each annotated ref-word $\hat{t}\in L(\cF')$ there exists an equivalent $\hat{r}\in L(\cF)$. This implies that $\cF$ and $\cF'$ are equivalent.\\
+
+Now, assume that $\cF$ is unambiguous. We will prove that $\cF'$ is unambiguous as well. Consider an annotated ref-word $\hat{t}\in L(\cF')$ and consider two sequences $\cS_1$ and $\cS_2$ which define the derivation $S'\der{\cF'}^*\hat{t}$. We showed above how to translate these sequences into sequences $\cS_1'$ and $\cS_2'$ which define the derivation $S\der{\cF}^*	\hat{r}$, for some $\hat{r}$ such that $\hat{t} = \proc_\kappa(\hat{r})$. Since $\cF$ is unambiguous, these sequences are equal. Assume now that $\cS_1$ and $\cS_2$ are not equal, but since their translations into $\cF$ are the same, then it must be that for some production $X\der{\cF}YZ$ or $X\der{\cF}\tau$, there must be two productions $X^\mathsf{x_1} \der{\cF'} Y^\mathsf{y_1}  Z^\mathsf{z_1}$ and $X^\mathsf{x_2} \der{\cF'} Y^\mathsf{y_2}  Z^\mathsf{z_2}$, or $X^\mathsf{x_1} \der{\cF'}\tau$ and $X^\mathsf{x_2} \der{\cF'}\tau$ at the same position, for some $(\mathsf{x_1}, \mathsf{y_1}, \mathsf{z_1}) \neq (\mathsf{x_2}, \mathsf{y_2}, \mathsf{z_2})$. We note that this is not possible since we argued that for a given derivation $S'\der{\cF'}^*\hat{r}$, the set in which each nonterminal instance belongs, among $V_\sfo$, $V_\sfi$, $V_\sfl$, $V_\sfm$, $V_\sfr$, is fixed by its relation to certain instances of $D^\sfl$ and $E^\sfr$. We conclude that $\cF'$ is unambiguous.
+
+Assume $\cF'$ is unambiguous. We will prove that $\cF$ is unambiguous as well. Likewise, consider an annotated ref-word $\hat{r}\in L(\cF)$, and consider two sequences $\cS_1$ and $\cS_2$ which define the derivation $S\der{\cF}^*\hat{t}$. We showed above how to convert these sequences into $\cS_1'$ and $\cS_2'$ which define the derivation $S'\der{\cF'}^*\proc_\kappa(\hat{r})$. Since $\cF'$ is unambiguous, then it must hold that $\cS_1' = \cS_2'$. Note that the translation we showed consisted in replacing productions of the form $X\der{\cF}YZ$ by $X^\mathsf{x} \der{\cF'} Y^\mathsf{y}  Z^\mathsf{z}$, $X\der{\cF}\kappa$ by $X^\sfl\der{\cF'}\eps$, $X\der{\cF}a$ by $X^\sfr\der{\cF}(a, \{\kappa\})$ (or $X\der{\cF}(a, T)$ by $X^\sfr\der{\cF'}(a, T\cup \{\kappa\})$) for a single fixed production, and $X\der{\cF}\tau$ by $X^\mathsf{x}\der{\cF'}\tau$ in any other case, for some $\mathsf{x}, \mathsf{y}, \mathsf{z}\in \{\sfo, \sfi, \sfl, \sfm, \sfr\}$. Therefore, the sequence $S_1$ from which $S_1'$ was obtained is uniquely defined, from which we deduce that $S_1 = S_2$, and we conclude that $\cF$ is unambiguous.\\
+
+At the end of the procedure, we obtain an extraction grammar with annotations $\cF^\dagger = (V^\dagger, \Sigma, \var, P^\dagger, S^\dagger)$ such that there are no rules of the form $X\to\kappa$ in $P^\dagger$, for any $\kappa\in\captures_\var$. From this, we obtain the annotated grammar $\cG = (V^\dagger, \Sigma, \Omega_\var, P^\dagger, S^\dagger)$ which is equivalent to $\cH$. Furthermore, $\cG$ is unambiguous if and only if $\cH$ is unambiguous.
+
+With respect to the running time of building $\cG$, note that in each iteration of the algorithm, by starting on an extraction grammar with annotations $\cF$ with a set of rules $P$, the resulting $\cF'$ has a set of rules $P'$ with a size of $9|P|$. Since this step is repeated twice for each variable $x\in \var$ (once for each variable operation), 
+the total running time is $\cO(9^{2|\var|}(3^{2|\var|}|\cH|^2)) = \cO(9^{3|\var|}|\cH|^2)$.
+%
+%
+%

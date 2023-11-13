@@ -1,0 +1,200 @@
+We now present the preprocessing phase of the enumeration algorithm, formalized as
+Algorithm~\ref{gram:alg:cubic} where the  input string $w=a_1\ldots a_n$ is
+assumed nonempty. 
+
+The principle of the algorithm is the following:
+\begin{principle}
+  \label{gram:pri:main}
+    For every triple
+of the form $(i,j,X)$ with $1\leq i < j \leq n+1$ and $X\in N$, the
+table cell $\tableI[i][j][X]$ will contain an enumerable set
+representing the annotations of the string $a_i \cdots a_{j-1}$ that
+can be derived from symbol $X$ in the grammar.
+\end{principle}
+%
+These sets are initialized to be empty.
+In lines~\ref{gram:ln:initstart}--\ref{gram:ln:initend} of the algorithm, the cells $\tableI[i][j][X]$ with
+$j-i=1$ are initialized
+to consider derivations via ``simple rules'' of the form $X \rightarrow a$ or
+$X \rightarrow (a, \oout)$.
+(For now, ignore the role of the
+$\mathsf{endIn}$ table.) Note that the rules of the form $X \rightarrow
+\epsilon$ are considered when defining~$\D$ and not further examined by the algorithm. At the end, line~\ref{gram:ln:last} returns the
+enumerable set for the annotations of the entire string derivable from
+the start symbol, i.e., the outputs of~$\cG$ on~$w$.
+
+%
+%
+%
+%
+
+The main part of the algorithm consists in satisfying Principle~\ref{gram:pri:main} by adding
+the annotations corresponding to ``complex'' rules (i.e., of the form
+$X\rightarrow YZ$ or $X\rightarrow Y$). At the beginning of the
+algorithm the cells of the table $\tableI$ might lack some annotations
+corresponding to complex rules, but each cell will be considered
+complete at some point during the execution, at which point it will
+satisfy Principle~\ref{gram:pri:main} and will not be modified anymore.
+%
+We define the order in which the cells are considered complete as follows:
+$(i,j,X)<(i',j',X')$ when $j<j'$ or
+$(j=j' \land i>i')$ or $(j=j' \land i=i' \land X < X')$ where we order
+nonterminals $X$ and $X'$ following the topological order from $\D$.
+
+Consider the \emph{complex derivations} starting from $X$ of the string $a_i \cdots
+a_{j-1}$, i.e., those that begin with a complex rule. We will see here how to
+reflect them in $\tableI[i][j][X]$. There are two kinds of complex
+derivations. The first kind is the derivations where we first rewrite $X$
+to another nonterminal $Z$ with a rule $X \rightarrow Z$, or by
+rewriting $X$ to $YZ$ or $ZY$ but where $Y$ is nullable and will be
+rewritten to~$\epsilon$. In these three cases, we have
+$X \in \D[Z]$. Thus, we fill the index $\tableI[i][j][X]$ with the
+contents of $\tableI[i][j][Z]$, which is already complete, for
+$X\in \D[Z]$ (lines \ref{gram:ln:directProdBegin}-\ref{gram:ln:directProdEnd}).
+%
+%
+
+The second kind of complex derivation begins with a complex rule $X
+\rightarrow YZ$ where neither $Y$ nor $Z$ will be rewritten to $\epsilon$. In this case, the set of
+annotations to add into $\tableI[i][j][X]$ using this rule is the union of
+products of all the $\tableI[i][k][Y]$ and $\tableI[k][j][Z]$ where $i < k <
+j$. We have $(i,k,Y)<(k,j,Z)<(i,j,X)$, so we can fill $\tableI[i][j][X]$ with the product of the contents of $\tableI[i][k][Y]$ and $\tableI[k][j][Z]$,
+at the moment where $\tableI[k][j][Z]$ is considered complete.
+%
+%
+%
+%
+
+To summarize, from line~\ref{gram:ln:calc} onwards, the algorithm
+considers the positions $j$ in ascending order, and 
+populates all cells $\tableI[i][j][X]$ so that they are complete. To do
+so, we consider the triples $(k,j,Z)$ by increasing order in our
+sorting criterion, i.e., by decreasing $k$, then increasing~$Z$ in the
+order of the topological sort. Whenever we consider a cell, it is
+complete, and we consider its contributions to cells of the form
+$\tableI[i][j][X]$ with $i=k$ using complex rules of the first kind 
+(lines \ref{gram:ln:directProdBegin}-\ref{gram:ln:directProdEnd}), and if it is non-empty
+we consider how to combine it with
+a neighboring cell (which is also complete and non-empty) as we explained previously,
+adding the results to a cell $\tableI[i][j][X]$ with $i < k$ which is not yet complete (lines
+\ref{gram:ln:kind2begin}--\ref{gram:ln:kind2end}).
+
+We now explain the optimization involving the set $\mathsf{endIn}$. It
+is not necessary to achieve the cubic running time of
+this section, but is required for the quadratic bound in
+Section~\ref{gram:sec:quadratic}.  The optimization is that, when processing the
+triple $(k,j,Z)$ and the rule $X\rightarrow YZ$, we do not test all the
+possible cells $\tableI[i][k][Y]$, but only those that are
+non-empty. Indeed, if $\tableI[i][k][Y]$ is empty, then the concatenation of
+$\tableI[i][k][Y]$ with $\tableI[k][j][Z]$ is also empty. Thus, we maintain
+the list $\mathsf{endIn}[k][Y]$ of all the~$i$'s to consider
+with $i<k$, i.e., those such that $\tableI[i][k][Y]$ is non-empty. We
+initialize this list to be empty, add $i$ to $\mathsf{endIn}[k][Y]$ whenever
+$\tableI[i][k][Y]$ becomes non-empty (at line~\ref{gram:ln:endset1} in the base
+case, or at line~\ref{gram:ln:endset2} before adding to an empty cell for
+the first time). Then, we only consider the indices
+$i$ of this list to combine $\tableI[i][k][Y]$ with another cell.
+
+We now argue that our algorithm is correct, and in particular
+that 
+\textbf{(i)} 
+%
+we satisfy Principle~\ref{gram:pri:main};
+that
+\textbf{(ii)} all the unions are disjoint, and that \textbf{(iii)} all the
+products involve enumerable sets on disjoint alphabets. 
+One can establish \textbf{(i)} by showing by induction over cells that the invariant is
+correct when each cell is considered complete by our algorithm (and the
+cell is not changed afterwards). Knowing \textbf{(i)}, the first violation of \textbf{(ii)} would witness that
+the same annotation of some factor $a_i \cdots a_{j-1}$ can be derived in two
+different ways from a nonterminal $X$,
+contradicting unambiguity, so there are no
+violations of \textbf{(ii)}. For
+\textbf{(iii)}, we simply observe that, by \textbf{(i)}, $\tableI[i][j][X]$
+only contains pairs of the form $(\oout, k)$ for some $i \leq k < j$, so we can
+indeed perform the product of $\tableI[i][k][Y]$ and $\tableI[k][j][Z]$.
+
+This establishes that the algorithm is correct. Now, the running time
+of the preprocessing phase of the algorithm is clearly in $\cO(n^3 |\cG|)$, because (1) the $\mathsf{endIn}$ lists
+are of size $\cO(n)$ at most, and (2) the consideration of all $Z \in N$ and $X \in \D[Z]$
+is in $\cO(|\cG|)$: every $X \in \D[Z]$ corresponds to a rule, so the consideration of all $Z \in N$ and
+rules in CRule$[Z]$ is in $\cO(|\cG|)$.
+%
+The enumeration phase is then simply that of Theorem~\ref{gram:thm:enum}. Hence, we have
+shown that enumeration for unambiguous annotated grammars can be achieved
+with cubic time preprocessing and output-linear delay:
+
+\begin{theorem}
+  \label{gram:thm:cubic}
+	Given an unambiguous annotated grammar $\cG$ and an input string
+        $w$, we can enumerate $\sem{\cG}(w)$ with preprocessing in $\cO(|w|^3
+        \cdot
+        |\cG|)$ (hence cubic in data complexity), and output-linear delay
+        (independent from~$w$ or~$\cG$). The memory usage is in $\cO(|w|^3 \cdot
+        |\cG|)$.
+        %
+\end{theorem}	
+
+
+
+\newcommand{\To}{\textbf{to}}
+\newcommand{\Downto}{\textbf{downto}}
+
+\begin{algorithm}[t]
+	\caption{Preprocessing phase: given a 2NF
+        unambiguous annotated grammar $\cG = (N, \Sigma, \Omega, P, S)$ and
+        a non-empty string $w = a_1\cdots a_n$, compute an enumerable set
+        representing $\sem{\cA}(w)$.}\label{gram:alg:preprocessing}
+        \label{gram:alg:cubic}
+		\begin{algorithmic}[1]
+                  \State I $\gets$ an array $(n+1)\times (n+1)\times N$ initialized with $\empt$
+                  \State  $\mathsf{endIn}\gets$ an array $(n+1)\times N$
+                  initialized with empty lists
+                  \State CRule $\gets$ an array such that CRule$[Z]=\{X\rightarrow YZ \in P \}$
+                  \State $\D \gets $ an array as described in the presentation of 2NF
+
+                  \For{$1 \leq i \leq n$} \label{gram:ln:initstart} 
+                    \If{rule $(X \rightarrow a_i)$ in $P$}
+                      \State $\tableI[i][i+1][X] \gets \union(\tableI[i][i+1][X], \singleton(\epsilon))$
+                    \EndIf
+                    \For{rule $(X \rightarrow (a_i, \oout))$ in $P$}
+                      \State $\tableI[i][i+1][X] \gets \union(\tableI[i][i+1][X], \singleton((\oout, i)))$
+                    \EndFor
+                    \If{$\tableI[i][i+1][X] \neq \empt$}
+                      \State $\mathsf{endIn}[i+1][X]$.append($i$)
+                      \label{gram:ln:endset1}
+                    \EndIf
+                  \EndFor \label{gram:ln:initend} 
+
+
+
+                  \For{$j=1$ \To{} $n+1$} \label{gram:ln:calc} 
+                    \For{$k=j-1$ \Downto{} $1$}
+                      \For{nonterminal $Z \in N$ in topological order}
+                          \For{nonterminal $X\in \D[Z]$} \label{gram:ln:directProdBegin}                             
+                            \State $\tableI[k][j][X] \gets \union(\tableI[k][j][X],
+                            \tableI[k][j][Z])$ \label{gram:ln:directProdEnd}
+                          \EndFor
+                        \If{$\tableI[k][j][Z] \neq \empt $}
+                        \label{gram:ln:kind2begin}                             
+                            \For{rule $(X \rightarrow YZ)$ in CRule$[Z]$}
+                              \For{$i \in\mathsf{endIn}[k][Y]$}
+                                  \label{gram:ln:innermost}
+                                \If{$\tableI[i][j][X]=\empt$}
+                                  \label{gram:ln:innermost3}
+                                  \State $\mathsf{endIn}[j][X]$.append($i$)
+                                  \label{gram:ln:endset2}
+                                \EndIf
+                                  \label{gram:ln:innermost2}
+                                \State $\tableI[i][j][X] \gets \union(\tableI[i][j][X],$
+                                \State $\mbox{~}\hspace{3em} \prod(\tableI[i][k][Y], \tableI[k][j][Z]))$
+                               \EndFor
+                            \EndFor
+                        \label{gram:ln:kind2end}                             
+                         \EndIf
+                    \EndFor
+                  \EndFor
+                  \EndFor
+                  \State\Return $\tableI[1][n+1][S]$ \label{gram:ln:last}
+\end{algorithmic}%
+\end{algorithm}%

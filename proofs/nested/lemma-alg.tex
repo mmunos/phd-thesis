@@ -1,0 +1,22 @@
+\begin{proof}
+	We will prove the lemma by induction on $k$. 
+	The case $k = 1$ is trivial since $\clevel(1) = \spanc{1}{1}$, $S^1_{p,q}$ is empty and $\llevel(1)$ is not defined. 
+	We assume that statements 1 and 2 of the lemma are true for $k-1$ and below. 
+	
+	If $a_k\in\opS$, the algorithm proceeds into {\sc OpenStep} to build $S^k$ and $T^k$. 
+	Statement 1 can be proved trivially since $\clevel(k) = \spanc{k}{k}$, similarly as for the base case.
+	For statement 2 let $\llevel(k) = \spanc{i}{k-1}$, and consider a run $\rho\in\Runs(\cT,w\spanc{1}{k})$ such that $\rho\spanc{i}{k}$ starts on $p$ and ends on $q$ for some $p,q$ and $\gamma$, and let $p'$ be its second-to-last state. 
+	Since $a_k$ is an open symbol, then the string $a_{i+1}\cdots a_{k-1}$ is well-nested, so it holds that $\clevel(k-1) = \spanc{i}{k-1}$. 
+	Therefore, from our hypothesis it holds that $\L_{\D}(S^{k-1}_{p,p'})$ contains $\out(\rho\spanc{i}{k-1})$, and so, $\out(\rho\spanc{i}{k})$ is included in $\L_{\D}(T^{k}_{p,\gamma,q})$ at some iteration of $T^{k}_{p,\gamma,q}$ at line \ref{nested:line36}. 
+	To show that every element in $\L_{\D}(T^k_{p,\gamma,q})$ corresponds to some run $\rho\in\Runs(\cT,w\spanc{1}{k})$, we note that the only step that modifies $T^k_{p,\gamma,q}$ is line \ref{nested:line36}, which is reached only when a valid subrun from $i$ to $k$ can be constructed.
+	
+	If $a_k\in\clS$, the algorithm proceeds into {\sc CloseStep} to build $S^k$ and $T^k$. 
+	Let $\clevel(k) = \spanc{j}{k}$.
+	In this case, statement 2 can be deduced directly from the hypothesis since $j < k$ and the table on the top of $T^k$ is the same as $T^{j}$.
+	To prove statement 1, note that since $a_k$ is a close symbol it holds that $\clevel(k-1) = \spanc{j'}{k-1}$ and $\llevel(k-1) = \spanc{j}{j'-1}$ for some $j'$. 
+	Consider a run $\rho\in\Runs(\cT,w)$ such that $\rho\spanc{j}{k}$ starts on $p$, ends on $q$, and the last symbol pushed onto the stack is $\gamma$.
+	This run can be subdivided into three subruns from $p$ to $p'$, from $p'$ to $q'$, and a transition from $q'$ to $q$ as it is illustrated in Figure~\ref{nested:fig:delta-schema} (Right). 
+	The first  two subruns correspond to $\rho\spanc{j}{j'+1}$ and $\rho\spanc{j'}{k-1}$, for which $\out(\rho\spanc{j}{j'+1})\in\L_{\D}(T^{k-1}_{p,\gamma,q})$ and $\out(\rho\spanc{j'}{k-1})\in\L_{\D}(S^{k-1}_{p',q'})$.
+	Therefore, $\out(\rho\spanc{j}{k}) \in \L_{\D}(S^k_{p,q})$ at some iteration of line \ref{nested:line47}.
+	To show that every element in $S^k_{p,q}$ corresponds to some run $\rho\in\Runs(\cT, w\spanc{1}{k})$, note that the only line at which $S^k_{p,q}$ is modified are is line \ref{nested:line47}, which is reached only when a valid run from $j$ to $k$ has been constructed.
+\end{proof}

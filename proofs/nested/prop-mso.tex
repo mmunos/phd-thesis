@@ -1,0 +1,45 @@
+\begin{proof}
+	We encode words as logical structures as stated in the paper.
+	In the following, we will define the semantics of $\msom$ in a somewhat different, and more precise way so we can provide a clearer, and more formal statement of the proposition. To this end, we will also show how to encode the output sets to establish an exact equivalence between the logic and our transducer model.
+	
+	Let $\varphi$ be a $\msom$ formula. 
+	We write $\varphi(\bar{x}, \bar{X})$ where $\bar{x}$ and $\bar{X}$ are the sets of free first-order and monadic second-order variables of $\varphi$, respectively. 
+	An assignment $\sigma$ for $w$ is a function $\sigma\colon \bar{x}\cup \bar{X}\to 2^{[1,n]}$ such that $|\sigma(x)| = 1$ for every $x \in \bar{x}$ (note that we treat first-order variables as a special case of monadic second-order variables). 
+	As usual, we denote by $\textsf{dom}(\sigma) = \bar{x}\cup \bar{X}$ the domain of the function $\sigma$. 
+	Then we write $(w, \sigma) \models \varphi(\bar{x}, \bar{X})$ when $\sigma$ is an assignment over $w$, $\textsf{dom}(\sigma) = \bar{x}\cup \bar{X}$, and $w$ satisfies $\varphi(\bar{x}, \bar{X})$ when each variable in $\bar{x}\cup \bar{X}$ is instantiated by $\sigma$. 
+	Given a formula $\varphi(\bar{x},\bar{X})$, we define $\sem{\varphi}(w) = \{\sigma \mid (w, \sigma) \models \varphi(\bar{x},\bar{X})\}$. 
+	For the sake of simplification, from now on we will only use $\bar{X}$ to denote the free variables of $\varphi(\bar{X})$ and use $X \in \bar{X}$ for an first-order or monadic second-order variable.
+	
+	For any assignment $\sigma$ over $w$, we define the support of $\sigma$, denoted by $\textsf{supp}(\sigma)$, as the set of positions mentioned in $\sigma$; formally, $\textsf{supp}(\sigma) = \{i \mid \exists v \in  \textsf{dom}(\sigma)\text{ s.t. } i \in  \sigma(v)\}$. 
+	Furthermore, we encode assignments as sequences over the support as follows:
+	Let $\textsf{supp}(\sigma) = \{i_1,\ldots, i_m\}$ such that $i_j < i_{j+1}$ for every $j < m$. 
+	Then, we define the (word) encoding of $\sigma$ as:
+	$$
+	\textsf{enc}(\sigma) = (\bar{X}_1, i_1)(\bar{X}_2, i_2) \ldots (\bar{X}_m, i_m)
+	$$
+	such that $\bar{X}_j = \{X \in \textsf{dom}(\sigma) \mid i_j \in \sigma(X)\}$ for every $j \leq m$. 
+	That is, we represent $\sigma$ as an increasing sequence of positions, where each position is labeled with the variables of $\sigma$ where it belongs.
+	
+	The statement of the proposition can be formulated as follows:
+	\begin{proposition}
+		Fix a structured alphabet $\Sigma$. Let $\bar{X}$ be a set of MSO variables and ${\pazocal X} = 2^{\bar{X}}$. 
+		\begin{enumerate}
+			\item For any $\msom$ formula $\varphi(\bar{X})$ there exists a \vpann $\cT$ with output alphabet ${\pazocal X}$ such that for every $w\in \wnS$:
+			$$
+			\sem{\cT}(w) \ \ = \ \ \{\textsf{enc}(\sigma)\mid \sigma\in\sem{\varphi}(w)\}.
+			$$
+			\item For any \vpann $\cT$ with output alphabet ${\pazocal X}$ there exists a  $\msom$ formula $\varphi(\bar{X})$ such that for every $w\in \wnS$:
+			$$
+			\{\textsf{enc}(\sigma)\mid \sigma\in\sem{\varphi}(w)\} \ \ = \ \  \sem{\cT}(w).
+			$$
+		\end{enumerate}
+	\end{proposition}
+	
+	The proof of this proposition is largely based on the proof of Theorem 4 in~\cite{AlurM04}.
+	To prove (1) we can follow the exact same argument as the {\em if} direction of the proof and be left with a VPA $\cA$ over the input alphabet $\Sigma^{\bar{X}} = \Sigma \times {\pazocal X}$ whose language is the set of words which encode a valuation $\sigma$ of $\bar{X}$ along with a word $w$ for which $(w, \sigma)\models\varphi(\bar{X})$. 
+	We define a straighforward transformation of transitions from this VPA to \vpann as follows: $f(t) = t'$ iff $t$ has input symbol $(a, V)$ and $t'$ has input symbol $a$ and output symbol $V$.
+	We obtain the desired \vpann $\cT$ by replacing solely the transition relation $\Delta$ in $\cA$ by $\{f(t)\mid t\in\Delta\}$.
+	
+	To prove (2) we convert $\cT$ into a VPA $\cA$ with input alphabet $\Sigma^{\bar{X}}$ in the opposite way as in (1) and use the result of~\cite{AlurM04} itself to obtain a $\msom$ formula with no free variables $\varphi'$ over the same input alphabet. We replace any instance of $P_{(a, V)}(x)$ in $\varphi$ by the expression $P_a(x) \wedge \bigwedge_{X\in V}x\in X\wedge \bigwedge_{X\in\bar{X}\setminus V}x\not\in X$ to obtain a formula $\varphi(\bar{X})$ over $\Sigma$ which proves the statement.
+	
+\end{proof}

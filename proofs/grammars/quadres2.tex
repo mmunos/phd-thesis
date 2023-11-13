@@ -1,0 +1,11 @@
+This proof is based on extending the definitions of unambiguity and rigidness of annotated grammars over unannotated context-free grammars. Indeed, an unambiguous annotated grammar with an empty output set is just an unambiguous CFG, and a rigid annotated grammar with an empty output set is a CFG for which every derivation of a given string $w\in \Sigma^*$ has the same shape.
+
+  Consider the (unannotated) grammar $\cG'$ obtained from~$\cG$ by removing all
+  annotations on terminals, and making $\Omega = \emptyset$. It can be seen that $L(\cG') = L'$ since for each string $w$, if $w\in L(\cG')$, then there is at least one $\hat{w}\in L(\cG)$ with $\str(\hat{w}) = w$ and vice versa. Now, we claim that
+  $\cG'$ is \emph{rigid}, by extending the notion onto CFGs in the obvious way. To see this, consider a string $w \in L(\cG')$; all
+  derivations of~$w$ by~$\cG'$ correspond to derivations by $\cG$ of some $\hat{w}$ such that $\str(\hat{w}) =w $. Because $\cG$ is rigid, all these derivations have the
+  same shape. Now, using Theorem~\ref{gram:thm:profileu-iou}, we can compute a rigid and
+  unambiguous grammar $\cG''$ recognizing the same language over~$\Sigma^*$
+  as~$\cG'$, i.e., $L'$. But as $L'$ is a language without output, the
+  unambiguity of~$\cG''$ actually means that $\cG''$ is an unambiguous CFG. Hence, $L'$
+  is recognized by an unambiguous grammar, concluding the proof.

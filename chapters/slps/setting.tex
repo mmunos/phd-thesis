@@ -1,0 +1,158 @@
+In this section, we present the setting and state the main result of the chapter. 
+First, we define straight-line programs, which we will use for the compressed representation of input documents. Then we introduce the definition of \rtname, an extension of regular automata to produce outputs. We use \rtnames as our computational model to represent queries over documents. 
+By combining both formalisms, we state the main enumeration problem and the main technical result. %Before this, we start by providing some basic notation to work with documents. 
+
+\paragraph{Documents} 
+Given a finite alphabet $\Sigma$, a \emph{document} $d$ over $\Sigma$ (or just a document) is a string $d = a_1 a_2 \ldots a_n\in\Sigma^*$. Given documents $d_1$ and $d_2$, we write $d_1 \cdot d_2$ (or just $d_1d_2$) for the concatenation of $d_1$ and $d_2$. We denote by $|d| = n$ the length of the document $d = a_1 \ldots a_n$ and by $\epsilon$ the document of length $0$. 
+We use $\Sigma^*$ to denote the set of all documents, and~$\Sigma^+$ for all documents with one or more symbols.
+In the sequel, we will usually use $d$ for a document, and $a$ or $b$ for a symbol in $\Sigma$. 
+
+\paragraph{SLP-compression} 
+A \emph{context-free grammar} is a tuple $G = (N,\Sigma,R,S_0)$, where $N$ is a non-empty set of non-terminals, $\Sigma$ is finite alphabet, $S_0\in N$ is the start symbol and $R\subseteq N \times(N \cup\Sigma)^{+}$ is the set of rules. As a convention, the rule $(A,w) \in R$ will be written as $A\to w$, and we will call $\Sigma$ and $N$ the set of terminal and non-terminal symbols, respectively. A context-free grammar $S = (N,\Sigma,R,S_0)$ is a \emph{straight-line program} (SLP) if $R$ is a total function from $N$ to $(N \cup\Sigma)^{+}$ and the directed graph $(N, \{(A,B)\mid (A,w) \in R \text{ and } B\text{ appears in } w\})$ is acyclic. 
+For every $A \in N$, let $R(A)$ be the unique $w \in (N \cup\Sigma)^{+}$ such that $(A,w) \in R$, and for every $a \in \Sigma$ let $R(a) = a$.
+We extend $R$ to a morphism $R^*: (N \cup\Sigma)^*\to \Sigma^*$ recursively such that $R^*(d) = d$ when $d$ is a document, and $R^*(\alpha_1 \ldots \alpha_n) = R^*\big(R(\alpha_1) \cdot \ldots \cdot R(\alpha_n)\big)$, where $\alpha_i \in (N \cup \Sigma)$ for every $i \leq n$. 
+By our definition of SLP, $R^*(A)$ is in $\Sigma^+$, and uniquely defined for each $A\in N$. 
+Then we define the document encoded by $S$ as $\doc(S) = R^*(S_0)$.
+\begin{example}	
+	Let $S = (N, \Sigma, R, S_0)$ be an SLP with $N = \{S_0, A, B\}$, $\Sigma = \{{\sf a}, {\sf b}, {\sf r}\}$, and $R = \{S_0 \to A{\sf r}BABA, A\to {\sf ba}, B \to A{\sf ra}\}$. We then have that $\doc(A) = {\sf ba}$, $\doc(B) = {\sf bara}$ and $\doc(S) = \doc(S_0) = {\sf barbarababaraba}$, namely, the string represented by $S$.%. In conclusion, $S$ is an SLP for the string ${\sf barbarababaraba}$.
+\end{example}
+
+We define the size of an SLP $S = (N,\Sigma,R,S_0)$ as $|S|= \sum_{A \in N} |R(A)|$, namely, the sum of the lengths of the right-hand sides of all rules.
+It is important to note that an SLP $S$ can encode a document $\doc(S)$ such that $|\doc(S)|$ is exponentially larger with respect to $|S|$. For this reason, SLPs stay as a commonly used data compression scheme~\cite{StorerS82, KiefferY00, Rytter02, ClaudeN11}, and they are often studied particularly because of their algorithmic properties; see~\cite{Lohrey12} for a survey. In this chapter, we consider SLP compression to represent documents and use the formalism of annotated automata for extracting relevant information from the document.
+
+\paragraph{Annotated automata} 
+An \emph{\rtname} (\rt for short) is a finite state automaton where we label some transitions with annotations. Formally, it is a tuple $\cA = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ where $Q$ is a state set, $\Sigma$ is an input alphabet, $\oalph$ is an output alphabet, $\qinit \subseteq Q$ and $F \subseteq Q$ are the initial and final set of states, respectively, and
+$$
+\Delta \ \ \subseteq \ \ \underbrace{Q \times \Sigma \times Q}_{\text{read transitions}} \ \, \cup \underbrace{Q \times (\Sigma \times \oalph) \times Q}_{\text{read-annotate transitions}}
+$$ 
+is the transition relation, which contains {\em read transitions} of the form  $(p, a, q)\in Q\times\Sigma\times Q$, and {\em read-annotate transitions} of the form $(p, (a, \oout), q)\in Q\times(\Sigma\times\oalph)\times Q$.
+
+Similarly to transducers~\cite{berstel2013transductions}, a symbol $a \in \Sigma$ is an input symbol that the machine reads and $\oout \in \oalph$ is an output symbol that indicates what the machine prints in an output tape.
+% The key difference is that annotations are always associated to an index in the document, which is printed along them in the output string.
+A run $\rho$ of $\cA$ over a document $d = a_1a_2\ldots a_n \in\Sigma^*$ is a sequence of the form:
+$$
+%\rho = (q_1, \sigma_1) \xrightarrow{s_1/\!\ooutscr_1} (q_2, \sigma_2) \xrightarrow{s_2/\!\ooutscr_2} \ldots  \xrightarrow{s_n/\!\ooutscr_n} (q_{n+1}, \sigma_{n+1})
+\rho \ := \ q_1 \xrightarrow{b_1} q_2 \xrightarrow{b_2} \ldots \xrightarrow{b_{n+1}} q_{n+1}
+$$
+such that $q_1\in\qinit$ and, for each $i\in \{1,\ldots, n\}$, it holds that either $b_i = a_i$ and $(q_i,a_i,q_{i+1})\in\Delta$, or $b_i = (a_i,\oout)$ and $(q_{i},(a_i,\oout),q_{i+1})\in\Delta$. 
+We say that $\rho$ is accepting if $q_{n+1}\in F$.
+
+We define the {\em annotation} of $\rho$ as
+$
+\ann(\rho) =  \ann(b_1)\cdot \ldots \cdot \ann(b_n)
+$
+such that $\ann(b_i) = (\oout, i)$ if $b_i = (a, \oout)$, and $\ann(b_i) = \eps$ otherwise, for each $i\in\{1, \ldots, n\}$.
+%Note that in $\nu = \oout_1 \cdots \oout_n$, $\oeps$ is a symbol that may be present in the word, whereas $\eps$ indicates an empty word. 
+Given an \rtname $\cA$ and a document $d \in\Sigma^*$, 
+we define the set $\sem{\cA}(d)$ of all outputs of 
+$\cA$ over $d$ as:
+%$$
+%\sem{\cA}(w) \ = \ \{ \out(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cA$ over $w$}\}.
+%$$
+$$
+\sem{\cA}(d) \ = \ \{ \ann(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cA$ over $d$}\}.
+$$ 
+Note that each output in $\sem{\cA}(d)$ is a sequence of the form $(\oout_1, i_1) \ldots (\oout_k, i_k)$ for some $k \leq n$ where $i_1  < \ldots < i_k$ and each $(\oout_j, i_j)$ means that position $i_j$ is annotated with the symbol~$\oout_j$.
+
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}[scale=0.7,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,state/.style={circle,draw}, color=black]
+		\node[state,draw=none,scale=0.1] (in) at (-2,0) {};
+		\node[state] (q0) at (0,0) {$q_1$};
+		\node[state] (q1) at (4,0) {$q_2$};
+		\node[state] (q2) at (8,0) {$q_3$};
+		\node[state, accepting] (q3) at (12,0) {$q_4$};
+		\draw (in) to (q0);
+		\draw (q0) to[loop above] node {${\sf a}, {\sf b}, {\sf r}$} (q0);
+		\draw (q0) to node [above] {$({\sf b},\circ)$} (q1);
+		\draw (q1) to[loop above] node {${\sf a}, {\sf r}$} (q1);
+		\draw (q1) to node [above] {$({\sf b},\circ)$} (q2);
+		\draw (q2) to[loop above] node {${\sf a}, {\sf r}$} (q2);
+		\draw (q2) to node [above] {$({\sf b},\circ)$} (q3);
+		\draw (q3) to[loop above] node {${\sf a}, {\sf b}, {\sf r}$} (q3);
+	\end{tikzpicture}
+	
+	\caption{Example of an annotated automaton.}
+	
+	\label{slps:fig-anna-ex}
+\end{figure}
+
+\begin{example}
+	Consider an \rt $\cA = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ where $\qinit = \{q_1\}$ $Q = \{q_1, q_2, q_3, q_4\}$, $\Sigma = \{{\sf a}, {\sf b}, {\sf r}\}$, $\oalph = \{\circ\}$, and $F =\{q_4\}$. We define $\Delta$ as the set of transitions that are depicted in Figure~\ref{slps:fig-anna-ex}. For the document $d = {\sf barbarababaraba}$ the set $\sem{A}(d)$ contains the strings $(\circ, 1)(\circ, 4)(\circ, 8)$, $(\circ, 4)(\circ, 8)(\circ, 10)$ and $(\circ, 8)(\circ, 10)(\circ, 14)$. Intuitively, $\cA$ selects triples of ${\sf b}$ which are separated by characters other than ${\sf b}$.
+\end{example}
+
+Annotated automata are the natural regular counterpart of annotated grammars introduced in Chapter~\ref{ch2}. Moreover, it is the generalization and simplification of similar automaton formalisms introduced in the context of information extraction~\cite{FaginKRV15,Peterfreund21}, complex event processing~\cite{grez2021formal,GrezR20}, and enumeration in general~\cite{BourhisGJR21}. In Section~\ref{slps:sec:spanners}, we show how we can reduce the automaton model of document spanners, called a variable-set automaton, into a (succinctly) annotated automaton, generalizing the setting in~\cite{SchmidS21}. 
+
+Similar to other automata models, the notion of an unambiguous automaton will be crucial for us to remove duplicate runs for the same output. 
+Specifically, we say that an \rt $\cA = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ is 
+{\it unambiguous} if for every $d \in \Sigma^*$ and every $w \in \sem{\cA}(d)$ there is exactly one accepting run $\rho$ of $\cA$ over $d$ such that $w = \ann(\rho)$. 
+On the other hand, we say that $\cA$ is \emph{deterministic} if $\Delta$ is a partial function of the form $\Delta: (Q \times \Sigma \, \cup\, Q\times (\Sigma\times\oalph)) \to Q$.
+Note that every deterministic \rt is always unambiguous. 
+The definition of unambiguous is in line with the notion of unambiguous annotated grammar (see Chapter~\ref{ch2}, similar notions are also present in Chapter~\ref{ch1}), and determinism with the idea of I/O-determinism used in~\cite{FlorenzanoRUVV20,BourhisGJR21,grez2021formal}.
+As usual, one can easily show that for every \rt $\cA$ there exists an equivalent deterministic \rt (of exponential size) and, therefore, an equivalent unambiguous \rt (see~\cite{FlorenzanoRUVV20,BourhisGJR21,grez2021formal} for a proof of this result). 
+\begin{lemma}\label{slps:ra:det}
+	For every \rtname $\cA$ there exists a deterministic \rtname $\cA'$ such that $\sem{\cA}(d) = \sem{\cA'}(d)$ for every $d\in\Sigma^*$.
+\end{lemma}
+%\begin{proof}
+%	We use the standard determinization scheme for regular automata. Namely, let $\cA = (Q, \Sigma, \oalph, \Delta, \qinit, F)$, and let $\cA' = (Q', \Sigma, \oalph, \Delta', \{\qinit\}, F')$ where $Q' = 2^Q$, $\Delta'$ is made of states $(S,b,T)$ such that $S,T\subseteq Q$, $b\in\Sigma\cup(\Sigma\times\oalph)$ and $T$ is the set of reachable states $q$ from some $p\in S$ by a transition $(p,b,q)\in\Delta$, and $F' = \{S\mid S\cap F\neq\emptyset\}$. It can be seen that $\cA'$ is deterministic. To show that $\sem{\cA}(d) = \sem{\cA'}(d)$ for every document $d\in\Sigma^*$, we define the {\it language} of an annotated automaton $\cA$ as a set $L(\cA)\subseteq (\Sigma \cup (\Sigma\cup\oalph))^*$ as follows:
+%	$$
+%		L(\cA) = \{b_1\ldots b_n\mid \text{There exists an accepting run $\rho = q_1 \xrightarrow{b_1} q_2 \xrightarrow{b_2} \ldots \xrightarrow{b_{n}} q_{n+1}$ of $\cA$}\}
+%	$$
+%	It is straightforward to see that $L(\cA) = L(\cA')$, which directly implies that for each document $d\in\Sigma^*$ it holds that $\sem{\cA}(d) = \sem{\cA'}(d)$.
+%\end{proof}
+
+
+\newcommand{\blabla}{Proposition 1 }
+
+Regarding the expressive power of annotated automata, we note that they have the same expressive power as MSO formulas with monadic second-order free variables. We refer the reader to Chapter~\ref{ch1} for an analogous result in the context of nested documents. In fact, the equivalence between these models can be obtained as a corollary of \blabla in Chapter~\ref{ch1}.
+Finally, by Lemma~\ref{slps:ra:det} we do not loose expressive power if we restrict to the class unambiguous annotated automata, since we can convert every annotated automata into an deterministic one with an exponential cost in the size of the initial automaton. 
+% since any regular automata (annotated automata) is also a visibly pushdown automata (visibly pushdown annotator) with no open or close transitions.
+
+\paragraph{Main result} 
+We are interested in the problem of evaluating annotated automata over an SLP-compressed document, namely, to enumerate all the annotations over the document represented by an SLP. Formally, we define the main evaluation problem of this chapter as follows. Let $\mathcal{C}$ be any class of \rt (e.g., unambiguous \rt). 
+
+\vspace{0.5em}
+
+\begin{center}
+	\framebox{
+		\begin{tabular}{rl}
+			\textbf{Problem:} & $\enumraa[\mathcal{C}]$\\
+			\textbf{Input:} & An \rt $\cA \in \mathcal{C}$ and an SLP $S$ \\
+			\textbf{Output:} & Enumerate $\sem{\cA}(\doc(S))$
+		\end{tabular}
+	}
+\end{center}
+
+\vspace{0.5em}
+
+As it is common for enumeration problems, we want to impose an efficiency guarantee regarding the preprocessing of the input (in this case, $\cA$ and $S$) and the delay between two consecutive outputs. For this purpose, one often divides the work of the enumeration algorithm into two phases: first, a \emph{preprocessing phase} in which it receives the input and produces some data structure $D$ (e.g., a collection of indices) which encodes the expected output and, second, an \emph{enumeration phase} which extracts the results from $D$. 
+We say that such an algorithm has \emph{$f$-preprocessing time} if there exists a constant $c$ such that, for every input $\cI$, the time for the preprocessing phase of $\cI$ is bounded by $c \cdot f(|\cI|)$.   
+Instead, we say that the algorithm has \emph{output-linear delay} if there exists a constant $d$ such that whenever the enumeration phase delivers all outputs $O_1, \ldots, O_\ell$ sequentially, the time for producing the next output $O_i$ is bounded by $c \cdot |O_i|$ for every $i \leq \ell$.
+
+As it is common in the literature~\cite{Segoufin13}, we assume here the computational model of Random Access Machines (RAM) with uniform cost measure and addition and subtraction as basic operations~\cite{aho1974design}. 
+Further, as it is commonly done on algorithms over SLPs and other compression schemes, we assume that the registers in the underlying RAM-model allow for constant-time arithmetical operations over positions in the {\it uncompressed} document (i.e., they have $\cO(\log |\doc(S)|)$ size).
+
+The notion of output-linear delay is a refinement of the better-known constant-delay bound, which requires that each output has a constant size (i.e., with respect to the input). Since even the document encoded by an SLP can be of exponential length, it is more reasonable in our setting to use the output-linear delay guarantee. 
+
+
+The following is the main technical result of this chapter.
+
+\begin{theorem}\label{slps:theo:main-theorem}
+	Let $\mathcal{C}$ be the class of all unambiguous \rts. Then one can solve the problem $\enumraa[\mathcal{C}]$ with linear preprocessing time and output-linear delay. Specifically, there exists an enumeration algorithm that runs in $|\cA|^3 \times |S|$-preprocessing time and output-linear delay for enumerating $\br{\cA}(\doc(S))$ given an unambiguous \rt $\cA$ and an SLP $S$. 
+\end{theorem}
+
+We dedicate the rest of the chapter on presenting the enumeration algorithm of Theorem~\ref{slps:theo:main-theorem}. In Section~\ref{slps:sec:evaluation} we explain the preprocessing phase of the algorithm. Before that, in the following section, we explain how \emph{Enumerable Compact Sets with Shifts} work, which is the data structure that we use to store the outputs during the preprocessing phase. 
+
+
+%
+%
+%In this paper we will not only look at enumeration algorithms as a solution to a two-part problem, instead we will also be interested in accepting these objects $D$ as part of an input.
+%Another consideration we will have is that we will only talk about output-linear delay as our gold standard for enumeration efficiency. 
+%This is a refinement of the better-known constant-delay bound, which requires (by a reasonable assumption) that each output has constant size. 
+%Output-linear delay is the natural extension of this notion which allows outputs of unbounded size, which requires the delay to be bounded linearly in the size of the current output.
+%More generally, we will look at classes of objects which allow output-linear delay enumeration as schemes which efficiently represent sets of outputs.
+%We can subsequently define enumeration algorithms as those which receive an input, and produce one such scheme.
+
+
+

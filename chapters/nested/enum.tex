@@ -1,0 +1,51 @@
+% !TeX spellcheck = en_US
+%!TEX root = ../main/main.tex
+
+
+%\noindent\textbf{Enumeration with one-pass preprocessing and output-linear delay.} As it is common in the enumeration algorithms literature~\cite{Bagan06,Courcelle09,Segoufin13}, for our computational model we use Random Access Machines (RAM) with uniform cost measure, and addition and subtraction as basic operations~\cite{AhoHU74}. We assume that a RAM has read-only input registers where the machine places the input, read-write work registers where it does the computation, and write-only output registers where it gives the output (i.e., the enumeration of the results).
+
+Our first task in this chapter is to define a notion of a \emph{streaming enumeration problem}: to evaluate a query over a stream and to enumerate the outputs with bounded delay whenever it is such. Toward this goal, we want to restrict the resources used (i.e., time and space) and impose strong guarantees on the delay. As our gold standard, we consider the notion of \emph{output-linear delay} defined in~\cite{FlorenzanoRUVV20}. This notion is a refinement of the definition of constant-delay~\cite{Segoufin13} or linear-delay~\cite{Courcelle09} enumeration that better fits our purpose. Altogether, our plan for this section is to define a streaming enumeration problem and then provide a notion of efficiency that a solution for this problem should satisfy. 
+
+We adopt the setting of \emph{relations}~\cite{jerrum1986random,ArenasCJR19} to formalize a streaming enumeration problem. First, we need to define what is an enumeration problem outside the stream setting. 
+Let $\inpAlph$  be an alphabet. An \emph{enumeration problem} is a relation $R\subseteq (\inpAlph^{*} \times \inpAlph^*) \times\inpAlph^{*}$. For each pair $((q, x), y) \in R$ we view $(q, x)$ as the input of the problem and $y$ as a possible output for $(q, x)$. 
+Furthermore, we call $q$ the \emph{query} and $x$ the \emph{data}.
+This separation allows for a fine-grained analysis of the query complexity and data complexity of the problem. 
+For an instance $(q, x)$ we define the set $\sem{q}_{R}(\inpw) = \{\outw \mid ((q,\inpw), \outw)\in R\}$ of all outputs of evaluating $q$ over $x$.
+%As it is standard in this framework~\cite{jerrum1986random}, we assume that $R$ is a p-relation which means that there exists a polynomial $p$ such that, for every $y \in \sem{q}_{R}(\inpw)$, it holds that $|y| \leq p(|q|+|x|)$.  
+
+A \emph{streaming enumeration problem} is an extension of an enumeration problem $R$ where the input is a pair $(q, \Stream)$ such that $\Stream$ is an infinite sequence of elements in $\Omega$. 
+We identify two ways of extending an enumeration problem $R$ that differ in the output sets that are desired at each position in the stream:
+\begin{enumerate}
+\item The {\em streaming full-enumeration problem} for $R$ is one where the objective is to enumerate the set $\sem{q}_{R}(\Stream[1,n])$ at each position $n \geq 1$. 
+\item A {\em streaming $\Delta$-enumeration problem} for $R$ is one where the objective is to enumerate the set $\sem{q}^{\Delta}_{R}(\Stream[1,n]) = \sem{q}_{R}(\Stream[1,n]) \setminus \bigcup_{i < n} \sem{q}_{R}(\Stream[1,i])$ at each position $n \geq 1$. 
+\end{enumerate}
+These versions give us two different ways of returning the outputs. Both notions have been studied previously in the context of incremental view maintenance~\cite{ChirkovaY12} and more recently, for dynamic query evaluation~\cite{IdrisUV17,BerkholzKS17}.
+For the sake of simplification, in the following, we provide all definitions for the full-enumeration scenario. Note that all definitions can be extended to $\Delta$-enumeration by changing $\sem{q}_{R}$ to $\sem{q}^{\Delta}_R$.
+%Despite its differences, for an enumeration problem $R$ one can always define a relation $R'$ such that $((q,x),y) \in R'$ iff $((q,x),y) \in R$ and $((q,x'),y) \notin R$ for every prefix $x'$ of $x$. Then, $\sem{q}_{R'}(\Stream[1,n]) = \sem{q}^{\Delta}_{R}(\Stream[1,n])$ and the $\Delta$-enumeration is subsumed by the full-enumeration. For this reason, in the following we say the \emph{streaming enumeration problem} for $R$ referring to full-enumeration, but this also includes the $\Delta$-enumeration.
+
+%One could also consider a version of this problem where the stream $\Stream$ is a sequence of nested documents separated by a special symbol $\$$, of the form $S = w_1 \$ w_2 \$ \ldots$, and each time that the $n$-th symbol $\$$ is received one has to enumerate the output $\sem{q}_{R}(w_n)$. This version of the problem is actually what one would probably expect in a stream processing of nested documents. However, one can check that this is a special case of the full-enumeration setting. Therefore, we believe that the streaming enumeration problem is general enough to cover practical cases, like the one discussed before. 
+
+
+%For our gold standard for efficiency we consider the notion of \emph{output-linear delay} defined in~\cite{FlorenzanoRUVV20}. This notion is a refinement of the definition of constant-delay~\cite{Segoufin13} or linear-delay~\cite{Courcelle09} enumeration that better fits our purpose. We also add the additional restriction of making one-pass over the input. For this, we adopt the setting of relations to represent enumeration problem~\cite{jerrum1986random,ArenasCJR19} and separate the input between two components, query and data, in order to formalize the notion of one-pass over the data. 
+%Let $\inpAlph$  be an alphabet. An enumeration problem is a relation $R\subseteq (\inpAlph^{*} \times \inpAlph^*) \times\inpAlph^{*}$.  Here, for each pair $((q, x), y) \in R$ we view $(q, x)$ as the input of the problem and $y$ as a possible output for $(q, x)$. Furthermore, we call $q$ the query and $x$ the data. For an instance $(q, x)$ we define the set $\sem{q}_{R}(\inpw) = \{\outw \mid ((q,\inpw), \outw)\in R\}$ of all outputs of evaluating $q$ over $x$.
+%As it is standard in this framework~\cite{jerrum1986random}, we assume that $R$ is a p-relation which means that there exists a polynomial $p$ such that, for every $y \in \sem{q}_{R}(\inpw)$, it holds that $|y| \leq p(|q|+|x|)$.
+ 
+We now turn to our efficiency notion for solving a streaming enumeration problem like the above. Let $f\colon\nat\to\nat$ be a function. We say that $\enumE$ is a {\em streaming evaluation algorithm} for $R$ with $f$-{\em update-time} if $\enumE$ operates in the following way: it receives a query $q$ and reads the stream $\Stream$ by calling the $\yield{\Stream}$ method sequentially. After the $n$-th call to $\yield{\Stream}$, the algorithm processes the $n$-th data symbol in two phases:
+\begin{itemize}
+	\item In the first phase, called the {\em update} phase, the algorithm updates a data structure $D$ with the read symbol, and the time spent is bounded by $\cO(f(\vert q \vert))$.
+	\item The second phase, called the {\em enumeration} phase, occurs immediately after each update phase and outputs $\sem{q}_{R}(\Stream[1,n])$ using $D$. During this phase the algorithm:
+	(1) writes $\# \outw_1 \# \outw_2\#\cdots\#\outw_m\#$ to the output registers where \# is a distinct separator symbol not contained in $\inpAlph$, and $\outw_1,\outw_2,\ldots,\outw_m$ is an enumeration (without repetitions) of the set $\sem{q}_{R}(\Stream[1,n])$,
+	(2) it writes the first \# as soon as the enumeration phase starts, and 
+	(3) it stops immediately after writing the last \#.
+\end{itemize}
+The purpose of separating $\enumE$’s operation into an update and enumeration phase is to make an output-sensitive analysis of $\enumE$’s complexity. Moreover, from a user perspective, this separation allows running the enumeration phase without interrupting the update phase. That is, the user could execute the enumeration phase in a separate machine, and its running time only depends on how many outputs she wants to enumerate.  
+
+For the enumeration phase, we measure the \emph{delay between two outputs} as follows. For an input $\inpw\in\inpAlph^*$, let $\# \outw_1 \# \outw_2\#\cdots\#\outw_m\#$ be the output of the algorithm during any call to the enumeration phase. Furthermore, let $\outtime_i(\inpw)$ be the time in the enumeration phase when the algorithm writes the $i$-th $\#$ when running on $\inpw$ for $i \leq m+1$. 
+Define $\outdelay_i(\inpw) = \outtime_{i+1}(\inpw) - \outtime_{i}(\inpw)$ for $i \leq m$. 
+Then we say that $\enumE$ has {\em output-linear delay} if there exists a constant $k$ such that for every $\inpw\in\inpAlph^*$ and $i \leq m$ it holds that $\outdelay_i(\inpw) \leq k \cdot |y_i|$. In other words, the number of instructions executed by $\enumE$ between the time that the $i$-th and the $(i+1)$-th \# are written is linear on the size of $y_i$.
+Note that, in particular, an output-linear delay implies that the enumeration phase ends in constant time if there is no output for enumerating. 
+
+As the last ingredient, we define how to measure the \emph{memory space} of a streaming evaluation. Note that after the $n$-th call a streaming evaluation algorithm with $f$-update-time will necessarily use at most $\cO(n\cdot f(|q|))$ bits of space. As a refinement of this bound, we say that this algorithm \emph{uses $g$-space} over a query $q$ and stream $\Stream$ if the number of bits used by it after the $n$-th call is in $\cO(g(|q|, \Stream[1, n]))$.
+
+Given a streaming enumeration problem, we say that it can be solved with update-time $f$, output-linear delay, and in $g$-space if an algorithm such as the one described above exists. For $\Delta$-enumeration, the notion of streaming evaluation algorithm also applies, even though it could be the case that one can find such an algorithm for full-enumeration but not for $\Delta$-enumeration, and vice versa. 
+To finish, we would like to remark that the enumeration problem and solutions provided here are a formal refinement of the algorithmic notions proposed in the literature of streaming evaluation~\cite{GauwinNT09}, dynamic query evaluation~\cite{BerkholzKS17,IdrisUV17}, and complex event processing~\cite{GrezRU19,GrezR20}.

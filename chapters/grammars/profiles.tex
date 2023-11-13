@@ -1,0 +1,154 @@
+%
+%
+
+\paragraph{Rigid grammars}
+We first define the restricted notion of grammars that we study.
+%
+Consider an annotated grammar $\cG = (N, \Sigma, \Omega, P, S)$, and a string
+$\gamma\in (\Sigma \cup (\Sigma \times \Omega)\cup N)^*$ of nonterminals and
+of terminals which may carry an annotation in~$\Omega$. We will be interested in
+the \emph{shape}
+of~$\gamma$, written $\shape(\gamma)$: it is the string over $\{0, 1\}$
+obtained by replacing every nonterminal of~$N$ in~$\gamma$ by~$1$ and replacing
+all terminals (annotated or not) by~$0$: note that $|\shape(\gamma)| = |\gamma|$.
+
+We then say that an annotated grammar $\cG$ is \emph{rigid}
+%
+%
+	%
+        if for every string
+        $w \in \Sigma^*$, all derivations from the start symbol~$S$ of~$\cG$ to
+        an annotated string $\hat{w}$ of~$w$ have the same sequence of shapes
+        (remember that we only consider leftmost derivations).
+        Formally, there exists a sequence $s_1, \ldots, s_k \in \{0,
+        1\}^*$ depending only on~$w$ such that for any derivation 
+        $S = \alpha_1 \der{\cG} \alpha_2 \der{\cG} \ldots \der{\cG} \alpha_m =
+        \hat{w}$ with $\str(\hat{w}) = w$, we have $m = k$ and $\mathrm{shape}(\alpha_i) = s_i$ for all $1
+        \leq i \leq k$.
+	%
+	%
+	%
+%
+
+Intuitively, the sequence of shapes of a derivation describes the
+skeleton of the corresponding derivation tree. Thus, a rigid annotated
+grammar is one where, for each unannotated string, all derivation trees for all
+annotations of the string are isomorphic (ignoring the labels of 
+nonterminals and the annotation of terminals).
+
+Now we restate Proposition~\ref{gram:prp:2nf} while including the angle of rigid grammars.
+
+\begin{proposition}[Proposition~\ref{gram:prp:2nf}]
+  \label{gram:prp:2nfrig}
+  Given any annotated grammar\/ $\mathcal{G}$, we can compute in linear time an annotated
+  grammar $\mathcal{G}'$ in 2NF such that $\mathcal{G}$ and $\mathcal{G}'$ are
+  equivalent. Furthermore, if $\mathcal{G}$ is unambiguous (resp. rigid) then $\mathcal{G}'$ is unambiguous (resp. rigid) as well.
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/arity2.tex}
+\end{proof}
+
+
+
+
+
+
+
+
+
+\paragraph{Rigidity vs unambiguity}
+Unambiguity and rigidity for annotated grammars seem
+incomparable: unambiguity imposes that every annotation is produced by only one
+derivation, whereas rigidity imposes that all derivations across all annotations
+have the same shape (but the same annotation may be obtained multiple times).
+
+However, it turns out that, on rigid grammars, we can impose unambiguity without
+loss of generality: all rigid grammars can be converted to equivalent rigid and
+unambiguous grammars.
+
+\begin{theorem}
+  \label{gram:thm:profileu-iou} For any rigid grammar
+	$\cG$ we can build an equivalent rigid and
+	unambiguous grammar $\cG'$. The transformation runs in exponential time,
+        i.e., time $\cO(2^{|\cG|^c})$ for some $c> 0$.
+\end{theorem}
+\begin{proof}
+  \input{./proofs/grammars/quadres1}
+\end{proof}
+
+% The transformation to impose unambiguity goes via a notion of annotated pushdown
+% automata (introduced in the next section), and is inspired by the
+% determinization procedure for visibly pushdown automata~\cite{alur2004visibly}, even though rigid
+% grammars generally do not define visibly pushdown languages. The transformation
+% comes at a cost, as it will generally blow up the size of the grammar
+% exponentially.
+
+
+
+\paragraph{Expressiveness of rigid grammars}
+Armed with Theorem~\ref{gram:thm:profileu-iou}, we study what is the expressive power
+of rigid grammars. For this, let us first go back to the setting without
+annotations. Theorem~\ref{gram:thm:profileu-iou} tells us that for (unannotated) CFGs the rigidity
+requirement is equivalent to the usual unambiguity requirement: each accepted
+word has a unique derivation.
+Now, for the case of an annotated grammar $\cG$,
+rigidity additionally imposes the requirement
+that all annotations of an input string have the same parse tree.
+In particular, the language of the strings where $\cG$ accepts some
+annotation must be recognizable by a rigid (unannotated) CFG, hence an unambiguous CFG (by
+Theorem~\ref{gram:thm:profileu-iou}). Formally:
+
+\begin{proposition}
+  \label{gram:prp:baseunambig}
+   For a rigid grammar $\cG$, let $L'$ be the set of strings with nonempty output, i.e., $L' = \{w \mid \sem{\cG}(w) \not = \emptyset\} $. Then $L'$ is
+  recognized by an unambiguous CFG.
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/quadres2.tex}
+\end{proof}
+
+This yields concrete examples of languages (on the empty annotation alphabet) that cannot be recognized by a
+rigid annotated grammar, e.g., inherently ambiguous context-free languages
+such as $L_\mathrm{a} = \{a^i b^j c^k \mid i, j, k \geq 1 \land (i = j \lor j =
+k)\}$ on~$\{a, b, c\}^*$~\cite{maurer1969direct}.
+%
+%
+%
+%
+Proposition~\ref{gram:prp:baseunambig} also implies that we cannot decide if the language
+of an annotated grammar can be expressed instead by a rigid grammar,
+or if an annotated grammar is rigid:
+
+\begin{proposition}
+  \label{gram:prp:unambundec2}
+  Given an unannotated grammar $\cG$, it is undecidable to determine whether $\cG$
+  is rigid, and it is undecidable to determine whether there
+  is some equivalent rigid grammar $\cG'$.
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/quadres3.tex}
+\end{proof}
+
+These undecidability results make 
+rigid grammars less appealing, but note that our enumeration algorithm for such
+grammars applies in particular to decidable grammar classes which are
+designed to ensure rigidity. For instance, this would be the case
+of grammars arising from visibly pushdown automata, which we discuss in more
+detail in the next section.
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+

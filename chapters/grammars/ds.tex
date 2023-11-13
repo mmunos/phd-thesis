@@ -1,0 +1,96 @@
+The preprocessing phase of our enumeration algorithm builds data structures
+representing the set of outputs to enumerate. For this, we essentially re-use
+the $\epsilon$-ECS data structure of Chapter~\ref{ch1}, but for convenience
+we present them in a self-contained way for our context, and
+name them \emph{enumerable sets}.
+We now define them and state that we can enumerate their contents
+with output-linear delay (Theorem~\ref{gram:thm:enum}).
+The enumeration phase of our algorithm simply enumerates the outputs of 
+an enumerable set using this delay guarantee.
+
+An \emph{enumerable set}  is a representation of a set of
+strings over some alphabet $\O$.  For our case, we want strings of
+$\O^*$ to describe outputs, so $\O$ consists of pairs of
+%
+%
+annotations
+with positions of the input
+string~$w$, i.e.,
+$\O \colonequals \Omega \times \{1, \ldots, |w|\}$.
+%
+
+The basic enumerable sets are:
+\begin{itemize}
+  \item $\textsf{empty}$, the empty set;
+  \item $\singleton(\epsilon)$, the singleton set containing the empty string;
+  \item $\singleton(x)$ for
+$x \in \O$, the singleton set with the
+    single-character string~$x$.
+\end{itemize}
+
+Enumerable sets can be combined using operators to form more complex
+enumerable sets. The operators that we consider all take constant-time
+and are {\em
+fully-persistent}~\cite{driscoll1986making}. Specifically, given
+enumerable sets $\dsD_1$ and $\dsD_2$, combining them creates an
+enumerable set without modifying $\dsD_1$ and $\dsD_2$ (i.e., they can still be
+used in other operator applications). To make this
+possible, enumerable sets can share some components, e.g., some parts
+of the arguments $\dsD_1$ and $\dsD_2$ can be shared in memory, and
+the result can also have some parts that are shared with
+$\dsD_1$ and $\dsD_2$. This is similar, e.g., to persistent lists,
+where we can only extend a list by adding an element to its head: this
+does not modify the original list, and returns a new
+list sharing some memory with the original list.
+%
+%
+%
+
+The two operators to combine enumerable sets are:
+
+\begin{itemize}
+  \item The \emph{union} operator $\textsf{union}(\dsD_1, \dsD_2)$ can
+    be applied if the sets represented by $\dsD_1$ and $\dsD_2$ are
+    disjoint, intuitively to avoid duplicates. It returns an enumerable set representing the
+    union of these sets,
+    %
+    %
+    %
+    
+  \item The \emph{product} operator $\textsf{prod}(\dsD_1, \dsD_2)$
+    can be applied if there are no common letters in the strings of
+    the sets represented by $\dsD_1$ and $\dsD_2$, i.e., if $\dsD_1$
+    (resp. $\dsD_2$) represents $S_1$ (resp. $S_2$) then the sets
+    $\{x_1 \in \O \mid x_1 \text{~occurs~in~some~} w_1 \in S_1\}$ and
+    $\{x_2 \in \O \mid x_2 \text{~occurs~in~some~} w_2 \in S_2\}$ are
+    disjoint.  Then, the operation returns an enumerable set $\dsD$
+    which represents the concatenations of the strings in~$\dsD_1$ and
+    in~$\dsD_2$: formally, it represents $S_1 \cdot S_2 = \{w_1 \cdot w_2 \mid
+    w_1 \in S_1, w_2 \in S_2\}$.
+  %
+  %
+  %
+\end{itemize}
+
+%
+%
+
+It is known that enumerable sets can be enumerated efficiently:
+
+\begin{theorem}
+  \label{gram:thm:enum}
+  We can implement enumerable sets such that:
+\begin{itemize} \item The enumerable
+        sets $\empt$, $\singleton(\epsilon)$, and $\singleton(x)$ for $x \in \O$ can be built in
+  constant time;
+\item The union and product
+  operations can be implemented in constant time and in a fully
+  persistent way;
+\item Given an enumerable set,  we can enumerate the strings
+      it represents with output-linear delay and memory usage linear
+  in the number of instructions used to build it.
+\end{itemize}
+\end{theorem}
+
+We omit a formal proof given that it follows directly from Theorem~\ref{nested:theo:data-structure-eps}.
+

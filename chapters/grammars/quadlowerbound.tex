@@ -1,0 +1,23 @@
+We now turn to the question of whether the quadratic preprocessing time for
+rigid grammars is optimal. For this, we notice that the parsing of
+(unannotated) unambiguous grammars can be performed in quadratic time, but the
+question of finding a better algorithm was open as of
+2012~\cite{schmitz2012can}. Now, this is a special case of our problem, because
+an unannotated unambiguous grammar is in particular a rigid and unambiguous
+annotated grammar, and enumerating the outputs of an unannotated grammar just
+means deciding in constant time after the preprocessing whether the input
+unannotated string is accepted or not. Thus:
+
+\begin{proposition}\label{gram:prp:redunann}
+  Any algorithm to enumerate the accepted outputs of a rigid
+  annotated grammar can be used to test if an input string is accepted by an
+  unambiguous unannotated grammar, with same complexity as that of the
+  preprocessing phase.
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/quadres4.tex}
+\end{proof}
+
+For this reason, we leave open the question of whether a better than quadratic
+preprocessing time can be achieved in this case.
+

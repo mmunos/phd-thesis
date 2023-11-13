@@ -1,0 +1,91 @@
+%
+
+We know from~\cite{AbboudBW18} that for any $c>0$, there exists a fixed
+grammar $\cG$ such that determining whether a string $w$ is
+derived by $\cG$, cannot be solved in time $\cO(|w|^{\omega-c})$, unless the conjecture in graph algorithms mentioned in~\cite{AbboudBW18} is false.
+
+
+We will see that this conditional lower bound translates to unambiguous
+annotated grammars. Indeed, we will show that for each grammar
+$\cG$ there exists an unambiguous annotated grammar
+$\mathcal{G}'$ such that $w$ is derived by $\cG$ if and only
+if $\sem{\mathcal{G}'}(w)$ is non-empty. Therefore after the
+preprocessing of $w$ for $\mathcal{G}'$, we know in constant time
+whether $w$ is derived by $\cG$ which proves that the
+preprocessing of $\mathcal{G}'$ on $w$ requires $\cO(|w|^{\omega-c})$
+time, assuming the conjecture is true.
+
+Now let us show how to translate a grammar $\cG$ into an
+unambiguous annotated grammar $\mathcal{G}'$. This can be challenging, because
+$\cG$ is not necessarily unambiguous: for this reason we need to define
+$\mathcal{G}'$ intuitively by adding annotations that disambiguate the various
+possible derivations of $\cG$, to guarantee that the result is
+unambiguous. As this is cumbersome to do on grammars, we use the
+correspondence between annotated grammars and pushdown annotators
+(Proposition~\ref{gram:prop:grammar-pdann}), shown later in the article. 
+
+In this proof, we will use the notion of \emph{pushdown automata} (PDA); see
+Definition~\ref{gram:def:pda} for the formal definition.
+Let us consider a PDA $\mathcal{P}$ 
+which is equivalent to $\cG$.
+As is standard with PDAs, we can change the given definition to suppose without
+loss of generality that no transition in $\mathcal{P}$ is an
+$\epsilon$-transition. Specifically, we consider PDAs in a slightly different
+model where transitions 
+are of the form
+$(q_1,a,s_1,q_2,s_2)\in Q\times \Sigma \times \Gamma^+ \times
+Q \times \Gamma^+$: such a transition means that in state $q_1$, when the top
+stack symbols are $s_1$ and the next letter to read is~$a$, the automaton can
+read the letter, move to state
+$q_2$ and replace $s_1$ by $s_2$ on the stack. We create our
+unambiguous PDAnn $\mathcal{P}'$ from $\mathcal{P}$ by replacing
+each transition $t=(q_1,a,s_1,q_2,s_2)$ to a set of transitions that
+first pop the symbols of $s_1$ from the stack, then reads $a$, then
+pushes the symbols of $s_2$ onto the stack. The first state of this
+transition is $q_1$, the last state is $q_2$ but we make sure that
+each of the intermediate states are unique to $t$. Furthermore, the
+transition that reads the letter $a$ outputs a symbol unique to the
+transition $t$. Therefore, by construction there is a bijection
+between runs of $\mathcal{P}$ and runs of $\mathcal{P}'$ and the 
+PDAnn $\mathcal{P}'$ is unambiguous because the run used for each
+output can be retrieved from that output.
+
+We conclude by using Proposition~\ref{gram:prop:grammar-pdann} to obtain an equivalent annotated
+grammar $\cG'$, which is also unambiguous. Thus, we know that on any unannotated
+string $w$, the set $\sem{\cG'}(w)$ is empty if $\cG$ does not derive
+$w$, and non-empty if it does. Thus, we know that, if we assume the conjecture is true, we cannot determine
+in $\cO(|w|^{\omega-c})$ whether $\sem{\cG'}(w)$ is empty or not. But if we have
+an algorithm to enumerate $\sem{\cG'}(w)$  with output-linear delay, as any
+output has size $\cO(|w|)$ in~$|w|$, we can do this with a complexity linear in~$|w|$
+which is that of the preprocessing of the enumeration algorithm. Thus, we
+conclude that the preprocessing conditionally requires $\Omega(|w|^{\omega-c})$ time.
+
+%
+%
+%
+%
+%
+%
+%
+
+%
+%
+
+%
+%
+%
+%
+%
+%
+
+
+%
+%
+%
+
+%
+%
+%
+%
+%
+%

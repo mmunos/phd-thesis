@@ -1,0 +1,27 @@
+%
+%
+We cannot show a lower bound that matches the complexity of our algorithm, but
+we can prove that we cannot achieve a preprocessing time better than the time to
+test whether a string is accepted by a CFG, which is essentially
+the complexity of Boolean matrix multiplication~\cite{AbboudBW18}:
+%
+%
+
+\begin{proposition}
+  \label{gram:prp:cubiclowerbound}
+  Let $\omega$ be the
+  %
+  smallest value
+  such that we can multiply two Boolean $n\times
+  n$ matrices in time $\cO(n^{\omega+o(1)})$. Then for any $c>0$ there is an unambiguous
+  annotated grammar $\cG$ such that, given an input string~$w$, enumerating 
+  $\sem{\cG}(w)$ with output-linear delay requires a preprocessing time of
+  $\Omega(|w|^{\omega-c})$.
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/cubiclowerbound}
+\end{proof}
+
+%
+%
+%

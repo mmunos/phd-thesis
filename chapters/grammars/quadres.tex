@@ -1,0 +1,30 @@
+%
+%
+
+In the previous section, we have shown how to enumerate the output of
+unambiguous annotated grammars on strings, with output-linear delay and cubic
+preprocessing in the input string. This algorithm has two drawbacks: it requires
+us to impose that the grammar is unambiguous, and the cubic preprocessing 
+%
+may be expensive.
+
+In this section, we introduce a new class of annotated grammars, called
+\emph{rigid grammars}. Rigid grammars do not need to be
+unambiguous, but as we will show a rigid grammar can always be converted to
+additionally impose unambiguity. The point of rigid grammars is that we can show
+a quadratic bound on Algorithm~\ref{gram:alg:cubic} for them.
+
+We first define rigid grammars in this section. We then state that we can impose
+unambiguity for rigid grammars, and derive some consequences about their
+expressiveness and the complexity of recognizing
+them. Last, we show a quadratic bound on the
+preprocessing time for output-linear enumeration for such grammars, and explain
+why a better bound would be challenging to achieve.
+
+%
+%
+%
+%
+%
+%
+

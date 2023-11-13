@@ -1,0 +1,87 @@
+%!TEX spellcheck = en_US
+%!TEX root = ../../Thesis.tex
+
+Liat Peterfreund~\cite{liatpaper} proposed using extraction grammars to specify document spanners, which is the natural extension of regular spanners to a controlled form of recursion. Furthermore, she provided an enumeration algorithm for unambiguous functional extraction grammars that outputs the results with constant delay after quintic time preprocessing (i.e., in the document), later improved to cubic time (see Chapter~\ref{ch2}). By restricting to the class of visibly pushdown extraction grammars, we can show a streaming enumeration algorithm with update-time that is independent of the document, and output-linear delay. We proceed by recalling the framework of document spanners and extraction grammars to define the class of visibly pushdown extraction grammars and state the main algorithmic result of the section. 
+
+We start by recalling the basics of \emph{document spanners}~\cite{FaginKRV15}. Fix an alphabet~$\Sigma$ and a set of variables $\varset$ such that $\Sigma \cap \varset = \emptyset$. A \emph{document} $d$ over $\Sigma$ is a word in $\Sigma^*$. For the purposes of this section, we will use the term {\it document} instead of {\it word} (and the symbol $d$ instead of $w$) in order to make the link to the literature clearer. Recall that a \emph{span} $s$ of a document $d$ is a pair $\spanc{i}{j}$ of natural numbers $i$ and $j$ with $1 \leq i \leq j \leq |d|+1$. Intuitively, a span represents a substring of $d$ by identifying the starting and ending positions. 
+%We denote by $d_{[i,j\rangle}$ the substring $a_i\cdots a_{j-1}$ of $d$. In case $i = j$, it holds that $d_{[i,j\rangle}$ equals the empty string, which we denote by $\eps$.
+We denote by $\spanset(d)$ the set of all possible spans of $d$.
+Let $X \subseteq \varset$ be a finite set of variables.
+An \emph{$(X, d)$-mapping} $\smap\colon X \rightarrow \spanset(d)$ assigns variables in $X$ to spans of $d$. An \emph{$(X, d)$-relation} is a finite set of $(X, d)$-mappings. Then a \emph{document spanner} $P$ (or just spanner) is a function associated with a finite set $X$ of variables that map documents $d$ into $(X, d)$-relations.  
+
+We use the framework of extraction grammars, recently proposed in~\cite{liatpaper}, to specify document spanners. 
+For $X \subseteq \varset$, let $\varcaptures{X} = \{\varop{x}, \varcl{x}\mid x\in X\}$ be the set of captures of $X$ where, intuitively, $\varop{x}$ denotes the opening of $x$, and $\varcl{x}$ its closing. 
+An \emph{extraction context-free grammar}, or \emph{extraction grammar} for short, is a tuple:
+\[
+G = (X, V, \Sigma, S, P)
+\] 
+such that $X \subseteq \varset$, $V$ is a finite set of non-terminal symbols with $V\cap \varset = \emptyset$, $\Sigma$ is the alphabet of terminal symbols with $\Sigma \cap V = \emptyset$, $S \in V$ is the start symbol, and $P \subseteq V \times (V \cup \Sigma \cup \varcaptures{X})^*$ is a finite relation. In the literature, the elements of $V$ are also referred to as ``variables'', but we call them non-terminals to distinguish $V$ from~$\varset$.
+Each pair $(A, \alpha) \in P$ is called a production and we write it as $A \rightarrow \alpha$. The set of productions $P$ defines the (left) derivation relation:
+\[
+\gprod{G} \ \ \subseteq \ \, (V \cup \Sigma \cup \varcaptures{X})^* \times (V \cup \Sigma \cup \varcaptures{X})^*
+\] 
+such that $w A \beta \gprod{G} w \alpha \beta$ iff $w \in (\Sigma \cup \varcaptures{X})^*$, $A \in V$, $\alpha, \beta \in (V \cup \Sigma \cup \varcaptures{X})^*$, and $A \rightarrow \alpha \in P$. We denote by $\gprod{G}^*$ the reflexive and transitive closure of $\gprod{G}$. Then the language defined by $G$ is $\cL(G) = \{w \in (\Sigma \cup \varcaptures{X})^* \mid S \gprod{G}^* w\}$. 
+A word $w \in \cL(G)$ is called a \emph{ref-word} produced by $G$. 
+
+In order to define a spanner from $G$, we need to interpret ref-words as mappings~\cite{Freydenberger19}. Formally, a ref-word $r = a_1 \ldots a_n \in (\Sigma \cup \varcaptures{X})^*$ is called {\it valid} for $X$ if, for every $x \in X$, there exists exactly one position $i$ with $a_i = \varop{x}$ and exactly one position $j$ with $a_j = \ \varcl{x}$, such that $i < j$. 
+In other words, a valid ref-word defines a correct match of opening and closing captures. Moreover, each $x \in X$ induces a unique factorization of $r$ of the form $r = r_x^p \cdot \varop{x} \, \cdot \, r_x \, \cdot\, \varcl{x} \cdot r_x^s$. 
+This factorization defines an $(X,d)$-mapping as follows. 
+Let $\splain: (\Sigma \cup \varcaptures{X})^* \rightarrow \Sigma^*$ be the morphism that removes the captures from ref-words, namely, $\splain(a) = a$ when $a \in \Sigma$ and $\splain(c) = \eps$ when $c \in \varcaptures{X}$.
+We extend $\splain$ to operate over strings in the obvious way.
+Furthermore, let $r$ be a valid ref-word for $X$, $d$ be a document, and assume that $\splain(r) = d$.
+Then we define the $(X,d)$-mapping $\smap^r$ such that $\smap^r(x) = \spanc{i}{j}$ iff $r = r_x^p \cdot \varop{x} \, \cdot \, r_x \, \cdot\, \varcl{x} \cdot r_x^s$, $i = |\splain(r_x^p)|+1$, and $j = i + |\splain(r_x)|$. 
+Finally, the spanner $\sem{G}$ associated to an extraction grammar $G$ is defined over any document $d \in \Sigma^*$ as:
+$$
+\sem{G}(d) \ = \ \{ \, \mu^r \ \mid \ r \in \cL(G), \text{ $r$ is valid for $X$}, \text{ and } \splain(r) = d\, \}.
+$$
+There are two classes of extraction grammars that are relevant for our discussion.
+The first class of grammars is called functional extraction grammars. 
+An extraction grammar $G$ is \emph{functional} if every $r \in \cL(G)$ is valid for $X$.  In~\cite{liatpaper} it was shown that for any extraction grammar $G$ there exists an equivalent functional grammar $G'$ (i.e. $\sem{G} = \sem{G'}$). Non-functional grammars are problematic given that, even for regular spanners, their decision problems easily become intractable~\cite{MaturanaRV18,FreydenbergerKP18}. For this reason, from now on we restrict to functional extraction grammars without loss of expressive power. 
+The second class of grammars is called unambiguous extraction grammars. An extraction grammar $G$ is \emph{unambiguous} if for every $r \in \cL(G)$ there exists exactly one path from $S$ to $r$ in the graph $((V \cup \Sigma \cup \varcaptures{X})^*, \gprod{G})$. In other words, there exists exactly one leftmost derivation.
+
+We consider now a sub-class of extraction grammars for nested words. Let $\Sigma = (\opS, \clS, \noS)$ be a structured alphabet. A \emph{visibly pushdown extraction grammar} (VPEG) is a functional extraction grammar $G = (X, V, \Sigma, S, P)$ in which $\Sigma = (\opS, \clS, \noS)$ is a structured alphabet, and all the productions in $P$ are of one of the following forms: (1) $A \rightarrow \eps$; (2) $A \rightarrow a B$ such that $a \in \noS \cup \varcaptures{X}$ and $B \in V$; (3) $A \rightarrow \op{a} \, B \, \cl{b} \, C$ such that $\op{a} \in \opS$, $\cl{b} \in \clS$, and $B, C \in V$. Intuitively, rules $A \rightarrow a B$ allow producing arbitrary sequences of neutral symbols, where rules $A \rightarrow \op{a} \, B \, \cl{b} \, C$ forces the word to be well-nested. 
+
+Visibly pushdown extraction grammars are a subclass of extraction grammars that works for well-nested documents. In fact, the reader can notice that the visibly pushdown restriction for extraction grammars is the analog counterpart of visibly pushdown grammars\footnote{The definition of visibly pushdown grammars in~\cite{AlurM04} is slightly more complicated given that they consider nested words that are not necessary well-nested (see the discussion in Section~\ref{nested:sec:prelim}).} introduced in~\cite{AlurM04}. Therefore, one could expect VPEGs to be less expressive than extraction grammars. 
+Interestingly, we can use Theorem~\ref{nested:theo:main} to give an efficient streaming enumeration algorithm for evaluating VPEG. 
+
+Before stating the main result of this section, we will specify the format in which the results are to be enumerated. In a similar fashion as in Section~\ref{nested:sec:vpann}, we define the support of a $(X, d)$-mapping $\mu$, denoted by $\textsf{supp}(\mu)$, as the set of positions mentioned in $\mu$, namely, 
+\[
+\textsf{supp}(\sigma) = \{i \mid \mu(x) = \spanc{i}{j} \text{ or } \mu(x) = \spanc{j}{i}\text{ for some }j\in[1,|d|+1]\text{ and }x\in X\}.
+\] 
+Let $\textsf{supp}(\sigma) = \{i_1,\ldots, i_m\}$ such that $i_j < i_{j+1}$ for every $j < m$. 
+Then, we define the encoding of $\mu$ as:
+$
+\textsf{enc}(\mu) = (S_1, i_1)\ldots (S_m, i_m)
+$
+where $S_i = \{\varop{x}\mid\mu(x) = \spanc{i}{j}\text{ for some }j\}\cup \{\varcl{x}\mid\mu(x) = \spanc{j}{i}\text{ for some }j\}$.
+The enumeration algorithm we provide thus enumerates the encoding of every mapping from $\sem{G}(d)$.
+
+\begin{theorem}\label{nested:theo:spanners}
+	Fix a set of variables $X$. The problem of, given a functional visibly pushdown extraction grammar $G = (X, V, \Sigma, S, P)$ and a stream $\Stream$, enumerating all $(X,\Stream[1,n])$-mappings of $\sem{G}(d)$ can be solved with update-time $\cO(2^{|G|^3})$, and output-linear delay. Furthermore, if $G$ is restricted to also be unambiguous, then the problem can be solved with update-time $\cO(|G|^3)$.
+\end{theorem} 
+
+\input{./proofs/nested/theo-spanners}
+
+%This result goes by constructing an extraction pushdown automata~\cite{liatpaper} from $G$, and reduce it to a \vpannname.
+Note that, although the update-time of the algorithm is exponential in the size of the grammar, in terms of data complexity the update-time is constant. Furthermore, for the special case of unambiguous grammars the update-time even is polynomial. Unambiguous grammars are very common in parsing tasks~\cite{aho1986compilers} and, thus, this restriction could be useful in practice. 
+
+
+
+%
+%\cristian{Previous material, notation, etc.}
+%
+%A {\it span} $s$ is a pair $\spanc{i}{j}$ of natural numbers $i$ and $j$ with $1 \leq i \leq j$. 
+%Such a span is said to be {\it of document $d$} if $j \leq |d|+1$.
+%While working with spans, a document $d$ will also be considered a sequence of symbols in $\opS\cup \clS\cup \noS$ such that $d = a_1\cdots a_n$. In such a document, the string $d_{[i,j\rangle}$ will denote the string $a_i\cdots a_{j-1}$. 
+%In case $i = j$, it holds that $d_{[i,j\rangle}$ equals the empty string, which we denote by $\eps$. 
+%We denote by $\spanset(d)$ the set of all possible spans of a document $d$.
+%For a span $s = [i,j\rangle$, we define $\vert s \vert = j-i-1$.
+%
+%Let $X \subseteq \varset$ be a finite set of variables and let $d$ be a document.
+%An $(X, d)$-mapping assigns spans of $d$ to variables in $X$. An $(X, d)$-relation is a finite set of $(X, d)$-mappings. A {\it document spanner} $P$ (or spanner, for short) is a function associated with a finite set $X$ of variables that maps documents $d$ into $(X, d)$-relations.
+%
+%The variable operations of a variable $x\in\varset$ are $\varop{x}$ and $\varcl{x}$ where, intuitively $\varop{x}$ denotes the opening of $x$, and $\varcl{x}$ its closing. For a finite subset $X\subseteq \varset$, we define $\mathcal{M}_{X} := \{\varop{x}, \varcl{x}\mid x\in X\}\cup\{\eps\}$; that is, $\mathcal{M}_{X}$ is the set that consists of all the variable operations of all variables in $X$. We assume that $\mathcal{M}_{X}$ is disjoint with $\opS$, $\clS$ and $\noS$.
+%
+%%----------------------------------------------------
+%
+%We say that the run is {\it valid} if for each variable in $X$, it either does not appear, or it is opened and closed exactly once. Formally, for each $x\in X$ either (1) $\varop{x} \not\in \oout_i$ and $\varcl{x}\not\in \oout_i$ for each $i\in[1,n]$, or (2) there are two indices $i,j$ such that $\varop{x}\in\oout_i$, $\varcl{x}\in\oout_j$ and $i \leq j$, and for every other $k$, $\varop{x}\not\in\oout_k$ and $\varcl{x}\not\in\oout_k$.

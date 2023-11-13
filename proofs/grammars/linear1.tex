@@ -1,0 +1,186 @@
+In this proof, we will need to use the standard notion of a \emph{pushdown
+automaton} (PDA), whose definition has been omitted so far.
+We give it here:
+
+\begin{definition}
+  \label{gram:def:pda}
+  A \emph{pushdown automaton} (PDA) is a tuple $\cA = (Q, \Sigma, \Gamma, \Delta,
+  q_0, F)$, where $Q$ is a finite set of \emph{states}, $\Sigma$ is the
+  alphabet, $\Gamma$ is a finite alphabet of \emph{stack symbols}, $q_0 \in Q$
+  is the \emph{initial state}, $F \subseteq Q$ are the \emph{final states}. We
+  assume that $\Gamma$ is disjoint from~$\Sigma$. Further, $\Delta$ is a finite
+  set of \emph{transitions} of the following kind:
+  \begin{itemize}
+    \item \emph{Read transitions} of the form $(p, a, q) \in Q \times \Sigma
+      \times Q$, meaning that the automaton can go from state $p$ to
+      state~$q$ while reading the letter~$a$;
+    \item \emph{Push transitions} of the form $(p, q, \gamma) \in Q \times Q
+      \times \Gamma$, meaning that the automaton can go from state $p$ to
+      state~$q$ while pushing the symbol $\gamma$ on the stack;
+    \item \emph{Pop transitions} of the form $(p, \gamma, q) \in Q \times \Gamma
+      \times Q$, meaning that, if the topmost symbol of the stack is~$\gamma$,
+      the automaton can go from~$p$ to~$q$ while removing this topmost
+      symbol~$\gamma$.
+  \end{itemize}
+\end{definition}
+
+We omit the definition of the semantics of PDAs, which are standard, and allow
+us to define the \emph{language} $L(\cA)$ accepted by a PDA. It is also well-known
+that CFGs and PDAs have the same expressive power, i.e., given a CFG $G$, we can
+build in polynomial time a PDA $\cA$ which is \emph{equivalent} in the sense that
+$L(G) = L(\cA)$, and vice-versa.
+
+%
+
+We will also need to use the standard notion of a \emph{deterministic} PDA (with
+acceptance by final state). Formally:
+\begin{definition}
+  \label{gram:def:dpda}
+  Let $\cA = (Q, \Sigma, \Gamma, \Delta, q_0, F)$ be a PDA. For $p \in Q$, we define the \emph{next-transitions} of $p$ as the set $\Delta(p)$ of all transitions in $\Delta$ that start on $p$, i.e.,  $\Delta(p) = \{(p, x, y) \mid (p, x, y) \in \Delta\}$.
+  We say that a PDA $\cA$ is \emph{deterministic} if
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+for every state $q \in Q$, one of the following conditions hold:
+\begin{itemize}
+	\item[(a)] $\Delta(q) \subseteq Q \times \Sigma \times Q$ and $|\{q'\mid
+          (q, a, q')\in \Delta\}| \leq 1$ for each $a\in\Sigma$. Informally, all
+          applicable transitions are read transitions, and there is at most one such
+          applicable transition for each letter.
+	\item[(b)] $\Delta(q) \subseteq Q \times (Q \times \Gamma)$, and
+          $|\Delta(q)| \leq 1$. Informally, all applicable transitions are push
+          transitions, and there is at most one such transition from $q$.
+	\item[(c)] $\Delta(q) \subseteq (Q \times \Gamma) \times Q$ and
+          $|\{q'\mid (q, \gamma, q')\}| \leq 1$ for each $\gamma \in \Gamma$.
+          Informally, all applicable
+          transitions from~$q$ are pop transitions, and there is at most one
+          such applicable transition for each stack symbol.
+\end{itemize}
+\end{definition}
+
+It is clear that the definition ensures that, on every input string~$w$, a
+deterministic PDA $\cA$ has at most one run accepting~$w$, so that we can
+check in linear time in $\cA$ and $w$ if $w \in L(\cA)$. Further, it is known that
+deterministic PDAs are strictly less expressive than general PDAs.
+
+
+In order to prove the statement of Proposition~\ref{gram:prop:grammar-pdann}, let us first give the formal definitions needed for  the result.
+We say that two annotated grammars
+$\cG$ and $\cG'$ are \emph{equivalent} if they define the same functions, i.e.,
+$\sem{\cG} = \sem{\cG'}$. We define equivalence in the same way for two PDAnns, or
+for an annotated grammar and a PDAnn.
+
+We first show one direction:
+
+\begin{claim}
+	\label{gram:prp:g2pdt}
+	For any annotated grammar $\cG$, we can build an equivalent PDAnn $\cP$ in polynomial
+	time. Further, if $\cG$ is unambiguous then so is $\cP$. Moreover, if $\cG$ is rigid, then $\cP$ is profiled.
+\end{claim}
+
+\begin{proof}
+	This is a standard transformation. Let $\cG = (V, \Sigma, \Omega, P, S)$. We build a PDAnn $\cP = (Q, \Sigma, \Omega, \Gamma, \Delta, q_0, F)$ as follows: For every rule $X \rightarrow \alpha$ of
+	$\cG$ and position $0 \leq i \leq \card{\alpha}$, the PDAnn $\cP$ has a state $(X,
+	\alpha, i)$ in $Q$, plus a special state $q_0$ which is the only initial and only
+	final state. Also, $\Gamma = Q$. The set $\Delta$ has
+	the following transitions:
+	\begin{itemize}
+		\item A push transition $(q_0, (S, \alpha, 0), q_0)$ and a pop transition $((S, \alpha, \card{\alpha}), q_0, q_0)$, for
+		every rule $S \rightarrow \alpha$.
+		\item For each state $(X, \alpha, \card{\alpha})$ for a production $X
+		\rightarrow \alpha$, a pop transition reading a state from the stack and
+		moving to that state.
+		\item For each state $(X, \alpha, i)$ where the $(i+1)$-th element of $\alpha$
+		(numbered from~$1$) is a nonterminal $Y$, for every rule $Y \rightarrow \beta$,
+		a pop transition pushing $(X, \alpha, i+1)$, and moving to $(Y, \beta, 0)$.
+		\item For each state $(X, \alpha, i)$ where the $(i+1)$-th element of $\alpha$
+		(numbered from~$1$) is a terminal $\tau$, a
+		read transition moving to $(X, \alpha, i+1)$ reading the symbol of $\tau$
+		and outputting the annotation of~$\tau$ (if any).
+	\end{itemize}
+
+We will show a function that maps a given leftmost derivation $S\der{\cG} \gamma_1\der{\cG}\ldots\der{\cG}\gamma_m = \hat{w}$ into a run in $\cP$. To do this, we convert is sequence of productions into a sequence of strings which has the same size as the run (minus one). These strings serve as an intermediate representation of both the derivation and the run. The process is essentially to simulate the run in $\cP$.
+\begin{itemize}
+	\item First, we reduce the derivation into a sequence of productions $X_1\der{}\gamma_1, X_2\der{}\gamma_2,\ldots, X_m\der{}\gamma_m$ which uniquely defines the derivation. 
+	\item The alphabet in which we represent strings that produce other strings include two special markers $\downarrow$ and $\uparrow$.
+	\item We start on the string $\downarrow S\uparrow$.
+	\item If the current string is $\hat{u} \downarrow X \beta$, and it is the $i$-th one that has reached a string of this form, then it must hold that $X = X_i$. We follow it by $\hat{u} \downarrow \gamma_i\uparrow\beta$.
+	\item If the current string is $\hat{u}\downarrow \tau\beta$, for some terminal $\tau$, we follow it by $\hat{u} \tau \downarrow \beta$.
+	\item If the current string is $\hat{u}\downarrow\uparrow\beta$, then we follow it by $\hat{u}\downarrow\beta$.
+	\item If the current string is $\hat{u}\downarrow$, there is no follow up.
+\end{itemize}
+Interestingly, this function is completely reversible, since to obtain a sequence of productions from a sequence of strings in this model, all we need to do is to remove the markers 
+$\downarrow$ and $\uparrow$ and eliminate the duplicate strings that appear.
+We will borrow the name splain to talk about the function which receives a string and returns one which deletes all markers. 
+It is obvious that the resulting derivation is the original one. 
+
+Furthermore, and more interestingly, we can extend the function $\shape$ to receive one of these strings and return a string in the alphabet $\{0, 1, \downarrow, \uparrow\}$. For two derivations that have the same shape, the resulting sequences have the same shape as well.
+
+This sequence of strings represents a run in $\cP$ almost verbatim, and we only need to adapt it into a sequence of pushes, pops and reads: We make a run $\rho$ which starts on $q_0$, pushes $(X, \gamma_1, 0)$ to the stack, and moves to the state $(X, \gamma_1, 0)$. This pairs exactly to the strings $\downarrow S$ and $
+\downarrow \gamma_1\uparrow$, which are the first two in the sequence. Then, we read the sequence of strings in order. If the current string is $\hat{u}\downarrow X\beta$, and this is the $i$-th time a string of this form is seen, then the current state must be $(Y, \alpha_1 X_i \alpha_2, k)$, where $|\alpha_1| = k$; we push $(Y, \alpha_1 X_i \alpha_2, k+1)$ onto the stack, and move to the state $(X_i, \gamma_i, 0)$. If the current string is $\hat{u}\downarrow a \beta$ for some $a\in \Sigma$, and the current state is $(X, \gamma, k)$, we read $\tau$, and move to the state $(X, \gamma, k)$. If the current string is $\hat{u}\downarrow (a, \oout) \beta$ for some $a\in \Sigma$, and the current state is $(X, \gamma, k)$, we read $a$, output $\oout$, and move to the state $(X, \gamma, k)$. If the current string is $\hat{u}\downarrow\uparrow\beta$, we pop the topmost state from the stack 
+  %\antoine{pop the topmost state from the stack? (otherwise we never pop)}
+  and we move into that state. It is straightforward to see that this run represents exactly the leftmost derivation $S\der{\cG}^* \hat{w}$, and that for each annotated string $\hat{w}\in L(\cG)$ if and only if there is a run of $\cP$ over $w$ that produces $\mu = \ann(\hat{w})$ as output.
+
+This function is also reversible. Consider a run of $\cP$ over a string $w$ which produces $\mu$ as output. This run must start on $q_0$, and then push $q_0$ and move onto a state $(S, \alpha, 0)$ for some rule $S \to \alpha$. Thus, our first two strings in the sequence are $\downarrow S\uparrow$ and $\downarrow \alpha\uparrow\uparrow$. If the current state is $(X, \alpha, k)$ and the next transition is to push $(X, \alpha, k+1)$ onto the stack to move into the state $(Y, \gamma, 0)$, then the current string is of the form $\hat{u}\downarrow X \beta$, so we follow it by the string $\hat{u}\downarrow \gamma\uparrow\beta$. If the next transition is a pop, then the current string is $\hat{u}\downarrow\uparrow\beta$, so we follow it by $\hat{u}\downarrow\beta$. If the current transition is a read, then the current string is $\hat{u}\downarrow a\beta$ for $a\in\Sigma$, so we follow it by $\hat{u}\tau\downarrow\beta$. If the current transition is a read-write, then the current string is $\hat{u}\downarrow (a, \oout)\beta$ for $(a, \oout)\in \Sigma\times\Omega$, so we follow it by $\hat{u}(a, \oout)\downarrow\beta$. It can easily be seen that using the original function over this resulting sequence would give the original sequence back. We point that these two reversible functions mean that there is a one to one correspondence between derivations of $S\der{\cG}^* \hat{w}$ and accepting runs of $\cP$ over $w$ with output $\mu = \ann(\hat{w})$.
+
+Similarly to the observation we made before, we notice that if we start on a sequence in the intermediate model, the profile of the resulting run $\rho$ is fully given by the shape of the sequence (at each step, the size of the stack will be equal to the number of markers $\uparrow$ present in the string).
+
+Now assume that $\cG$ is unambiguous. Seeing that $\cP$ is unambiguous as well comes straightforwardly from the fact that the functions presented above are bijective.
+
+Assume now that $\cG$ is rigid. Let $w$ be an unannotated string and consider two runs $\rho_1$ and $\rho_2$ of $\cP$ over $w$ which output $\mu_1$ and $\mu_2$ respectively. Convert these two runs into sequences $\cS_1$ and $\cS_2$ in the intermediate model. Note that if we convert these two sequences into derivations $S\der{\cG}^*\mu_i(w)$, they will have the same shape. We can apply the functions above to obtain the two runs $\rho_1$ and $\rho_2$ back, and note that they have the same profile. We conclude that if $\cG$ is rigid, then $\cP$ is profiled.
+\end{proof}
+
+We then show another direction:
+
+\begin{claim}
+	\label{gram:prp:pdt2g}
+	For any PDAnn $\cP$, we can build an equivalent annotated grammar $\cG$ in polynomial
+	time. Further, if $\cP$ is unambiguous then so is $\cG$. Moreover, if $\cP$ is profiled, then $\cG$ is rigid.
+\end{claim}
+
+\begin{proof}
+	This is again a standard transformation. We first transform the input PDAnn $\cP = (Q, \Sigma, \Omega, \Gamma, \Delta, q_0, F)$ to
+	accept by empty stack, i.e., to accept iff the stack is empty. To do this, we build an equivalent PDAnn $\cP' = (Q', \Sigma, \Omega, \Gamma', \Delta', q_0', F')$ where $Q' = Q\cup\{q_0', q_e, q_f\}$, $\Gamma' = \Gamma \cup \{\gamma_0\}$, $F = \{q_f\}$, and we add the following transitions to $\Delta$ to obtain $\Delta'$: A push transition $(q_0', q_0, \gamma_0)$, a pop transition $(q, \gamma_0, q_f)$ for every $q\in F$ (for runs that accept at a point where the stack is already
+	empty), plus a pop transition $(q, \gamma, q_e)$ for any other $\gamma\in\Gamma$, and a pop transition $(q_e, q_0, q_f)$.
+	
+	This clearly ensures that there is a bijection between the accepting runs of
+	$\cP$ and those of $\cP'$: given an accepting run~$\rho$ of
+	$\cP$, the bijection maps it to an accepting run of $\cP'$ by
+	extending it with a push transition at the beginning, and pop transitions at
+	the end. Further, all accepting runs in $\cP'$ now finish with an empty
+	stack, more specifically a run is accepting iff it finishes with an empty
+	stack.
+		
+	Now, we can perform the transformation. The nonterminals of the grammar are
+	triples of the form $(q, \gamma, q')$ for states $q$ and $q'$ and a stack symbol $\gamma$. Intuitively, $(p, \gamma, q')$ will derive the strings that can be
+	read by the PDAnn starting from state $p$, reaching some other state $q$ with the same stack, not seeing the stack at all in the process, and then popping $\gamma$ to reach $q'$.
+	
+	The production rules are the following:
+	
+	\begin{itemize}
+		\item A rule $S \to (q_0, \gamma_0, q_f)$.
+		\item A rule $(p, \gamma, q') \rightarrow (q, \gamma', r)
+		(r, \gamma, q')$ for every nonterminal $(p, \gamma, q')$, push transition $(p, q, \gamma')\in\Delta$ and state
+		$r$.
+		\item A rule $(p, \gamma, q)\to \eps$ for each pop transition $(p, \gamma, q)\in \Delta$.
+		\item A rule $(p, \gamma, q')\to (a, \oout) (q, \gamma, q')$ for each read-write transition $(p, (a, \oout), q)$, and a rule $(p, \gamma, q')\to a (q, \gamma, q')$ for each read transition $(p, a, q)$, for each nonterminal $(p, \gamma, q')$.
+	\end{itemize}
+
+As we did in Proposition~\ref{gram:prp:g2pdt}, we will show a function which receives an accepting run $\rho$ over $w$ in $\cP$ with output $\mu$ and outputs a leftmost derivation $S =\alpha_1\der{\cG}\alpha_2\der{\cG}\ldots\der{\cG}\alpha_m = \mu(w)$. The way we do this is quite straightforward: There is a one-to-one correspondence between snapshots in the run to each $\alpha_i$. Indeed, it can be seen that $\alpha_i = \hat{u}(q_1, \gamma_1, q_2)(q_2, \gamma_2, q_3)\ldots(q_k, \gamma_k, q_f)$ for some string $\hat{u}\in (\Sigma\cup(\Sigma\times\Omega))^*$, some states $q_1,\ldots,q_k$ and stack symbols $\gamma_1, \ldots, \gamma_k$. Moreover, the $i$-th stack in the run is equal to $\gamma_1\gamma_2\ldots\gamma_k$, whereas each state $q_j$ is the first state that is reached after popping the respective $\gamma_{j-1}$. We see that this function is fully reversible, as each production corresponds unequivocally to a transition in particular. This implies that $\cP$ is unambiguous if, and only if $\cG$ is unambiguous.
+
+For the next part of the proof, we bring attention to the fact that there are exactly four possible shapes on the right sides of the rules in $\cG$. Each of these directly map to some type of transition, be it the initial push transition $(q_0', q_0, \gamma_0)$, a different push transition, a pop transition, or a read (or read-write) transition. To be precise, these shapes are the strings $1$, $11$, $\eps$ and $01$ respectively. From here it can be easily seen that, while comparing a run $\rho$ to is respective derivation $S\der{\cG}^*\hat{w}$, each production in the run immediately tells which type of transition was taken, and each transition in the run immediately tells which rule (and therefore, rule shape) was used. Therefore, each derivation shape maps to exactly one stack profile and vice versa, from which we conclude that $\cP$ is profiled if, and only if, $\cG$ is rigid.
+\end{proof}
+	
+The proof now follows from Claims~\ref{gram:prp:g2pdt} and~\ref{gram:prp:pdt2g},

@@ -1,0 +1,57 @@
+%
+%
+We now give our algorithm with quadratic preprocessing time for
+rigid grammars. Given a rigid grammar, we first make it unambiguous if
+necessary, using Theorem~\ref{gram:thm:profileu-iou}, in exponential time in the
+input grammar. The result is a rigid and unambiguous annotated grammar. Now, we
+transform it in 2NF like in Section~\ref{gram:sec:quadratic}: this
+takes linear time, preserves unambiguity, and one can check that it also
+preserves rigidity.
+
+Armed with our rigid and unambiguous grammar $\cG$ in 2NF, we can simply use 
+Algorithm~\ref{gram:alg:cubic} to construct a data structure allowing us to enumerate
+the outputs with output-linear delay. But we now claim that
+Algorithm~\ref{gram:alg:cubic} runs in time $\cO(|\cG| \cdot |w|^2)$ because $\cG$
+is~rigid.
+
+For this, we study for every nonterminal $X$ and pair $1 \leq i \leq j \leq n+1$ how
+many times we can consider the cell $\tableI[i][j][X]$ in lines
+\ref{gram:ln:innermost3}--\ref{gram:ln:kind2end}. Whenever
+we consider it, we witness the existence of a complex rule $X \rightarrow Y Z$
+and a value~$k$ such that $\tableI[i][k][Y]$ and $\tableI[k][j][Z]$ are nonempty (the first
+is because $i \in $ endIn$[k][Z]$). Thus, we witness a derivation from $X$ of
+some annotation of the string $a_i \cdots a_{j-1}$ that starts with a rule $X
+\rightarrow YZ$ where $Y$ derives some annotation of the string $a_i \cdots
+a_{k-1}$ and $Z$ derives some annotation of the string $a_k \cdots a_{j-1}$. We
+now claim that, for $(i, j, X)$, the rigidity of the grammar ensures that there is
+only one such value~$k$. Indeed, assume by contradiction that we have two
+rules $X \rightarrow YZ$ and $X \rightarrow Y'Z'$ and two values $i \leq k < k'
+\leq j$ such that $Y$ and $Y'$ respectively derive some annotation of the
+strings
+$a_i \cdots a_{k-1}$ and $a_i \cdots a_{k'-1}$, and $Z$ and $Z'$ respectively
+derive some annotation of the strings
+$a_k \cdots a_{j-1}$ and $a_{k'} \cdots a_{j-1}$. Then once we are done
+rewriting $Y$ and all the nonterminals that it generates in the first derivation, we
+obtain a different shape from what we obtain after rewriting $Y'$ and all the
+nonterminals it generates in the second derivation, contradicting the rigidity
+of the grammar.
+
+Thus, whenever we consider the cell $\tableI[i][j][X]$ in lines~\ref{gram:ln:innermost2}--\ref{gram:ln:kind2end}, it is
+for one value of~$k$ which is unique for $(i,j,X)$, and we thus consider the
+cell once
+at most for every complex rule of the grammar with $X$ as left-hand-side. Thus,
+we consider the cells of $\tableI[i][j]$ at most $|\cG|$ times in total. As
+there are $\cO(n^2)$ pairs $(i,j)$, this ensures that the total running time of the
+innermost for loop (lines~\ref{gram:ln:innermost}--\ref{gram:ln:kind2end}), and that of the entire algorithm, is indeed
+in $\cO(|\cG| \cdot |w|^2)$:
+
+\begin{theorem}
+\label{gram:thm:quadratic}
+  Given a rigid annotated grammar $\cG$ and an input string $w$, we can enumerate
+  $\sem{\cG}(w)$ with preprocessing in $\cO(|w|^2)$ data complexity and
+  output-linear delay (independent from~$w$ or~$\cG$). The combined complexity
+  of the preprocessing is $\cO(2^{|\cG|^c} \cdot |w|^2)$ for some $c >0$, or
+  $\cO(|\cG| \cdot
+  |w|^2)$ if $\cG$ is additionally assumed to be unambiguous.
+\end{theorem}
+

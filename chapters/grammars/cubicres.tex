@@ -1,0 +1,46 @@
+%
+%
+
+In this section we start presenting our results and show a first
+algorithm to enumerate the outputs of an annotated grammar on an input string.
+%
+%
+%
+The algorithm applies to any unambiguous annotated grammar, and ensures cubic-time preprocessing and
+output-linear delay in data complexity; in terms of combined complexity, the
+preprocessing is linear on the grammar.
+%
+%
+This improves the result by
+Peterfreund~\cite{Peterfreund21}, which had quintic-time preprocessing in data complexity.
+%
+%
+%
+
+%
+%
+%
+%
+%
+%
+%
+%
+
+The section is structured as follows.
+We present a general-purpose enumeration data structure called
+\emph{enumerable sets}, which is the basis of 
+our enumeration algorithms. 
+We then introduce the \emph{arity-two normal form} for annotated grammars,
+designed to ensure efficient enumeration, and which can be
+enforced in linear time.
+After this, we present
+our algorithm and state the main result in this chapter (Theorem~\ref{gram:thm:cubic}).
+Last, we state a conditional
+data complexity lower bound.
+%
+%
+%
+%
+%
+%
+

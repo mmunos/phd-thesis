@@ -1,0 +1,67 @@
+% !TeX spellcheck = en_US
+ 
+In this chapter, we are interested in the following streaming enumeration problem for a class $\mathcal{C}$ of \vpann (e.g. I/O-deterministic \vpann).
+\begin{center}
+	\framebox{
+		\begin{tabular}{rl}
+			\textbf{Problem:} & $\enumvpann[\mathcal{C}]$\\
+			\textbf{Input:} & A \vpann $\cT \in \mathcal{C}$ and $w\in \wnS$ \\
+			\textbf{Output:} & Enumerate $\sem{\cT}(w)$
+		\end{tabular}
+	}
+\end{center}
+The main result of the chapter is that for the class of I/O-unambiguous \vpann, the streaming full-enumeration version of this problem can be solved efficiently. %.with a streaming evaluation algorithm and with strong guarantees of efficiency. 
+\begin{theorem}\label{nested:theo:main}
+	The streaming full-enumeration problem of $\enumvpann$ for I/O-unambiguous \vpann can be solved with update-time $\cO(|Q|^2\vert\Delta\vert)$ and output-linear delay. For the class of all \vpann, it can be solved with update-time $\cO(2^{|Q|^2\vert\Delta\vert})$ and output-linear \nolinebreak delay. 
+\end{theorem} 
+% \cristian{Cuando tengamos escrito el algoritmo y tengamos exactamente el costo del update-time, hay que actualizar las funciones en este teorema.}
+The general case is basically a consequence of Proposition~\ref{nested:vpawo:det} and the enumeration algorithm for I/O-unambiguous \vpann. For both cases, if the \vpann is fixed (i.e., in data complexity), then the update-time of the streaming algorithm is constant. In Sections~\ref{nested:sec:ds} and~\ref{nested:sec:eval}, we present this algorithm. For the rest of this section, we discuss some further details of this result.
+
+\paragraph{$\Delta$-enumeration} The natural question is how we move from full-enumeration to $\Delta$-enumeration. In fact, we can have $\Delta$-enumeration with a slight loss of efficiency by solving the full-enumeration problem. Specifically, we can show that for any I/O-unambiguous \vpann $\cT$ there is an I/O-unambiguous \vpann $\cT'$ of linear size with respect to $|\cT|$ that only outputs new results at each position. Then combining this construction with the algorithm of Theorem~\ref{nested:theo:main}, we derive the following algorithm for $\Delta$-enumeration of \vpann.
+
+\begin{theorem}\label{nested:vpawo:deltamain}
+	The streaming $\Delta$-enumeration problem of $\enumvpann$ for I/O-unambiguous \vpann can be solved with update-time $\cO(|Q|^2\vert\Delta\vert)$ and output-linear delay. For the general class of \vpann, it can be solved with update-time $\cO(2^{|Q|^2\vert\Delta\vert})$ and output-linear \nolinebreak delay. 
+\end{theorem}
+
+\input{./proofs/nested/theo-delta}
+We could have considered a more general definition of \vpann to produce outputs for prefix-nested words. This would be desirable for having some sort of \emph{earliest query answering}~\cite{GauwinNT09} which is important in practical scenarios. We remark that the algorithm of Theorem~\ref{nested:theo:main} can be extended for this case at the cost of making the presentation more complicated. 
+For the sake of presentation, we give a brief idea of how to handle this extension after the main part of Section~\ref{nested:sec:eval}.
+
+%For the sake of presentation, we defer this extension to the full version of this paper.  
+%\cristian{Estamos en la versión full? Esto hay que arreglarlo. No es necesario que lo demostremos. Lo podemos sacar o algo podemos decir. }
+
+
+\paragraph{Space lower bounds of evaluating a \vpann}  
+This last subsection deals with the space used by the streaming evaluation algorithm of Theorem~\ref{nested:theo:main}. 
+Indeed, this algorithm could use linear space in the worst case. In the following, we explore some lower bounds in the space needed by any algorithm and show that this bound is tight for a certain type of \vpann.
+
+To study the minimum number of bits needed to solve $\enumvpann$ we need to introduce some definitions.
+Fix a \vpann $\cT$ and $w \in \pwnS$. Let 
+$\outgap(\cT, w)$ be the number of positions less than $|w|$ that appear in some output of $\sem{\cT}(w\cdot w')$ for some $w\cdot w'\in \wnS$. 
+Furthermore, for a well-nested word $u$ let $\depth(u)$ be the maximum number of nesting pairs inside $u$. Formally, $\depth(u) = 0$ for $u \in  {\noS}^*$, $\depth(u_1 \cdot u_2) = \max\{\depth(u_1), \depth(u_2)\}$, and $\depth(\op{a}\cdot u\cdot\cl{b}) = \depth(u) + 1$. For $w \in \pwnS$, we define $\depth(w) = \min\{\depth(w') \mid w'\in \wnS \text{ and } w \text{ is a prefix of } w'\}$.
+Below, we provide some worst-case space lower bounds for \enumvpann{} that are dependent on $\outgap(\cT, w)$ and $\depth(w)$.
+\begin{proposition}\label{nested:alg:spacebound} (a) There exists a \vpann $\cT_1$ such that every streaming evaluation algorithm for \enumvpann{} with input $\cT_1$ and $\Stream$ requires $\Omega(\depth(\Stream[1, n]))$ bits of space.\\ (b) There exists a \vpann $\cT_2$ such that every streaming evaluation algorithm for \enumvpann{} with input $\cT_2$ and $\Stream$ requires $\Omega(\outgap(\cT_2, \Stream[1, n]))$ bits of space.
+\end{proposition}
+\input{./proofs/nested/prop-algspace}
+
+
+In~\cite{BarYossefFJ05,BarYossefFJ07}, the authors provide lower bounds on the amount of space needed for evaluating XPath in terms of the nesting and the concurrency (see~\cite{BarYossefFJ05} for a definition). 
+One can show that  the \ogapname of $\cT$ and $w$ is always above the concurrency of $\cT$ and $w$. Despite this, one can check that both notions coincide for the space lower bound given in Proposition~\ref{nested:alg:spacebound}.
+
+The previous results show that, in the worst case, any streaming evaluation algorithm for \vpann will require space of at least the depth of the document or the \ogapname.
+To show that Theorem~\ref{nested:theo:main} is optimal in the worst-case, we need to consider a further assumption of our \vpann. We say that a \vpann $\cT$ is \emph{trimmed}~\cite{caralp2015trimming} if for every $w\in \pwnS$ and every (partial) run $\rho$ of $\cT$ over $w$, there exists $w'$ and an accepting run $\rho'$ of $\cT$ over $w \cdot w'$ such that $\rho$ is a prefix of $\rho'$. 
+This notion is the analog of trimmed non-deterministic automata. Similarly to Proposition~\ref{nested:vpawo:det}, one can show that for every \vpann $\cT$ there exists a trimmed I/O-deterministic \vpann $\cT'$ equivalent to $\cT$ (i.e., by extending the construction in~\cite{caralp2015trimming} to \vpann). 
+The next result shows that, if the input to \enumvpann{} is a trimmed I/O-unambiguous \vpann, then the memory footprint is at most the maximum between the depth and \ogapname of the input. 
+
+\begin{proposition} \label{nested:prop:space}
+	The streaming enumeration problem of \enumvpann\ for the class of trimmed I/O-unambiguous \vpann can be solved with update-time $\cO(|Q|^2\vert\Delta\vert)$, output-linear delay,  and\linebreak $\cO(\max\{\depth(\Stream[1, n]), \outgap(\cT,\Stream[1, n])\}\times|Q|^2|\Delta|)$ space for every stream $\Stream$.
+\end{proposition} 
+\begin{proof}
+	\input{./proofs/nested/app-prop-space-upperbound}
+\end{proof}
+
+%The proof of Proposition~\ref{nested:prop:space} is somewhat technical and depends on analyzing the main algorithm of Theorem~\ref{nested:theo:main} (which we will present in Section~\ref{nested:sec:eval}). For this reason, we defer the proof of Proposition~\ref{nested:prop:space} to the appendix, which the reader can check after we prove the algorithm for~Theorem~\ref{nested:theo:main}.
+
+Unfortunately, the algorithm provided in Theorem~\ref{nested:theo:main} is not \emph{instance optimal}, in the sense of using the lowest number of bits needed for each specific \vpann. 
+Specifically, there exist \vpanns for which only logarithmic space in $\outgap(\cT,w)$ is enough for any stream $\Stream$. For example, let $\oout$ be any output symbol and consider a \vpann $\cT$ for which the output set is $\sem{\cT}(w)  = \{(\oout, i)\mid 1\leq i\leq \vert w \vert \}$ if the last symbol in $w$ is $\$$ and the empty set otherwise. Clearly, the \ogapname of any $w$ with respect to $\cT$ is linear in $\vert w\vert$. However, one could design a streaming evaluation algorithm that has only a counter that stores the length of the input so far and produces the correct output set after reading the last symbol in $w$. The enumeration phase can easily be done with output-linear delay (i.e., by counting from $1$ to $\vert w\vert$). 
+Furthermore, note that an instance optimal algorithm for the streaming enumeration problem of \vpanns will imply a solution to the \emph{weak evaluation problem}, stated by Segoufin and Vianu~\cite{SegoufinV02}, which is an open problem in the area (see \cite{Barloy21} for some recent results). We leave the study of \emph{instance optimal} streaming evaluation algorithms for future work. 

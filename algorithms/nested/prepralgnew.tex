@@ -1,0 +1,95 @@
+%!TEX root = ../../Thesis.tex
+
+\begin{algorithm}[t]
+\caption{The update phase of the streaming evaluation algorithm for $\enumvpann$ given an I/O-unambiguous \vpann $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$ and a stream $\Stream$.}\label{nested:alg:preprocessing}
+\begin{varwidth}[t]{0.5\textwidth}
+\begin{algorithmic}[1]
+\Procedure{{Initialize}}{$\cT, \Stream$}\label{nested:line1}
+\State $k\gets 1$, $\D\gets\emptyset$\label{nested:line2}
+\State $(\D,v_\epsilon)\gets\add(\D,\eps)$\label{nested:line3}
+\State $\aS\gets \{(q,q): v_\epsilon \mid q \in I\}$
+\State $\aT \gets \emptyset$\label{nested:line4}
+\EndProcedure	
+
+\State
+	
+\Procedure{{UpdatePhase}}{$\cT, \Stream$}\label{nested:line6}
+\State $a \gets \yield{\Stream}$\label{nested:line7}
+ \If{$a \in\opS$}\label{nested:line8}
+  \State $\D \gets $ {\sc OpenStep}$(\D, a,k)$  \label{nested:line9}
+ \ElsIf{$a \in\clS$}\label{nested:line10}
+  \State $\D \gets $ {\sc CloseStep}$(\D, a,k)$\label{nested:line11}
+ \EndIf 
+ \State $k\gets k+1$\label{nested:line12}
+ \State $v_{\text{out}} \gets \emptyset$\label{nested:line13}
+ \If{$T = \emptyset$}\label{nested:line14}
+	 \ForEach{$p\in I, q\in F$ s.t.\,$\aS_{p,q}\!\neq\emptyset$}\label{nested:line15}
+	 \State $(\D,v_{\text{out}}) \gets \union(\D,v_{\text{out}},\aS_{p,q})$\label{nested:line16}
+ \EndFor
+ \EndIf 
+ \State {\sc EnumerationPhase}$(\cD, v_{\text{out}})$\label{nested:line17}
+\EndProcedure
+
+\State
+
+\Procedure{{IfProd}}{$\cD, v, b, k$}\label{nested:line19}
+\If{$b = (a, \oout)$}\label{nested:line20}
+\State $(\D',v') \gets \add(\D,(\oout, k))$\label{nested:line21}
+\State $(\D',v') \gets \prod(\D',v,v')$\label{nested:line22}
+\Else
+\State $(\D',v') \gets (\cD, v)$\label{nested:line24}
+\EndIf
+\State \Return $(\D',v')$\label{nested:line25}
+\EndProcedure
+\algstore{myalg}
+\end{algorithmic}	
+\end{varwidth}
+\hfill
+\begin{varwidth}[t]{0.5\textwidth}
+\begin{algorithmic}[1]
+\algrestore{myalg}
+\Procedure{{OpenStep}}{$\D, \op{a},k$}
+\State $\aS'\gets\emptyset$ 
+\State $\aT\gets\push(\aT,\emptyset)$\label{nested:line27}
+\For{$p\in Q \text{ and } (p',b,q,\gamma)\in\Delta$\label{nested:line28} \\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ with $b\in\{\op{a}, (\op{a}, \oout)\}$}
+\If{$\aS_{p,p'}\neq\emptyset$}\label{nested:line29}
+%\For{$p,p' \in Q$ \ s.t. $\aS_{p,p'}\neq\emptyset$}
+%\For{$(p',\op{a},\oout,q,\gamma)\in\Delta$}
+\If{$\aS'_{q,q} = \emptyset$}\label{nested:line30}
+\State $(\D,v_{\eps}) \gets \add(\D,\eps)$\label{nested:line31}
+\State $\aS'_{q,q}\gets v_{\eps}$\label{nested:line32}
+\EndIf
+
+\State $v\gets \aS_{p,p'}$\label{nested:line33}
+\State $(\D,v) \gets $ {\sc IfProd}$(\cD, v, b, k)$\label{nested:line34}
+\State $(\D,v) \gets \union(\D,v,\aT_{p,\gamma,q})$\label{nested:line35}
+\State $\aT_{p,\gamma,q}\gets v$\label{nested:line36}
+\EndIf
+\EndFor
+\State $\aS \gets \aS'$
+\State \Return $\D$
+\EndProcedure
+
+\State
+
+\Procedure{{CloseStep}}{$\D, \cl{a},k$}
+\State $\aS'\gets\emptyset$\label{nested:line41}
+\For{$p,p'\in Q \text{ and } (q',b,\gamma,q)\in\Delta$\label{nested:line42} \\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ with $b\in\{\cl{a},(\cl{a},\oout)\}$}
+\If{$\aS_{p',q'}\!\neq\emptyset \text{ and }\aT_{p,\gamma,p'}\!\neq \emptyset$}\label{nested:line43}
+%\For{$p,p',q'\in Q$ \ s.t. $\aS_{p',q'}\!\neq\emptyset$}
+%\For{$(q',\cl{a},\oout,\gamma,q)\in\Delta$ s.t. $\aT_{p,\gamma,p'}\!\neq \emptyset$}
+\State $(\D,v)\gets\prod(\D,\aT_{p,\gamma,p'},\aS_{p',q'})$\label{nested:line44}
+\State $(\D,v) \gets ${\sc IfProd}$(\cD, v, b, k)$\label{nested:line45}
+\State $(\D,v)\gets\union(\D,v,\aS'_{p,q})$\label{nested:line46}
+\State $\aS'_{p,q}\gets v$\label{nested:line47}
+\EndIf
+\EndFor
+\State $\aT\gets\pop(\aT)$\label{nested:line48}
+\State $\aS \gets \aS'$\label{nested:line49}
+\State \Return $\D$
+\EndProcedure
+
+
+\end{algorithmic}
+\end{varwidth}
+\end{algorithm}

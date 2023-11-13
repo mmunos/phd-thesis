@@ -1,0 +1,288 @@
+%
+%
+
+We have presented an enumeration algorithm for annotated grammars that achieves
+quadratic-time preprocessing and output linear delay on rigid annotated
+grammars. We now study whether the bound can be improved even further to achieve
+linear-time preprocessing and output-linear delay, which is the best possible
+data complexity bound in our model.
+
+To achieve this, it is natural to look for a class of grammars having some ``deterministic'' behavior.
+Unfortunately, grammars are not convenient for this purpose, and so we move to
+the equivalent model of pushdown automata.
+We thus introduce \emph{pushdown annotators} and show that they are equally expressive to annotated grammars.
+We present syntactic restrictions on pushdown annotators that ensure
+quadratic-time preprocessing, similarly to rigid grammars.
+%
+Then, we propose additional deterministic conditions on pushdown annotators that allow for linear-time preprocessing.
+%
+
+\paragraph{Pushdown annotators} A \emph{pushdown annotator} (PDAnn) is a tuple
+$\cP = (Q, \Sigma, \Omega, \Gamma, \Delta, \allowbreak q_0, F)$ where $Q$ is a finite set of \emph{states},
+%
+%
+$\Sigma$ is the alphabet, $\Omega$ is a finite set of annotations, $\Gamma$ is a finite set of \emph{stack symbols}, $q_0 \in Q$ is the \emph{initial state}, and $F \subseteq Q$ are the \emph{final states}. We assume that the set $\Gamma$ of stack symbols is disjoint from $(\Sigma \cup \Sigma\times \Omega)$. Finally, $\Delta$ is a finite set of \emph{transitions} that are of the following kinds:
+%
+\begin{itemize}
+	\item {\em Read-write transitions} of the form $(p, (a, \oout), q) \in Q\times(\Sigma\times \Omega)\times Q$, meaning that, if the next letter of the string is~$a$, the annotator can go from states~$p$ to~$q$ while reading that letter and writing the annotation~$\oout$;
+	%
+          %
+	\item {\em Read-only transitions} of the form $(p, a, q) \in
+          Q\times\Sigma\times Q$, meaning that the annotator can go from $p$ to
+          $q$ while reading~$a$;
+          %
+	\item {\em Push transitions} of the form $(p, q, \gamma) \in Q\times (Q\times\Gamma)$, meaning that the annotator can go from $p$ to $q$ while pushing the symbol~$\gamma$ on the stack;
+	\item {\em Pop transitions} of the form $(p, \gamma, q) \in (Q\times \Gamma)\times Q$, meaning that, if the topmost symbol of the stack is~$\gamma$, the annotator can go from $p$ to $q$ while removing this topmost symbol~$\gamma$.
+	%
+	%
+\end{itemize}
+
+%
+
+We now give the semantics of PDAnns.  Fix a string $w = w_1 \cdots
+w_n \in \Sigma^*$. A \emph{configuration} of $\cP$ over $w$ is a pair
+$C = (q, i) \in Q\times [0,n]$ of the current state and position in
+$w$. An \emph{instantaneous description} of $\cP$ is a pair
+$(C, \alpha)$ where $C$ is a configuration and $\alpha\in \Gamma^*$
+describes the stack. A \emph{run} of $\cP$ over $w$ is a sequence:
+
+\begin{equation}  \label{gram:eq:run} %\tag{\!\dagger}
+	\rho \ := \ (C_0, \alpha_0) \trans{t_1} (C_1, \alpha_1) \trans{t_2} \, \ldots \, \trans{t_m} (C_m, \alpha_m)
+\end{equation}
+
+such that $C_0 = (q_0, 0)$ and $\alpha_0 = \eps$, each $t_k$ is a transition in $\Delta$, and for each $k\in[1,m]$ the following hold: 
+\begin{itemize}
+	\item if $t_k$ is a read-write transition $(p, (a, \oout), q)$ or a read-only transition $(p, a, q)$, then $\alpha_k = \alpha_{k-1}$, $C_{k-1} = (p, i-1)$, $C_{k} = (q, i)$ and $a = a_i$ for some $i\in [1,n]$;
+	\item if $t_k$ is a push transition $(p, q, \gamma)$, then $\alpha_k = \alpha_{k-1}\gamma$ and for some $i\in [1,n]$, $C_{k-1} = (p,i)$, $C_k = (q,i)$; and
+	\item if $t_k$ is a pop transition $(p,\gamma,q)$, then  $\alpha_{k-1} = \alpha_k \gamma$ and for some $i\in [1,n]$, $C_{k-1} = (p,i)$, $C_k = (q,i)$.
+\end{itemize}
+We say that $\rho$ is \emph{accepting} if $(C_m, \alpha_m) = ((q_f, n), \epsilon)$ for
+some $q_f\in F$.
+We define the \emph{annotation} of $\rho$ as $\ann(\rho) = \ann(t_1, C_1) \cdot \cdots \cdot \ann(t_m, C_m)$ such that $\ann(t, C) = \epsilon$ if $t$ is a push, pop, or a  read-only transition $(p, a, q)$, and $\ann(t, C) = (i, \oout)$ if $t$ is a read-write transition $(p, (a, \oout), q)$ and $C = (q, i)$.
+Finally, we define the function $\sem{\cP}$ that maps any $w \in \Sigma^*$ to its set of outputs:
+\[
+\sem{\cP}(w) =
+\{\ann(\rho) \mid \text{$\rho$ is an accepting run of $\cP$ over $w$}\}.
+\]
+Similarly to annotated grammars, we say that $\cP$ is \emph{unambiguous} if for every $w\in \Sigma^*$ and output~$\mu$, there exists at most one accepting run $\rho$ of $\cP$ over $w$ such that $\ann(\rho) = \mu$. 
+
+One can alternatively see a PDAnn as a \emph{pushdown transducer}~\cite{berstel2013transductions}, which is the standard way to extend automata to have an output. However, an important difference is that a PDAnn concisely represents outputs by only writing the annotations and their positions: this can be much smaller than the input string, and cannot easily be encoded as a transducer on a finite alphabet. For instance, where a PDAnn can produce an output such as $(2,\oout), (5, \oout')$, a transducer would either write $\oout \oout'$ (losing the position information) or \textvisiblespace~$\oout$~\textvisiblespace~\textvisiblespace~$\oout'$ (whose length is always linear in the input) for a special symbol~\textvisiblespace.
+
+%
+%
+
+
+\paragraph{Profiled PDAnns and annotated grammars} To define the analogue
+of rigid annotated grammars on PDAnn, we will study the
+\emph{stack profile} (or simply \emph{profile}) of PDAnn runs, which is
+informally the sequence of all stack heights.
+Formally, let $\cP$ be a PDAnn, $w$ be a string, and consider a run $\rho$ of $\cT$
+over~$w$ like in ($\dagger$).
+The \emph{profile}~$\pi$ of $\rho$ is the sequence $\pi:= \card{\alpha_0}, \ldots,
+\card{\alpha_m}$.
+We then introduce \emph{profiled} PDAnns by requiring that all
+accepting runs of the PDAnn on an input string have the same profile (no matter
+their output). Formally, we say that a PDAnn $\cP$ is \emph{profiled} if, for every string $w$, all accepting runs of $\cT$ over~$w$ have the same profile.
+
+As usual for context-free grammars and pushdown automata, the formalisms of annotated grammars and PDAnn have the same expressive power.
+We call two annotated grammars
+$\cG$ and $\cG'$ \emph{equivalent} if they define the same functions, i.e.,
+$\sem{\cG} = \sem{\cG'}$, and extend this notion to PDAnn in the expected way.
+We then have:
+%
+\begin{proposition}\label{gram:prop:grammar-pdann}
+	Annotated grammars and PDAnn are equally expressive. Specifically, for any annotated grammar $\cG$, we can build an equivalent PDAnn $\cP$ in polynomial time, and vice versa.
+	Further, $\cG$ is unambiguous (resp., rigid) iff $\cP$ is unambiguous (resp., profiled).
+        %
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/linear1.tex}
+\end{proof}
+
+%
+%
+Let us now study the enumeration for PDAnns. We know that the problem
+for unambiguous PDAnns can be solved via Proposition~\ref{gram:prop:grammar-pdann}
+with cubic-time preprocessing in data complexity and output-linear delay (with
+Theorem~\ref{gram:thm:cubic}). We know that
+profiled PDAnns can be made unambiguous (via Proposition~\ref{gram:prop:grammar-pdann} and Theorem~\ref{gram:thm:profileu-iou}) and so that
+%
+we can solve enumeration for them in
+quadratic-time preprocessing in data complexity and output-linear delay (using
+Theorem~\ref{gram:thm:quadratic}).
+We now show that, if we are given a profile of an 
+%
+%
+unambiguous PDAnn $\cP$ on an input string~$w$, we can use it as a guide to enumerate with linear
+preprocessing and output-linear delay the set $\sem{\cP}_{\pi}(w)$ of
+annotations for that profile, i.e., all $\ann(\rho)$ such that $\rho$ is an
+accepting run with profile $\pi$ of $\cP$ over $w$. Formally:
+
+%
+%
+%
+
+\begin{lemma}\label{gram:lem:vpaconv}
+  %
+	Given an unambiguous PDAnn $\cP$, there exists an enumeration algorithm
+        that receives as input a string $w$ and a profile $\pi$ of $\cP$ over
+        $w$, and enumerates $\sem{\cP}_{\pi}(w)$ with output-linear delay after
+        linear-time preprocessing in data complexity.
+\end{lemma}
+\begin{proof}
+  \input{./proofs/grammars/linear2.tex}
+\end{proof}
+
+This result implies that we could achieve linear-time enumeration over profiled
+PDAnn if we could easily discover their (unique) profile.
+We achieve this in \emph{deterministically profiled PDAnns}.
+
+\paragraph{Deterministically profiled PDAnn}
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+Let $\cP = (Q, \Sigma, \Omega, \Gamma, \Delta, q_0, F)$ be a PDAnn. We
+say that a PDAnn $\cP$ is \emph{deterministically profiled} if, for any
+string $w \in \Sigma^*$, for any two partial runs $\rho$ and
+$\rho'$ of $\cP$ over $w$ with the same length, $\rho$ and $\rho'$ have the same profile.
+
+The relationship between deterministically profiled PDAnns and 
+deterministic pushdown automata 
+%(formally defined in Appendix~\ref{gram:apx:linear}) 
+is similar to the relationship between 
+profiled PDAnns and unambiguous pushdown automata (the latter relationship was
+stated as
+Proposition~\ref{gram:prp:baseunambig} in the context of grammars). 
+
+Specifically:
+
+\begin{proposition}
+  \label{gram:prp:basedeterm}
+  For a deterministically profiled PDAnn $\cP$, let $L'$ be the set of strings with nonempty output, i.e., $L' = \{w \mid \sem{\cP}(w) \not = \emptyset\} $. Then $L'$ is
+  recognized by a deterministic pushdown automaton.
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/linear3.tex}
+\end{proof}
+
+%
+%
+%
+%
+
+This result gives a concrete picture of the expressive power of 
+deterministically profiled PDAnn $\cA$, i.e., as acceptors they are more powerful
+than the class of
+\emph{visibly pushdown
+automata}~\cite{alur2004visibly}, where each alphabet letter must have a
+specific effect on the profile. Deterministically profiled PDAnn are also
+reminiscent of 
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+the \emph{height-determinism} notion introduced for pushdown automata~\cite{nowotka2007height}, but
+extend this with the support of annotations.
+%
+
+%
+%
+
+
+%
+%
+%
+%
+%
+%
+%
+%
+
+
+%
+%
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+Deterministically profiled PDAnn are designed to ensure that they have only one
+profile (i.e., they are profiled), and further that their unique
+profile can be constructed in linear time:
+
+\begin{proposition}\label{gram:prp:detlinear}
+  A deterministically profiled PDAnn $\cP$ is always profiled, and given a string
+  $w$, the unique profile of accepting runs of $\cP$ over~$w$ can be computed in
+  linear time in~$w$.
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/linear4.tex}
+\end{proof}
+
+Together with Lemma~\ref{gram:lem:vpaconv}, this yields:
+
+\begin{corollary}\label{gram:cor:linear-time-pdann}
+	Let $\cP$ be a deterministically profiled PDAnn. Then for every string $w$
+        the set $\sem{\cP}(w)$ can be enumerated with output-linear delay after
+        linear-time preprocessing in data complexity.
+\end{corollary}
+

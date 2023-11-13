@@ -1,0 +1,192 @@
+%!TEX root = ../../Thesis.tex
+
+It was already shown in Chapter~\ref{ch2} that working with annotations directly and then providing a reduction from a spanner query to an annotation query is sometimes more manageable. In this section we will do just that: starting from a document-regular spanner pair $(d, \mathcal{M})$, we will show how to build a document-annotated automaton pair $(d', \cA)$ such that $\mathcal{M}(d) = \sem{\cA}(d')$. Although people have studied various models of regular spanners in the literature, we will focus here on sequential variable-set automata (VA)~\cite{FaginKRV15} and sequential extended VA~\cite{FlorenzanoRUVV20}. The latter is essentially the model that the work of Schmid and Schweikardt used in their results~\cite{SchmidS21}. We present the models in this order, but we present first the reduction from the latter as it can be done into \rt directly.
+In the second half of the section we reduce the former to {\it succinctly} annotated automata, an extension of \rt that allows output symbols to be stored concisely. 
+These reductions imply constant-delay enumeration for the spanner~tasks.
+%For the former we show a reduction that achieves output-linear delay in the second half of this section. For this result, we will need to introduce an extension of annotated automata that allows output symbols to be represented succinctly.
+
+\paragraph{Variable-set automata} 
+Consider a document $d = a_1\ldots a_n$ over an input alphabet $\Sigma$. A {\it span} of $d$ is a pair $\spanc{i}{j}$ with $1 \leq i \leq j \leq n+1$. We define the substring of $\spanc{i}{j}$ by $d\spanc{i}{j} = a_i \ldots a_{j-1}$. We also consider a finite set of variables $\cX$ and we define a {\it mapping} as a partial function that maps some of these variables to spans. We define a {\it document spanner} as a function assigning every input document $d$ to a set of mappings~\cite{FaginKRV15}.
+
+A {\it variable-set automaton} (VA for short) is a tuple $\cA = (Q, \Sigma, \cX, \Delta, \qinit, F)$ where $Q$ is a set of states, $\qinit,F\subseteq Q$, and $\Delta$ consists of {\it read transitions} $(p,a,q)\in Q\times\Sigma\times Q$ and {\it variable transitions} $(p, \varop{x}, q)$ or $(p,\varcl{x},q)$ where $p, q\in Q$ and $x\in \cX$.
+The symbols $\varop{x}$ and $\varcl{x}$ are referred to as {\it variable markers} of $x$, where $\varop{x}$ is {\it opening} and $\varcl{x}$ is {\it closing}. Given a document $d = a_1\ldots a_n \in \Sigma^*$ a configuration of $\cA$ is a pair $(q,i)$ where $q\in Q$ and $i\in [1, n+1]$. 
+A run $\rho$ of $\cA$ over $d$ is a sequence:
+\[
+\rho \ := \ (q_1, i_1)\xrightarrow{\sigma_1} (q_2,i_2) \xrightarrow{\sigma_2}\cdots\xrightarrow{\sigma_m}(q_{m+1}, i_{m+1})
+\] 
+where $i_1 = 1$, $i_{m+1} = n+1$, and for each $j\in[1,m]$, $(q_j, \sigma_{j},q_{j+1}) \in \Delta$ and either 
+(1) $\sigma_{j} = a_{i_j}$ and $i_{j+1} = i_j + 1$, or (2) $\sigma_{j}\in \{\varop{x} , \varcl{x}\mid x\in\cX\}$ and $i_{j+1} = i_j$. We say that $\rho$ is {\it accepting} if $q_{m+1}\in F$ and that it is {\it valid} if variables are non-repeating, and they are opened and closed correctly. 
+%Namely, $\rho$ is valid if for each $x\in\cX$, $\varop{x}$ appears at most once, and if it does, $\varcl{x}$ appears someplace to the right. 
+If $\rho$ is accepting and valid, we define the mapping $\mu^\rho$ which maps $x\in \cX$ to the span $\spanc{u}{v}$ if, and only if, there exist $j,k\in[1,m]$ such that $i_j = u, i_k = v$, and $\sigma_j =\, \varop{x}$ and $\sigma_k = \varcl{x}$. We say that $\cA$ is {\it sequential} if every accepting run is also valid. Finally, define the document spanner $\sem{\cA}$ as the function:
+\[
+\sem{\cA}(d) \ = \  \{\mu^\rho\mid \rho \text{ is an accepting and valid run of $\cA$ over $d$}\}.
+\] 
+Like in \rts, we say $\cA$ is {\it unambiguous} if for each mapping $\mu\in\sem{\cA}(d)$ there is exactly one accepting run $\rho$ of $\cA$ over $d$ such that $\mu^\rho = \mu$.
+
+\paragraph{Extended VA}
+An \emph{extended variable-set automaton} (or eVA for short) is a tuple $\cA = (Q, \Sigma, \cX, \Delta,\qinit, F)$ where $Q,I,F$ are defined as in VA, $\Delta$ is a set consisting of {\it letter transitions} $(p, a, q)$ where $a\in\Sigma$ and $p,q\in Q$ or {\it extended variable transitions} $(p, S, q)$ where $S\subseteq \{\varop{x} , \varcl{x}\mid x\in\cX\}$ and $S$ is non-empty; and $F\subseteq Q$. A run $\rho$ over a document $d = a_1\ldots a_n$ is a sequence:
+\[
+\rho = q_1  \xrightarrow{S_1} p_1 \xrightarrow{a_1} 
+q_2  \xrightarrow{S_2} p_2 \xrightarrow{a_2} \cdots 
+\xrightarrow{a_n} q_{n+1}  \xrightarrow{S_{n+1}} p_{n+1}
+\]
+where each $S_i$ is a (possibly empty) set of markers, for each $i\in[1,n]$, $(p_i, a_{i}, q_{i+1})\in \Delta$, and for each $i\in[1,n+1]$, if $S_i$ is not empty, then $(q_i, S_{i}, p_i)\in \Delta$, and $p_i = q_i$, otherwise. We say that a run is accepting if $p_{n+1}\in F$. Also, we say that a run $\rho$ is {\it valid} if variables are opened and closed in a correct manner: every marker $\varop{x}$ and $\varcl{x}$ must appear at most once among the sets $S_1\ldots S_{n+1}$; if one of them appears, the other does as well; and if $\varop{x}\in S_i$ and $\varcl{x}\in S_j$ then it holds that $i\leq j$. For a valid run $\rho$, we define the mapping $\mu^\rho$ that maps $x$ to $\spanc{i}{j}$ iff $\varop{x}\in S_i$ and $\varcl{x}\in S_j$. The spanner $\sem{\cA}$ is defined identically as for 
+VA. The definitions of sequential and unambigous eVA are the same as well.
+
+To motivate the reduction from sequential eVA to annotated automata, consider a document $d = \texttt{aab}$, and a run over $d$ of some (unspecified) eVA with variable set $\cX = \{x, y\}$:
+\[
+\rho = q_1  \xrightarrow{\emptyset} q_1 \xrightarrow{{\tt a}} 
+q_2  \xrightarrow{\{\varop{x}, \varcl{x}, \varop{y}\}} p_2 \xrightarrow{{\tt a}} 
+q_3  \xrightarrow{\emptyset} q_3 \xrightarrow{{\tt b}} 
+q_4  \xrightarrow{\{\varcl{y}\}} p_4
+\]
+This run defines the mapping $\mu$ which assigns $\mu(x) = \spanc{2}{2}$ and $\mu(y) = \spanc{2}{4}$.
+To translate this run to the annotated automata model, first we append an end-of-document character to~$d$, and then ``push'' the marker sets one transition to the right. We then obtain a possible run of an annotated automaton with output set $\oalph = 2^{\{\varop{x} , \varcl{x}\mid x\in\cX\}}$ over the document $d' = \texttt{aab\#}$:
+\[
+\rho' = q_1'  \xrightarrow{{\tt a}} 
+q_2'  \xrightarrow{({\tt a}, \{\varop{x}, \varcl{x}, \varop{y}\})} 
+q_3'  \xrightarrow{{\tt b}} 
+q_4'  \xrightarrow{(\texttt{\#}, \{\varcl{y}\})} q_5'
+\]
+The annotation of this run would then be $(2, \{\varop{x}, \varcl{x}, \varop{y}\})(4,\{\varcl{y}\})$, from where the mapping $\mu$ can be extracted directly. The reduction from extended VA into annotated automata operates in a similar fashion: the read transitions are kept, and for each pair of transitions $(p,S,q), (q, a, r)$ in the former, a transition $(p, (a, S), r)$ is added to the latter.
+
+
+%The idea for the reduction from extended VA to annotated automata can be seen more clearly with help of subword-marked words, introduced in~\cite{SchmidS21}. Let us consider the document $d = \texttt{aabba}$. Given a set of markers $\cX = \{x, y\}$, a subword-marked word for $d$ would be $\bar{d} = \texttt{a}\texttt{a}\{\varop{x}\}\texttt{b}\texttt{b}\{\varcl{x}, \varop{y}, \varcl{y}\}\texttt{a}$, from which we can extract the mapping $\mu$ which assigns $\mu(x) = \spanc{3}{5}$ and $\mu(y) = \spanc{5}{5}$. These strings can also be seen as a possible run from an extended VA over $d$, where the states have been shaved off and only what is read on the transitions is kept.
+%Now let us add an end-of-document character $\texttt{\#}$ to $\bar{d}$ and replace every appearance of $Sa$, for some set of markers $S$ and $a\in \Sigma$, by the pair $(a, S)$. This renders the string $\hat{d} = \texttt{a}\texttt{a}(\texttt{b}, \{\varop{x}\})\texttt{b}(\texttt{a}, \{\varcl{x}, \varop{y}, \varcl{y}\})\texttt{\#}$. Note that this word can now be seen as a possible run from an annotated automaton over $d$, if its set of outputs has been defined as $\oalph = 2^{\{\varop{x} , \varcl{x}\mid x\in\cX\}}$. The annotation of this run would then be $\nu = (3, \{\varop{x}\})(5, \{\varcl{x}, \varop{y}, \varcl{y}\})$, from where the mapping $\mu$ can be extracted directly. This idea of ``pushing'' the marker sets to the next letter can be applied in the automaton itself, which is what the reduction does.
+
+
+
+The equivalence between mappings and annotations is formally defined as follows: for some document $d$, a mapping $\mu$ from $\cX$ to spans in $d$ is equivalent to an annotation $w = (S_1,i_1)\ldots(S_m, i_m)$ if, and only if, for every $j\in[1,m]$: 
+\[
+S_j \ = \ \{\varop{x} \mid \mu(x) = \spanc{i_j}{k}\} \, \cup \, \{\varcl{x} \mid \mu(x) = \spanc{k}{i_j}\}.
+\]
+\begin{proposition}\label{slps:prop:eva-reduc}
+	For any unambiguous sequential extended VA $\cA$ with state set $Q$ and transition set $\Delta$, there exists an \rt $\cA'$ with $\cO(|Q|\times|\Delta|)$ transitions 	such that each mapping $\mu\in \sem{A}(d)$ is equivalent to some unique $w\in\sem{\cA'}(d\texttt{\#})$ and vice versa, for every document~$d$.
+\end{proposition}
+\begin{proof}
+	Let $\cA = (Q, \Sigma, \cX, \Delta, \qinit, F)$ be an unambiguous sequential eVA. We build an annotated automaton $\cA' = (Q', \Sigma\cup\{\texttt{\#}\}, \oalph, \Delta', \qinit, F')$ as follows.  Define $Q' = Q \cup \{q^*\}$ for some fresh state~$q^*$, and $F' = \{q^*\}$. Further, define $\oalph = 2^{\{\varop{x} , \varcl{x}\mid x\in\cX\}}$ and: 
+	\begin{align*}
+		\Delta' = \ &\{(p,a,q)\mid a\in \Sigma\text{ and }(p,a,q)\in\Delta\}\  \cup\\ & \{(p,(a, S), q)\mid (p,S,q'),(q',a,q)\in\Delta \text{ for some }q'\in Q\}\ \cup\\ & \{(p,\texttt{\#}, q^*)\mid p\in F\}\ \cup\\ & \{(p,(\texttt{\#}, S), q^*)\mid (p,S,q)\in\Delta\text{ for some }q\in F\}.
+	\end{align*}
+	To see the equivalence between $\cA$ and $\cA'$, let $d = a_1\ldots a_n$ be a document over $\Sigma$, and let $\rho$ be an accepting run of $\cA$ over $d$ of the form:
+	$$
+	\rho = q_1 \xrightarrow{S_1} p_1 \xrightarrow{a_1} 
+	q_2  \xrightarrow{S_2} p_2 \xrightarrow{a_2} \cdots 
+	\xrightarrow{a_n} q_{n+1} \xrightarrow{S_{n+1}} p_{n+1}
+	$$
+	We define $\rho'$ as the following sequence:
+	$$
+	\rho' = q_1  \xrightarrow{b_1} 
+	q_2  \xrightarrow{b_2} \cdots 
+	\xrightarrow{b_n} q_{n+1}  \xrightarrow{b_{n+1}} q^*
+	$$
+	where $b_i  = (a_i, S_i)$ if $S_i$ is not empty, and $b_i = a_i$ otherwise, for each $i\leq n$. We define $b_{n+1} = (\texttt{\#}, S_{n+1})$ if $S_{n+1}$ is not empty, and $b_{n+1} = \texttt{\#}$ otherwise. Since $\cA$ is sequential, $\rho$ is a valid run which defines a mapping $\mu^\rho\in\sem{\cA}(d)$. We can straightforwardly check that $\mu^\rho$ is equivalent to $\ann(\rho')$.
+	It can also be seen directly from the construction that $\rho'$ is a run from $\cA'$ over $d\texttt{\#}$, and since $\rho'$ is uniquely defined from $\rho$, we conclude that for every document $d$ each $\mu\in\sem{\cA}(d)$ is equivalent to some unique $w\in\sem{\cA'}(d\texttt{\#})$.
+	
+	To see the equivalence on the opposite direction, consider an accepting run $\rho'$ of $\cA'$ over $d\texttt{\#}$ as above, where each $b_i$, for $i\in[1, n]$, might be either $a_i$ or a pair $(a_i, S)$. 
+	From the construction, it can be seen that if $b_i = a_i$, there exists a transition $(q_{i},a_i, q_{i+1})\in\Delta$. Instead, if $b_i = (a_i, S)$, there exist transitions $(q_{i},S, q'),(q',a_i,q_{i+1})\in\Delta$ for some $q'\in Q$. 
+	Also, if $b_{n+1} = \texttt{\#}$ then $q_{n+1}\in F$, and if $b_{n+1} = (\texttt{\#}, S)$ there exists $(q_{n+1},S,q')\in\Delta$ for some $q'\in F$. We define $\rho$ as a run of $\cA$ over $d$ built by replacing each transition in $\rho'$ by the corresponding transition(s) in $\cA$. We note first that this run is accepting and valid, and since $\cA$ is unambiguous, $\rho$ must be uniquely defined. 
+	Indeed, when replacing $(q_{i}, (a_i, S), q_{i+1})$, we know there exist transitions $(q_{i}, S, q')$ and $(q', a_i, q_{i+1})$ in $\Delta$. 
+	Furthermore, this $q'$ must be unique, otherwise we could define a different accepting run that defines the same mapping. 
+	We see that $\ann(\rho')$ is equivalent to $\mu^\rho$, so we conclude that each annotation $w\in\sem{\cA}(d)$ is equivalent to some unique mapping $\mu\in\sem{\cA}(d)$.
+	
+	To see that $\cA'$ is unambiguous, consider towards a contradiction two different accepting runs $\rho_1'$ and $\rho_2'$ that retrieves the same annotation. Let $i$ be such that the $i$-th states in $\rho_1'$ and $\rho_2'$ are different, and note it holds that $1\leq i \leq n+1$ since $\cA'$ has a unique final state $q^*$. 
+	By the previous discussion, we can build runs $\rho_1$ and $\rho_2$ of $\cA$ over $d$ that also define the same mapping. Furthermore, they differ at index $2i-1$ (the index at which $q_i$ is in the $\rho$ written above), which is not possible since $\cA$ is unambiguous.
+	\qedhere
+\end{proof}
+
+Combining Proposition~\ref{slps:prop:eva-reduc} and Theorem~\ref{slps:theo:main-theorem}, we get a constant-delay algorithm for evaluating an unambiguous sequential extended VA over a document, proving the extension of the result in~\cite{SchmidS21}. Notice that the result in~\cite{SchmidS21} is for \emph{deterministic} VA, where here we generalize this result for the unambiguous case, plus the constant delay. 
+
+
+
+\paragraph{Succinctly annotated automata}
+For the algorithmic result of sequential (non-extended) VA, we need an extension to annotated automata which features succinct representations of sets of annotations. 
+
+A {\it succinct enumerable representation scheme} (SERS) is a tuple: 
+$$
+\cS = (\cR, \infAlph, |\cdot|, \cL, \cE)$$ 
+made of an infinite set of representations $\cR$, and an infinite set of annotations $\infAlph$. 
+It includes a function $|\cdot|$ that indicates, for each $r\in\cR$ and $\oout\in\infAlph$, the sizes $|r|$ and $|\oout|$, i.e., the number of units needed to store $r$ and $\oout$ in the underlying computational model (e.g., the RAM model).
+The function $\cL$ maps each element $r\in\cR$ to some finite non-empty set $\cL(r)\subseteq\infAlph$. 
+Lastly, there is an algorithm $\cE$ which enumerates the set $\cL(r)$ with output-linear delay for every $r\in \cR$. 
+Intuitively, a SERS provides us with representations to encode sets of annotations. Moreover, there is the promise of the enumeration algorithm $\cE$ where we can recover all the annotations with output-linear delay. This representation scheme allows us to generalize the notion of annotated automaton for encoding an extensive set of annotations in the~transitions.
+
+Fix a SERS $\cS = (\cR, \infAlph, |\cdot|, \cL, \cE)$. A Succinctly Annotated Automaton over $\cS$ (\crt for short) is a tuple $\cA = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ where all sets are defined like in \rt, except that in $\Delta$ read-annotate transitions are of the form $(p, (a, r), q)\in Q\times(\Sigma\times\cR)\times Q$. That is, transitions are now annotated by a representation $r$ which encodes \emph{sets} of annotations in~$\infAlph$. For a read-annotate transition $\delta = (p, (a, r), q)$, we define its size as $|\delta| = |r| + 1$ and for a read transition $\delta = (p, a, q)$ we define its size as $|\delta| = 1$. 
+A run $\rho$ over a document $d = a_1\ldots a_n$ is also defined as a sequence:
+$$
+\rho := q_1 \xrightarrow{b_1} q_2 \xrightarrow{b_2} \ldots \xrightarrow{b_n} q_{n+1}
+$$ 
+with the same specifications as in \rt with the difference that it either holds that $b_i = a_i$, 
+or $b_i = (a_i, r)$ for some representation $r$. We now define the {\it set of annotations} of $\rho$ as: $\ann(\rho) = \ann(b_1, 1)\cdot\ldots\cdot\ann(b_n, n)$ such that $\ann(b_i, i) = \{(\oout, i)\mid\oout\in\cL(r)\}$ if $b_i = (a, r)$, and $\ann(b_i, i) = \{\eps\}$ otherwise.
+%We use the concatenation product $\cdot$ over sets of strings in the natural way: $L_1\cdot L_2 = \{s_1\cdot s_2\mid s_1\in L_1 \text{ and }s_2\in L_2\}$. 
+The set $\sem{\cA}(d)$ is defined as the union of sets $\ann(\rho)$ for all accepting runs $\rho$ of $\cA$ over $d$. We say that $\cA$ is unambiguous if for every document $d$ and every annotation $w\in\sem{\cA}(d)$ there exists only one accepting run $\rho$ of $\cA$ over $d$ such that $w\in\ann(\rho)$. Finally, we define the size of $\Delta$ as $|\Delta| = \sum_{\delta \in \Delta} |\delta|$, and the size of $\cA$ as $|\cA| = |Q| + |\Delta|$. 
+
+This annotated automata extension allows for representing output sets more compactly. Moreover, given that we can enumerate the set of annotations with output-linear delay, we can compose it with Theorem~\ref{slps:theo:main-theorem} to get an output-linear delay algorithm for the whole set.  
+
+\begin{theorem}\label{slps:theo-algo-succ}
+	Fix a SERS $\cS$. There exists an enumeration algorithm that, given an unambiguous \crt $\cA$ over $\cS$ and an SLP $S$, it runs in $|\cA|^3 \times |S|$-preprocessing time and output-linear delay for enumerating $\br{\cA}(\doc(S))$. 
+\end{theorem}
+	For this proof, we will use an extension of \dsabbrs called {\it succinct \dsabbrs}.
+	A succinct \dsabbrs is a tuple $\tilde{\cD} = (\cS, V, \lch, \rch, \lambda, \bot, \epsilon)$, similar to \dsabbr with the difference that the output set has been replaced by representations from a SERS $\cS$. The set of strings associated to a node $v\in \tilde{D}$ is defined as follows: 
+	If $\lambda(v) = r\in \cR$, where $\cR$ is the set of representations in $\cS$, then $\sem{\tilde{D}}(v) = \cL(r)\times\{1\}$. The rest of the sets $\sem{\tilde{D}}(v)$ for union, product, and shift nodes $v$ remain unchanged, and so are the notions of duplicate-free, $k$-bounded and $\eps$-safe nodes, along with the operations for $\add$, $\prod$, $\union$ and $\shiftop$. 
+	We will extend Proposition~\ref{slps:theo:data-structure-eps} for this data structure as follows: 
+	
+	\begin{proposition}\label{slps:prop:ds-succ}
+		The operations $\prod$, $\union$ and $\shiftop$ over succinct \dsabbrs{} extended with empty- and $\epsilon$-nodes take constant time, and the operation $\add$ with a representation $r$ as argument takes time $\cO(|r|)$. Furthermore, if we start from an empty succinct \dsabbr{} $\cD$ and apply $\add$, $\prod$, $\union$, and $\shiftop$ over $\epsilon$-safe nodes, the resulting node $v'$ is always an $\epsilon$-safe node, and the set $\sem{\cD}(v)$ can be enumerated with output-linear delay without preprocessing for every node $v$.
+	\end{proposition}
+	\begin{proof}
+		For this proof, we need to be a bit more specific regarding the enumeration algorithm $\cE$ of an SERS $\cS$. 
+		Precisely, we assume that $\cE$ has an associated function $\yield$ and a constant $c$, and its procedure is to receive $r$ and then allow up to $|\cL(r)|$ calls to $\yield$. Each of these calls produces a different annotation $\oout\in \cL(r)$ and takes time at most $c\cdot (|\oout|+1)$ for some fix constant $c$. Each of these annotations carries a flag ${\tt end}$ which is true if, and only if, it is the last output of the set. We also assume that a sequence of $|\cL(r)|$ calls to $\yield$ might happen again with the same time bounds after the last call had set ${\tt end}$ to true.
+		
+		We start this proof by re-stating that every definition in the \dsabbr data structure is unchanged in its succinct version. The only difference is the definition of $\sem{\tilde{\cD}}(v)$ for a bottom node $v\in\tilde{\cD}$.
+		
+		First, we shall prove a version of Proposition~\ref{slps:prop:lindelay} in this model, namely, that if a succinct \dsabbr $\tilde{\cD}$ is duplicate-free and $k$-bounded, then the set $\sem{\tilde{\cD}}(v)$ can be enumerated with output-linear delay for every $v\in \cD$. We do this by adapting the proof of Proposition~\ref{slps:prop:lindelay} to handle this new type of bottom node. Let $\cS = (\cR, \infAlph, |\cdot |, \cL, \cE)$ be the SERS associated to $\tilde{\cD}$ and let $c'$ be the constant associated to $\cE$. 
+
+		The main idea is to modify iterator $\tau_\Lambda$ from Algorithm~\ref{slps:alg:enumeration} so that it stores, besides a value $u$ and a flag $\hasnext$, an annotation $\oout$. The iterator fully makes use of the fact that the ${\tt yield}$ procedure from $\cE$ retreives an output, evolves the internal iterator so that the next call produces the next output, and also says at each point if the current output was the last one from the set or not. The overall strategy is then to call ${\tt yield}$ in $\scnext$, store the retrieved output in $\oout$, and in $\scprint$, print whatever is currently stored in $\oout$. More precisely, the $\sccreate$ procedure initializes $\cE$ so that the next time it calls ${\tt yield}$ it prints the first output in the set $\cL(r)$, and initializes $\hasnext$ to {\bf true}. $\scnext$ first checks if $\hasnext$ is set to {\bf true}, and returns {\bf false} if it is not the case; otherwise it calls ${\tt yield}$, stores the output in $\oout$, and returns {\bf true}. If the output of ${\tt yield}$ is ${\tt end}$, then it set $\hasnext$ to  {\bf false} and returns {\bf false}.   Finally, $\scprint$ with input $s$ simply prints the pair $(\oout, s+1)$. It can be seen that the methods follow the necessary specifications to ensure that the correctness of the algorithm still holds for this version of the data structure.
+		
+		To show the time bounds, we bring attention to the fact that the only difference in the algorithm time-wise is the time spent printing each pair $(\oout, i)$, as now this takes $c \cdot (|\oout| + 1)$. Since Algorithm~\ref{slps:alg:enumeration} was proven to have delay $O(k\cdot(|w|+|w'|))$ to write output $w'$ after writing $w$ for non-succinct \dsabbr, we state that the same delay holds for this version of the algorithm since the time added is $O(|w|)$. This implies output-linear delay by following the same reasoning than the proof of Proposition~\ref{slps:prop:lindelay}.
+		
+		The rest of the proof pertains the operations $\add$, $\prod$, $\union$ and $\shiftop$. It is not hard to see that they can be kept unchanged and maintain all the conditions in the statement, with the sole exception of $\add(r)$, which now adds a representation $r$ to the structure and takes $|r|$ time. This concludes the proof. 
+	\end{proof}
+	
+	\begin{proof}[Proof of Theorem~\ref{slps:theo-algo-succ}]
+	The algorithm that we give to prove the statement is exactly Algorithm~\ref{slps:alg:evaluation} line-by-line, with the sole exception of lines 10-11, which now read: 
+	$$
+	\begin{array}{l}
+		\textbf{for each }(p,(a,r), q) \in \Delta \textbf{ do } \\
+		\hspace{1cm} M_a[p,q] \gets \union(M_a[p,q],\, \add(r))
+	\end{array}
+	$$ 
+	The rest of the proof follows from the reasoning of the proof of Theorem~\ref{slps:theo:evaluation}, and by noticing that the definition of the set $\sem{\tilde{D}}(v) = \cL(r) \times \{1\}$ satisfies what is expected for an index~$M_a[p,q]$. That is, that for every partial run $\rho$ of $\cA$ over $a$ that starts on $p$ and end on $q$, all annotations from the set $\ann(\rho)$ are included. The fact that the operations are done duplicate-free also follows from the fact that $\cA$ is assumed to be unambiguous.
+\end{proof}
+
+The purpose of \crt is to encode sequential VA succinctly. Indeed, as shown in~\cite{FlorenzanoRUVV20}, representing sequential VA by extended VA has an exponential blow-up in the number of variables that cannot be avoided. Therefore, the reduction from Proposition~\ref{slps:prop:eva-reduc} cannot work directly. Instead, we can use a Succinctly Annotated Automaton over some specific SERS to translate every sequential VA into the annotation world efficiently. 
+
+\begin{proposition}\label{slps:prop:va-reduc}
+	There exists an SERS $\cS$ such that for any unambiguous sequential VA $\cA$ with state set $Q$ and transition set $\Delta$ there exists a \crt $\cA$ over $\cS$ of size $\cO(|Q|\times|\Delta|)$  such that for every document $d$, each mapping $\mu\in\sem{\cA}(d)$ is equivalent to some unique $w\in\sem{\cA}(d\texttt{\#})$ and vice versa. Furthermore, the number of states in $\cA$ is in $\cO(|Q|)$.
+\end{proposition}
+\begin{proof}
+	The SERS that we will consider are Enumerable Compact Sets as they were presented in Chapter\ref{ch1}, defined over the output set $\infAlph = \{\varop{x} , \varcl{x}\mid x\in\cX\}$, with the sole difference that the sets of outputs stored in a node no longer contain strings in $\infAlph^*$, but subsets of $\infAlph$ instead. This difference is merely technical and has no influence in the time bounds of an ECS, as long as it is guaranteed to be duplicate-free (called {\it unambiguous} in Chapter~\ref{ch1}). 
+	
+	First we assume that all transitions in $\cA$ are reachable from some $q\in \qinit$, and all of them reach an accepting state. We know that in the VA $\cA$, the graph induced by the variable transitions is a DAG, otherwise it would not be sequential. We start with an empty ECS $\cD$ and define a matrix $K[p,q]$, that first starts with the empty node in each index except the indices in the diagonal (those that satisfy $p = q$), which have the $\eps$ node. 
+	The idea is that at the end of this algorithm, $\cL_{\cD}(K[p,q])$ contains all sets of variable markers that can be seen in a path from $p$ to $q$ that does not contain a letter transition. We build this matrix by iterating over the variable transitions in $\cA$ following some topological order of the DAG, starting from a root. For each variable transition $(p,V,q)$, let $u\gets\add(V)$ and for each $p'\in Q$ that can reach $p$ in the DAG assign $K[p',q] \gets \union(K[p',q], \prod(K[p', p], u))$. The time of this algorithm is $|Q|\times|\cA|$.
+	
+	After doing this, we perform a construction analogous to the one done in Proposition~\ref{slps:prop:eva-reduc}, in which we replace the extended variable transitions $(p,S,q)$ by transitions $(p,r,q)$ where $r = K[p,q]$, which happens every time $K[p,q]$ is not the empty node. The proof follows from this result as well.
+\end{proof}
+
+By Proposition~\ref{slps:prop:va-reduc} and Theorem~\ref{slps:theo-algo-succ} we prove the extension of the  output-linear delay algorithm for unambiguous sequential VA.  
+
+%\begin{corollary}
+%	There exists an enumeration algorithm that, given an unambiguous sequential VA $\cA$ and an SLP $S$, it runs in $|\cA|^3 \times |S|$-preprocessing time and constant delay for enumerating $\br{\cA}(\doc(S))$. 
+%\end{corollary}
+
+%This reduction also lets us describe Theorem~\ref{slps:theo:edits} but applied to regular spanners. The result can be extended into collections of regular spanners by having a separate query data structure for each.
+
+%\begin{theorem}\label{coro:editssp}
+%	Let $D = \{d_1,\ldots,d_m\}$ be a document database that is represented by an SLP $S$ in normal form. Let $\cA_1,\ldots,\cA_k$ be unambiguous sequential variable-set automata. When given the query data structures for $S$ and $\cA_1,\ldots, \cA,_k$, and a CDE-expression $\varphi$ over $D$, we can construct an extension $S'$ of $S$ and new query data structures for $S'$ and $\cA_1,\ldots,\cA_k$, and a new non-terminal $\tilde{A}$ of $S'$, such that $\doc(\tilde{A}) = \textsf{eval}(\varphi)$. 
+%	\begin{itemize}
+%		\item If $\varphi$ contains operations other than $\concat$, we require $S$ to be strongly balanced. Then, $S'$ is also strongly balanced, and this construction can be done in data-complexity $O(k\cdot\cdot|\varphi|\cdot\log|d^*|)$ time where $|d^*| = |\max_{\varphi}(D)|$.
+%		\item If $\varphi$ only contains $\concat$, then this construction can be done in data-completxity $O(k\cdot|\varphi|)$ time.
+%	\end{itemize}
+%	Afterwards, upon input of any $d\in\docs(S')$ (represented by a non-terminal of $S'$) and any $i\in[1, m]$, the set $\sem{\cA_i}(d)$ can be enumerated with constant delay.
+%\end{theorem}

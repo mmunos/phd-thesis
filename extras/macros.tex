@@ -1,0 +1,453 @@
+%!TEX root = ../Thesis.tex
+
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%			PACKAGES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%\usepackage[utf8]{inputenc}
+%%\usepackage[english]{babel}
+%
+\usepackage{xspace}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+%\usepackage{amsmath}
+%\usepackage{amsthm}
+%\usepackage{amsfonts}
+%\usepackage{MnSymbol}
+%\usepackage{mathtools}
+\usepackage{tikz}
+%\usepackage{textcomp}
+\usepackage{stmaryrd}
+\usepackage{varwidth}
+%\usepackage{graphicx}
+%\usepackage{mathrsfs} 
+% \usepackage{amsmath,MnSymbol}
+% \usepackage{amsthm}
+% \usepackage{algorithm}
+% \usepackage[noend]{algpseudocode}
+% \usepackage{thmtools}
+% \usepackage{multicol}
+\usepackage{colonequals}
+% \usepackage{graphicx}
+% \usepackage{xcolor}
+\usepackage{subcaption}
+%
+%\newtheorem{theorem}{Theorem}[section]
+%\newtheorem{obs}{Observation}[section]
+%\newtheorem{example}{Example}[section]
+%\newtheorem{proposition}{Proposition}[section]
+%\newtheorem{lemma}{Lemma}[section]
+%
+%\DeclareMathAlphabet{\mathcal}{OMS}{zplm}{m}{n}
+%
+\usetikzlibrary{automata, graphs,positioning,chains,arrows,snakes,decorations.pathmorphing}
+%
+\algrenewcommand\algorithmicindent{1.3em}%
+\algnewcommand\algorithmicforeach{\textbf{for each}}
+\algdef{S}[FOR]{ForEach}[1]{\algorithmicforeach\ #1\ \algorithmicdo}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%			COMMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+\usepackage{todonotes}
+\newcommand{\martin}[1]{\todo[inline, color=green!20]{{\bf Martin:} #1}}
+\newcommand{\cristian}[1]{\todo[inline, color=red!20]{{\bf Cristian:} #1}}
+%\newcommand{\toconsider}[1]{{\bf \color{red} #1}} 
+%
+%%IF YOU WANT TO REMOVE COMMENTS, UNCOMMENT THE NEXT LINES
+%%\renewcommand{\martin}[1]{}
+%%\renewcommand{\cristian}[1]{}
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			ENVIROMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\renewcommand{\paragraph}[1]{\smallskip
+	\noindent\textbf{#1}.}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			WORDS, LANGUAGE, SETS, ETC
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\cL}{\mathcal{L}}
+\newcommand{\cX}{\mathcal{X}}
+
+\newcommand{\bbN}{\mathbb{N}}
+\newcommand{\cO}{\mathcal{O}}
+
+\newcommand{\Stream}{\mathcal{S}}
+
+\newcommand{\nat}{\mathbb{N}}
+%\newcommand{\cX}{\mathcal{X}}
+%\newcommand{\cL}{\mathcal{L}}
+%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			SLP
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\derst}{\mathfrak{d}}
+\newcommand{\str}{\mathsf{str}}
+\newcommand{\doc}{\operatorname{doc}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			AUTOMATA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cS}{\mathcal{S}}
+\newcommand{\cR}{\mathcal{R}}
+\newcommand{\cT}{\mathcal{T}\!}
+
+\newcommand{\oalph}{\Omega}
+
+\newcommand{\qinit}{I}
+
+\newcommand{\ann}{\textsf{ann}}
+\newcommand{\sem}[1]{{\llbracket{#1}\rrbracket}}
+%\newcommand{\sem}[1]{#1}
+
+%\newcommand{\trans}[2][]{\raisebox{-1pt}[10pt][0pt]{$\overset{#2}{\underset{^{#1}}{\raisebox{0pt}[3pt][0pt]{$\relbar\mspace{-8mu}\longrightarrow$}}}$}}
+
+\newcommand{\trans}[1]{\overset{#1}{\longrightarrow}}
+
+\newcommand{\oeps}{\mathsf{e}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			AUTOMATA 2
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\uset}{\mathbf{U}}
+%\newcommand{\bbN}{\mathbb{N}}
+\newcommand{\bbZ}{\mathbb{Z}}
+%\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cE}{\mathcal{E}}
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cF}{\mathcal{F}}
+\newcommand{\cI}{\mathcal{I}}
+%\newcommand{\cO}{\mathcal{O}}
+%\newcommand{\cS}{\mathcal{S}}
+\newcommand{\eps}{\varepsilon}
+\renewcommand{\epsilon}{\varepsilon}
+
+
+\newcommand{\shape}{\mathsf{shape}}
+
+\newcommand{\opS}{\Sigma^{\texttt{<}}}
+\newcommand{\clS}{\Sigma^{\texttt{>}}}
+\newcommand{\noS}{\Sigma^{\texttt{|}}}
+\newcommand{\wnS}{\Sigma^{\texttt{<*>}}}
+\newcommand{\wnSann}{(\Sigma\cup\Sigma\times\Omega)^{\texttt{<*>}}}
+
+\newcommand{\out}{\textsf{out}}
+\newcommand{\enumvpt}{\textsc{EnumVPT}}
+
+
+%\newcommand{\sem}[1]{{\lsem{}{#1}\rsem}}
+%\newcommand{\ttrans}[2][]{\raisebox{-1pt}[10pt][0pt]{$\overset{#2}{\underset{^{#1}}{\raisebox{0pt}[3pt][0pt]{$\relbar\mspace{-8mu}\longrightarrow$}}}$}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			AUTOMATA 3
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\vpa}{VPA\xspace}
+\newcommand{\vpannname}{visibly pushdown annotator\xspace}
+\newcommand{\vpannnames}{visibly pushdown annotators\xspace}
+\newcommand{\vpann}{VPAnn\xspace}
+\newcommand{\vpanns}{VPAnn\xspace}
+
+\newcommand{\msom}{\text{MSO}_{\textsf{match}}}
+
+\newcommand{\aS}{S}
+\newcommand{\aT}{T}
+\newcommand{\dets}{{\operatorname{det}}}
+\newcommand{\Runs}{\operatorname{Runs}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			ENUMERATION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\inpAlph}{\Omega}
+\newcommand{\inpw}{x}
+\newcommand{\outw}{y}
+\newcommand{\outtime}{\mathsf{time}}
+\newcommand{\outdelay}{\mathsf{delay}}
+
+\newcommand{\yield}{\texttt{yield}}
+\newcommand{\EOF}{\texttt{EOF}}
+
+\newcommand{\enumraa}{\textsc{SLPEnum}}
+
+\newcommand{\cU}{\mathcal{U}}
+%\newcommand{\cE}{\mathcal{E}}
+%\newcommand{\cI}{\mathcal{I}}
+
+%% New enumeration algorithm
+
+\newcommand{\hasnext}{\operatorname{hasnext}}
+\newcommand{\bnodelabel}{u}
+
+\newcommand{\leftit}{\tau_{\ell}}
+\newcommand{\rightit}{\tau_{r}}
+\newcommand{\shiftval}{\textsf{sh}}
+
+\newcommand{\ustack}{\operatorname{St}}
+\newcommand{\uit}{\operatorname{\tau}}
+
+\newcommand{\sccreate}{\textsc{create}}
+\newcommand{\scnext}{\textsc{next}}
+\newcommand{\scprint}{\textsc{print}}
+
+\newcommand{\enumvpann}{\textsc{EnumVPAnn}}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			DATA STRUCTURE
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\infAlph}{\Omega}
+\newcommand{\D}{\mathcal{D}}
+\newcommand{\cD}{\mathcal{D}}
+
+\newcommand{\ds}{ECS}
+
+\newcommand{\odepth}{\mathsf{odepth}}
+\newcommand{\add}{\mathsf{add}}
+\renewcommand{\prod}{\mathsf{prod}}
+\newcommand{\union}{\mathsf{union}}
+\newcommand{\empt}{\mathsf{empty}}
+
+
+%\newcommand{\nullv}{\texttt{null} }
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%          DOCUMENT DATABASES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\docs}{\textsf{docs}}
+\newcommand{\ord}{\textsf{ord}}
+\newcommand{\eval}{\textsf{eval}}
+\newcommand{\concat}{\textsf{concat}}
+\newcommand{\extract}{\textsf{extract}}
+\newcommand{\delete}{\textsf{delete}}
+\newcommand{\insertop}{\textsf{insert}}
+\newcommand{\copyop}{\textsf{copy}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			SPANS AND DOCUMENT SPANNERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\spanset}{\mathsf{Spans}}
+\newcommand{\varset}{\mathsf{Vars}}
+\newcommand{\outmark}[1]{2^{\mathcal{M}_{#1}}}
+
+\newcommand{\spanc}[2]{[#1,#2\rangle}
+\newcommand{\smap}{\mu}
+\newcommand{\varcaptures}[1]{\mathcal{C}_{#1}}
+\newcommand{\gprod}[1]{\Rightarrow_{#1}}
+\newcommand{\gprodlm}[1]{\overset{lm}{\Rightarrow}_{#1}}
+\newcommand{\splain}{\textsf{plain}}
+
+
+\newcommand{\var}{\mathcal{X}}
+\newcommand{\captures}{\textsf{C}}
+%\newcommand{\spanset}{\textsf{spans}}
+%\newcommand{\spanc}[2]{[#1,#2\rangle}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%	   
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newcommand{\dsname}{enumerable compact set\xspace}
+\newcommand{\dsnamebigcaps}{Enumerable Compact Set with Shifts\xspace}
+\newcommand{\dsnamesbigcaps}{Enumerable Compact Sets with Shifts\xspace}
+\newcommand{\dsnames}{enumerable compact sets\xspace}
+\newcommand{\dsabbr}{Shift-ECS\xspace}
+\newcommand{\dsabbrs}{Shift-ECSs\xspace}
+\newcommand{\dsepsname}{enumerable compact set with $\varepsilon$}
+\newcommand{\dsepsnames}{enumerable compact sets with $\varepsilon$}
+\newcommand{\dsepsabbr}{$\eps$-ECS\xspace}
+\newcommand{\enumds}{\textsc{Enum-ECS}}
+\newcommand{\shift}{\mathsf{sh}}
+\newcommand{\enumecs}{\textsc{ShiftECSEnum}}
+
+\newcommand{\lch}{\ell}
+\newcommand{\rch}{r}
+%\newcommand{\lch}{\mathcal{l}\!}
+%\newcommand{\rch}{\mathcal{r}}
+
+\newcommand{\olch}{\mathsf{lchild}}
+\newcommand{\orch}{\mathsf{rchild}}
+\newcommand{\och}{\mathsf{lchild}}
+
+%\newcommand{\odepth}{\mathsf{odepth}}
+%\newcommand{\add}{\mathsf{add}}
+\renewcommand{\prod}{\mathsf{prod}}
+\newcommand{\shiftop}{\mathsf{shift}}
+%\newcommand{\union}{\mathsf{union}}
+\newcommand{\unionsymb}{\raisebox{0ex}[7pt][0ex]{$\cup$}}
+\newcommand{\push}{\mathsf{push}}
+\newcommand{\pop}{\mathsf{pop}}
+
+
+\newcommand{\varop}[1]{\vdash^{#1}}
+\newcommand{\varcl}[1]{\dashv^{#1}}
+
+
+\newcommand{\ra}{VPA\xspace}
+\newcommand{\rtname}{annotated automaton\xspace}
+\newcommand{\rtnames}{annotated automata\xspace}
+\newcommand{\rt}{AnnA\xspace}
+\newcommand{\crt}{sAnnA\xspace}
+\newcommand{\rts}{AnnAs\xspace}
+\newcommand{\lindelay}{output-linear delay\xspace}
+
+\newcommand{\enumE}{\mathcal{E}}
+\renewcommand{\int}{\mathbb{Z}}
+%\newcommand{\nat}{\mathbb{N}}
+%\newcommand{\eps}{\varepsilon}
+\renewcommand{\epsilon}{\varepsilon}
+\renewcommand{\L}{\mathcal{L}}
+\newcommand{\outset}{\mathcal{O}}
+%\newcommand{\opS}{\Sigma^{\texttt{<}}}
+%\newcommand{\clS}{\Sigma^{\texttt{>}}}
+%\newcommand{\noS}{\Sigma^{\texttt{|}}}
+\newcommand{\tinyop}{{\scriptsize\texttt{<}}}
+\newcommand{\tinycl}{{\scriptsize\texttt{>}}}
+%\newcommand{\wnS}{\Sigma^{\texttt{<*>}}}
+\newcommand{\pwnS}{\textsf{prefix}(\wnS)}
+\newcommand{\op}[1]{\tinyop #1}
+\newcommand{\cl}[1]{#1\tinycl}
+\newcommand{\br}[1]{\llbracket #1 \rrbracket}
+\newcommand{\depth}{\mathsf{depth}}
+
+
+\DeclareMathOperator{\oout}{%
+	\ooalign{\scalebox{1.0}[1.0]{$o$}\cr\hidewidth\rotatebox[origin=c]{-30}{\raisebox{.4ex}{\scalebox{0.65}{$\  \boldsymbol{\smile}$}}}\hidewidth}}%
+
+\DeclareMathOperator{\ooutscr}{\scriptsize{\ooalign{\raisebox{0ex}{$o$}\cr\hidewidth\raisebox{.45ex}{\scalebox{.5}{$\ \,  \boldsymbol{\smallsmile}$}}\hidewidth}}}
+
+%\renewcommand{\oout}{o}
+
+\newcommand{\cc}{\mathsf{Concur}}
+\newcommand{\outs}{\mathsf{OutSize}}
+\newcommand{\ogapname}{output weight\xspace}
+\newcommand{\outgap}{\mathsf{outputweight}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			PRELIMINARIES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\delay}{\operatorname{delay}}
+\newcommand{\Enum}{\textproc{Enum}}
+\newcommand{\Eval}{\textproc{Eval}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			Enumeration
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\enumproblem}{\textsc{EnumAnn}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			PDA
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\cP}{\mathcal{P}}
+\newcommand{\nconf}{\vdash}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			CFG
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cH}{\mathcal{H}}
+\newcommand{\cJ}{\mathcal{J}}
+\newcommand{\aG}{\hat{\mathcal{G}}}
+
+%\newcommand{\gprod}{\Rightarrow}
+
+%\newcommand{\str}{\mathsf{str}}
+%\newcommand{\ann}{\mathsf{ann}}
+\newcommand{\der}[1]{\Rightarrow_{#1}}
+\newcommand{\ders}[1]{\Rightarrow_{#1}^*}
+
+%\newcommand{\oeps}{\mathsf{e}}
+
+\newcommand{\spop}[1]{\vdash_{#1}}
+\newcommand{\spcl}[1]{\dashv_{#1}}
+
+\newcommand{\gll}{\text{LL}}
+\newcommand{\annll}{\text{AnnLL}}
+
+\newcommand{\tableI}{\mathbb{I}}
+
+\newcommand{\dsD}{\mathcal{D}}
+
+\renewcommand{\O}{\mathcal{O}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			TRANSDUCERS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\newcommand{\cT}{\mathcal{T}}
+\newcommand{\outf}{\textsf{out}}
+
+%\DeclareMathOperator{\oout}{%
+%	\ooalign{\raisebox{0ex}{$o$}\cr\hidewidth\raisebox{.5ex}{\scalebox{.5}{$\ \,  \boldsymbol{\smallsmile}$}}\hidewidth}}%
+
+%\DeclareMathOperator{\ooutscr}{\scriptsize{\ooalign{\raisebox{0ex}{$o$}\cr\hidewidth\raisebox{.45ex}{\scalebox{.5}{$\ \,  \boldsymbol{\smallsmile}$}}\hidewidth}}}
+
+\newcommand{\uprof}{\textsf{update-prof}}
+\newcommand{\fprof}{\textsf{full-prof}}
+\newcommand{\aprof}{\textsf{abbr-prof}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			APPENDIX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\proc}{\mathsf{proc}}
+\newcommand{\sfi}{\mathsf{in}}
+\newcommand{\sfo}{\mathsf{out}}
+\newcommand{\sfl}{\mathsf{left}}
+\newcommand{\sfm}{\mathsf{mid}}
+\newcommand{\sfr}{\mathsf{right}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			COMMENTS????
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newcommand{\card}[1]{\left|#1\right|}
+
+\newcommand{\M}{\mathrm{M}}
+\newcommand{\Set}{\mathrm{S}}
+
+\newcommand{\singleton}{\textsf{singleton}}
+
+\newcommand{\I}{\mathrm{I}}
+%\newcommand{\D}{\mathrm{D}}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%			CLEVEL AND LLEVEL
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\newcommand{\clevel}{{\sf currlevel}}
+\newcommand{\llevel}{{\sf lowerlevel}}
+
+

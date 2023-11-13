@@ -1,0 +1,101 @@
+We first show the undecidability of checking if an annotated grammar has an
+equivalent rigid annotated grammar:
+
+\begin{claim}
+  \label{gram:prp:unambundec}
+  Consider the problem, given an annotated grammar~$\cG$, of determining whether
+  there exists some equivalent rigid annotated grammar equivalent to~$\cG$.
+  This problem is undecidable.
+\end{claim}
+
+\begin{proof}
+  We reduce from the problem of deciding whether the language $L_2$ of an input
+  (unannotated) context-free grammar $\cG_2$ can be recognized by an unambiguous
+  context-free grammar: this task is known to be
+  undecidable~\cite{ginsburg1966ambiguity}. Consider $\cG_2$ as an annotated
+  grammar (with empty annotations). Let us show that $L_2$ can be recognized by
+  a rigid annotated grammar iff it can be recognized by an
+  unambiguous context-free grammar, which concludes. For the forward direction,
+  if $L_2$ can be recognized
+  by an unambiguous context-free grammar, then that grammar is in particular
+  rigid. 
+  For the backward direction, if $L_2$ can be recognized by a rigid
+  grammar, then
+  Proposition~\ref{gram:prp:baseunambig} implies that $L_2$ can also be recognized by
+  an unambiguous context-free grammar.
+  Thus, we have showed that the (trivial) reduction is correct.
+\end{proof}
+
+We next show that it is undecidable to check if an input annotated grammar is
+rigid:
+
+\begin{claim}
+  \label{gram:prp:unambundecb}
+  Consider the problem, given an annotated grammar~$\cG$, of determining whether
+  it is rigid. This problem is undecidable.
+\end{claim}
+
+
+\begin{proof}
+  We adapt the standard proof of undecidability~\cite[Ambiguity Theorem
+  2]{chomsky1959algebraic} for the problem of deciding, given an input
+  unannotated grammar~$\cG$, if it is unambiguous. The reduction is from the Post
+  Correspondence Problem (PCP), which is undecidable: we are given as input sequences $\alpha_1, \ldots, \alpha_n$
+  and $\beta_1, \ldots, \beta_n$ of strings over some alphabet~$\Sigma$, and we ask whether
+  there is a non-empty sequence of indices $i_1, \ldots, i_m$ of integers in $[1, n]$ such that
+  $\alpha_{i_1} \ldots \alpha_{i_m} = \beta_{i_1} \ldots \beta_{i_m}$. Given the
+  input sequences $\alpha_1, \ldots, \alpha_n$ and $\beta_1, \ldots, \beta_n$ to
+  the PCP, we
+  consider the alphabet $\Sigma' = \Sigma \cup \{1, \ldots, n\}$, and we
+  consider the CFG having nonterminals $S$, $S_1$, and $S_2$, start symbol $S$,
+  and rules $S \rightarrow S_1$, $S \rightarrow S_2$, $S_1 \rightarrow
+  \epsilon$, $S_2\rightarrow \epsilon$, and for each $1 \leq
+  i \leq n$ the productions $S_1 \rightarrow \alpha_i S_1 i$ and $S_2
+  \rightarrow \beta_i S_2 i$.
+
+  We claim that this grammar is ambiguous iff there is a solution to the Post
+  correspondence problem. Indeed, given any solution $\alpha_{i_1} \cdots
+  \alpha_{i_m} = \beta_{i_1} \ldots \beta_{i_m}$, considering the string 
+$\alpha_{i_1} \cdots
+  \alpha_{i_m} i_m \cdots i_1 = \beta_{i_1} \ldots \beta_{i_m} i_m \cdots i_1$,
+  we can parse it with one derivation  featuring $S_1$ and one derivation
+  featuring $S_2$. Conversely, if we can parse a string $w \in \Sigma^*$ with two
+  different derivations, we know that there cannot be two different derivations
+  featuring $S_1$. Indeed, reading the string from right to left uniquely
+  identifies the possible derivations from $S_1$. The same argument applies to
+  derivations featuring $S_2$. Hence, if the grammar is ambiguous, then there is
+  exactly one derivation featuring $S_1$ and exactly one derivation featuring
+  $S_2$. These two derivations can be used to find a solution to the Post
+  correspondence problem.
+
+  We now adapt this proof to show the undecidability of rigidity. We
+  say that an input to the PCP is \emph{trivial} if there is $i$ such that
+  $\alpha_i = \beta_i$. We can clearly decide in linear time, given the input to
+  the PCP, if it is trivial. Hence, the PCP is also undecidable in the case
+  where the PCP is non-trivial. Now, when doing the reduction above on a PCP
+  instance that is not trivial, we observe that two derivations of the same string
+  can never have the same sequences of shapes. Indeed, if we have two derivations of the same
+  string, then as we explained one must feature $S_1$ and the other must feature
+  $S_2$, and they give a solution $\alpha_{i_1} \cdots \alpha_{i_m} =
+  \beta_{i_1} \ldots \beta_{i_m}$ to the PCP. Assume by contradiction that both
+  derivations have the same sequences of shapes. Then, 
+  it means that we have $\card{\alpha_{i_j}} = \card{\beta_{i_j}}$ for every $1
+  \leq j \leq m$. In particular we have $\card{\alpha_{i_1}} =
+  \card{\beta_{i_1}}$, and so we know that $\alpha_{i_1} =
+  \beta_{i_1}$ and the PCP instance was trivial, a contradiction.
+
+  Hence, let us reduce from the PCP on non-trivial instances to the problem of
+  deciding whether an input annotated grammar is not rigid. Given a
+  non-trivial PCP instance, we construct $\cG$ as above, but seeing it as an
+  annotated grammar with no outputs. Then $\cG$ is not rigid iff there is a
+  string $w$ such that the empty annotation of $w$ has two derivations that do not
+  have the same sequence of shapes. But this is equivalent to $\cG$ being
+  unambiguous when seen as a CFG. Indeed, for the forward direction, if $\cG$ has
+  two such derivations on a string~$w$ then clearly $w$ witnesses that $\cG$ is
+  ambiguous when seen as a CFG. Conversely, if $\cG$ is ambiguous when seen as a
+  CFG, we have explained in the previous paragraph that the two derivations must
+  have different sequences of shapes, so $\cG$ is not rigid. Hence, we
+  conclude that there is a solution to the input non-trivial PCP instance iff
+  $\cG$ is not rigid. This establishes that the problem is undecidable
+  and concludes the proof.
+\end{proof}

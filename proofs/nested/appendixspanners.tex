@@ -1,0 +1,46 @@
+%!TEX root = main.tex
+
+\subsection{Proof of Theorem~\ref{nested:theo:spanners}}
+
+To link the model of visibly pushdown extraction grammars and visibly pushdown automata we define another class of automata based on the ideas in~\cite{liatpaper}. Let $\cA$ be an {\em extraction visibly pushdown automaton} (EVPA) if $\cA = (X,Q,\Sigma,\Gamma,\Delta,I,F)$ where $X$ is a set of variables, $Q$ is a set of states, $\Sigma = (\opS,\clS,\noS)$ is a visibly pushdown alphabet, $\Gamma$ is a stack alphabet, $\Delta \subseteq
+(Q \times \opS \times Q \times \Gamma) \ \cup (Q \times \clS \times \Gamma \times Q) \ \cup (Q \times (\noS\cup\varcaptures{X}) \times Q)$, $I$ is a set of initial states, and $F$ is a set of final states. Note that this is a simple extension of \vpa where neutral transitions are allowed to read neutral symbols or captures in $X$. We define the runs as in \vpa except the input in a EVPA is a ref-word $w\in(\Sigma\cup\varcaptures{X})$, and we say that $w\in\L(\cA)$ if and only if there is an accepting run of $\cA$ on $w$. Furthermore, $\cA$ is unambiguous if for every ref-word $w$ there exists at most one accepting run of $\cA$ over $w$. It is straightforward to see that this is a direct counterpart to visibly pushdown extraction grammars. Therefore, we can use the ideas in \cite{AlurM04} to obtain a one-to-one conversion from one to another.
+
+\begin{claim}\label{nested:appendix:spannerclaim}
+	For a given VPEG $G$ there exists an EVPA $\cA_G$ such that $\L(G) = \L(\cA_G)$. Moreover, $\cA_G$ is unambiguous iff $G$ is unambiguous, and $\cA_G$ can be constructed in time $\cO(\vert G\vert)$.
+\end{claim}
+\begin{proof}
+	Let $G = (X, V, \Sigma, S, P)$ be a VPEG. We construct a EVPA $\cA_G = (X,Q,\Sigma,\Gamma,\Delta,I,F)$ such that $\L(G) = \L(\cA_G)$ using an almost identical construction to the one in Theorem 6 of~\cite{AlurM04}. The only differences arise in that our structure is defined for well-nested words, so it can be slightly simpified, and in the case where a production is of the form $X\to aY$, for which we add the possibility that $a\in\varcaptures{X}$. This construction provides one transition in $\Delta$ per production in $P$, and in some cases it needs to check if a variable is nullable. Checking if a single variable is nullable is costly, but by a constant number of traversals in $P$ it is possible to check which variables in $X$ are nullable or not, which can be done before building $\Delta$. Therefore, this construction can be done in time $\cO(\vert P\vert)$. Finally, $\cA_G$ is unambiguous if and only if $G$ is unambiguous, which is another consequence of Theorem 6 of~\cite{AlurM04}.	
+\end{proof}
+
+Here we define the spanner $\br{\cA}$ for a given EVPA $\cA$ identically to the definition for an extraction grammar. Note that from the proof it also follows that if $G$ is functional, then $\cA_G$ is functional as well.
+
+For the next part of the proof assume that $\cA_G$ is unambiguous. We will show that for an EVPA $\cA$ and stream $\Stream$, the set $\br{\cA}(d)$, can be enumerated with output-linear delay and update-time $\cO(\vert\cA_G\vert^3)$, for $d = \Stream[1,n]$. Towards this goal, we will start with an unambiguous $\cA_G = (X,Q,\Sigma,\Gamma,\Delta,I,F)$ and convert it into a VPT $\cT_G$ with output symbol set $2^{\varcaptures{X}}$ and use our algorithm to enumerate the set $\br{\cT_G}(w)$ where $d' = d\#$, using a dummy symbol $\#$. Each element $w\in\br{\cT_G}(d')$ can then be converted into a mapping $\mu\in\br{G}(d)$ after it is given as output in time $\cO(\vert\mu\vert)$.
+
+Let $\cT_G = (Q', \Sigma', \Gamma, \oalph, \Delta', \qinit, F')$ 
+where $Q' = Q\cup\{q_f\}$, 
+$\Sigma' = (\opS,\clS,\noS_{\#})$ 
+such that $\noS_{\#} = \noS\cup\{\#\}$, $\oalph = 2^{\varcaptures{X}}\cup\{\eps\}$ and $F' = \{q_f\}$. 
+To define $\Delta'$ we introduce a {\sf merge} operation on a path over $\cA_G$. 
+This is defined for any non-empty sequence of transitions $t = (p_1,v_1,q_1)(p_2,v_2,p_2)\cdots(p_m,v_m,q_m)\in\Delta^*$ such that $v_i\in\varcaptures{X}$ for $i\in[1,m]$, and $q_i = p_{i+1}\in[i,m-1]$. 
+If these conditions hold, we say that $t$ is a v-path ending in $p_m$. 
+Let $t$ be such a v-path and let $S = \{v_1,\ldots,v_m\}$. For $\op{a}\in\opS$, and a transition $(p,\op{a},\gamma,q)$ such that $p = q_m$, we define ${\sf merge}(t, (p,\op{a},\gamma,q)) := (p_1,\op{a},S,\gamma,q)$. For $\cl{a}\in\clS$ and a transition $(p,\cl{a},q,\gamma)$ such that $p = q_m$, we define ${\sf merge}(t,(p,\cl{a},q,\gamma)) := (p_1,\cl{a},S,q,\gamma)$. For $a\in\noS$ and a transition $(p,a,q)$ such that $p = q_m$, we define ${\sf merge}(t,(p,a,q)) := (p_1,a,S,q)$. We now define $\Delta'$ as follows:
+\begin{align*}
+	\Delta' = \,&\{(p,\op{a},\eps,\gamma,q)\mid (p,\op{a},\gamma,q)\in\Delta\}\,\cup\\
+	&\{{\sf merge}(t,(p,\op{a},\gamma,q))\mid\text{there is a v-path $t\in\Delta^*$ ending in $p$ and }(p,\op{a},\gamma,q)\in\Delta\}\,\cup\\
+	&\{(p,\cl{a},\eps,q,\gamma)\mid (p,\cl{a},q,\gamma)\in\Delta\}\,\cup\\
+	&\{{\sf merge}(t,(p,\cl{a},q,\gamma))\mid\text{there is a v-path $t\in\Delta^*$ ending in $p$ and }(p,\cl{a},q,\gamma)\in\Delta\}\,\cup\\
+	&\{(p,a,\eps,q)\mid (p,a,q)\in\Delta\}\, \cup\\
+	&\{{\sf merge}(t,(p,a,q))\mid\text{there is a v-path $t\in\Delta^*$ ending in $p$ and }(p,a,q)\in\Delta\}\,\cup\\
+	&\{{\sf merge}(t,(p,\#,q_f))\mid\text{there is a v-path $t\in\Delta^*$ ending in $p$ and } p\in F\}.
+\end{align*}
+Since $\cA_G$ is unambiguous, and therefore, the transitions in $\Delta$ define a DAG over $Q$, from which we deduce that $\Delta$ is well-defined.
+By the definition of {\sf merge} it is straightforward to check that every accepting path in $\cA_G$ is preserved in $\cT_G$, in the sense that if $r\in\L(\cA_G)$ then there exists an accepting path of $\cT_G$ over $({\sf plain}(r)\#, \omega)$, where $\omega$ is a sequence of elements in $2^{\varcaptures{X}}\cup\{\eps\}$ built from the captures present in $r$.
+
+To show accepting pairs for $\cT_G$ correspond to a valid counterpart in $\cA_G$ let $(d,\omega)$ be an input/output pair that is accepted by $\cT_G$. Note that $d = d'\#$ from our definition of $\Delta'$. It can be seen that for every accepting path of $\cT_G$ over $(d,\omega)$ there exists at least one ref-word $r$ built from $d$ and $\omega$. However, note that for every such ref-word $r$ the only difference may be in the order of the elements inside each group of contiguous captures, which will be asociated to the same position in $\mu^r$. From this, it follows that for each accepting pair $(d,\omega)$ there exists only one mapping $\mu\in\br{\cA_G}(d')$ that can be built from $(d,\omega)$.
+
+The size of $\Delta$ is bounded by the number of valid v-paths there could exist in $\cA_G$. Recall that $\cA_G$ is functional, an thus every v-path in $\cA_G$ contains at most one instance of each element in $\varcaptures{X}$. From this it follows that the size of $\cT_G$ is in $\cO(\vert\Delta\vert\vert 2^{\varcaptures{X}}\vert)$. Furthermore, since the transitions in $\Delta$ form a DAG over $Q$, each of these v-paths can be found by a single traversal over $\cA_G$, so building $\cT_G$ takes time $\cO(\vert\Delta\vert)$.
+
+By using the algorithm detailed in Section~\ref{nested:sec:eval} we can enumerate the set $\br{\cT_G}(d)$ with update-time $\cO(\vert\cT_G\vert^3)$ and output-linear delay. 
+However, with a more fine-grained analysis of the algorithm, we note that the update-time is bounded by $\vert Q'\vert^2\vert\Delta'\vert\in \cO(\vert Q\vert^2\vert\Delta\vert\vert 2^{\varcaptures{X}}\vert)$. We modify the enumeration algorithm slightly so that for each output $\omega\in\br{\cT_G}(d)$ we build the expected output in $\br{G}(d)$. We do this by checking $w$ symbol by symbol and building a mapping $\mu\in\br{G}(d)$, and this can be done in time $\cO(\vert\mu\vert)$. As the set $X$ is fixed, it follows that this enumeration can be done with update-time $\cO(\vert G\vert^3)$ and output-linear delay.
+
+Finally, we adress the case where $G$ is an arbitrary VPEG. The way we deal with this case is by determinizing the EVPA constructed in Claim~\ref{nested:appendix:spannerclaim}. This can be done in time $\cO(2^{\vert \cA_G\vert})$. From here, we can follow the reasoning given for the unambiguous case to prove the statement.

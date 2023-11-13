@@ -1,0 +1,159 @@
+%!TEX root = ../main/main.tex
+
+\def\xfac{0.92}
+\def\xcoors{{0,1*\xfac,3*\xfac,5*\xfac,7*\xfac,9*\xfac,11*\xfac,13*\xfac}}
+\def\ycoors{{1.4 , 0.8 , 0.2 , -.4 , 2.5 , 2 , 4.5 , 4 , 3.5 , 3 , 5 , 5.3}}
+\newcommand{\rectang}[4]{\draw[-,dashed,gray] (#1-#2,#3) -- (#1+#2,#3) -- (#1+#2,#3-#4) -- (#1-#2,#3-#4) -- (#1-#2,#3)}
+\def\tprod{\footnotesize {\sf pr}}
+\def\tunion{\footnotesize {\sf un}}
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}[scale=1.0,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,inner sep=0.5pt, rectangle]
+		
+		\node at (\xcoors[0],\ycoors[11]) {$\Stream \ \ \  :$};
+		\node at (\xcoors[1]+1,\ycoors[11]) {\large{\tt <}};
+		\node at (\xcoors[2]+1,\ycoors[11]) {\large{\tt <}};
+		\node at (\xcoors[3]+1,\ycoors[11]) {\large{\tt >}};
+		\node at (\xcoors[4]+1,\ycoors[11]) {\large{\tt <}};
+		\node at (\xcoors[5]+1,\ycoors[11]) {\large{\tt >}};
+		\node at (\xcoors[6]+1,\ycoors[11]) {\large{\tt >}};
+		
+		\node at (\xcoors[1],\ycoors[10]) {\small 1};
+		\node at (\xcoors[2],\ycoors[10]) {\small 2};
+		\node at (\xcoors[3],\ycoors[10]) {\small 3};
+		\node at (\xcoors[4],\ycoors[10]) {\small 4};
+		\node at (\xcoors[5],\ycoors[10]) {\small 5};
+		\node at (\xcoors[6],\ycoors[10]) {\small 6};
+		\node at (\xcoors[7],\ycoors[10]) {\small 7};
+		
+		\rectang{\xcoors[2]}{0.6}{2.7}{0.9};
+		\rectang{\xcoors[3]}{0.6}{2.7}{0.9};
+		\rectang{\xcoors[4]}{0.6}{2.7}{0.9};
+		\rectang{\xcoors[5]}{0.6}{2.7}{0.9};
+		\rectang{\xcoors[6]}{0.6}{2.7}{0.9};
+		
+		\rectang{\xcoors[3]}{0.6}{4.7}{1.9};
+		\rectang{\xcoors[5]}{0.6}{4.7}{1.9};
+		
+%		\draw[-] (-0.7,4.75) -- (12.5,4.75);
+		\draw[-,dashed] (-0.7,2.75) -- (0.7,2.75);
+		\draw[-] (-0.7,1.75) -- (12.5,1.75);
+%		\draw[-] (-0.7,-0.25) -- (12.5,-0.25);
+		
+		\node at (\xcoors[0]-0.9,\ycoors[0]) {\large $S:$};
+%		\node at (\xcoors[0]-0.9,\ycoors[4]) {\large $T_1$};
+		\node at (\xcoors[0]-0.9,\ycoors[6]) {\large $T:$};
+		
+		\node (labelS_11) at (\xcoors[0],\ycoors[0]) {\footnotesize $q_1,q_1$};
+		\node (labelS_22) at (\xcoors[0],\ycoors[1]) {\footnotesize$q_2,q_2$};
+		\node (labelS_13) at (\xcoors[0],\ycoors[2]) {\footnotesize$q_1,q_3$};
+		\node (labelS_33) at (\xcoors[0],\ycoors[3]) {\footnotesize$q_3,q_3$};
+		\node (labelT1_1x1) at (\xcoors[0],\ycoors[4]) {\footnotesize$q_1,\textsf{X},q_1$};
+		\node (labelT1_1y2) at (\xcoors[0],\ycoors[5]) {\footnotesize$q_1,\textsf{Y},q_2$};
+		\node (labelT2_1x1) at (\xcoors[0],\ycoors[6]) {\footnotesize$q_1,\textsf{X},q_1$};
+		\node (labelT2_1y2) at (\xcoors[0],\ycoors[7]) {\footnotesize$q_1,\textsf{Y},q_2$};
+		\node (labelT2_2x2) at (\xcoors[0],\ycoors[8]) {\footnotesize$q_2,\textsf{X},q_2$};
+		\node (labelT2_1x3) at (\xcoors[0],\ycoors[9]) {\footnotesize$q_1,\textsf{X},q_3$};
+		
+		\node (S_11_1) at (\xcoors[1],\ycoors[0]) {$\eps$};
+		
+		\node (S_11_2) at (\xcoors[2],\ycoors[0]) {$\eps$};
+		\node (S_22_2) at (\xcoors[2],\ycoors[1]) {$\eps$};
+		
+		\node (S_11_3) at (\xcoors[3],\ycoors[0]) {$\eps$};
+		\node (S_22_3) at (\xcoors[3],\ycoors[1]) {$\eps$};
+		
+		\node (S_11_4) at (\xcoors[4],\ycoors[0]) {\tprod};
+		\node (S_22_4) at (\xcoors[4],\ycoors[1]) {\tprod};
+		\node (S_13_4) at (\xcoors[4],\ycoors[2]) {\tprod};
+		
+		\node (S_11_5) at (\xcoors[5],\ycoors[0]) {$\eps$};
+		\node (S_22_5) at (\xcoors[5],\ycoors[1]) {$\eps$};
+		\node (S_33_5) at (\xcoors[5],\ycoors[3]) {$\eps$};
+		
+		\node[black!40] (S_11_6) at (\xcoors[6],\ycoors[0]) {\tprod};
+		\node (S_22_6) at (\xcoors[6],\ycoors[1]) {\tprod};
+		\node (S_13_6a) at (\xcoors[6]-0.2,\ycoors[2]+0.2) {\tprod};
+		\node (S_13_6b) at (\xcoors[6]-0.2,\ycoors[2]-0.2) {\tprod};
+		\node (S_13_6) at (\xcoors[6]+0.3,\ycoors[2]) {\tunion};
+		
+		\node[black!40] (S_11_7) at (\xcoors[7],\ycoors[0]) {\tprod};
+		\node (S_13_7a) at (\xcoors[7]-0.2,\ycoors[2]+0.2) {\tprod};
+		\node (S_13_7b) at (\xcoors[7]-0.2,\ycoors[2]-0.2) {\tprod};
+		\node (S_13_7) at (\xcoors[7]+0.3,\ycoors[2]) {\tunion};
+		
+		\node (out1) at (\xcoors[2]-1.1,\ycoors[5]+0.3) {\scriptsize$(\circ,1)$};
+		\node (out2) at (\xcoors[3]-1.1,\ycoors[7]+0.3) {\scriptsize$(\circ,2)$};
+		\node (out3) at (\xcoors[4]-0.8,\ycoors[2]-0.3) {\scriptsize$(\circ,3)$};
+		\node (out4) at (\xcoors[5]-1.1,\ycoors[7]+0.3) {\scriptsize$(\circ,4)$};
+		\node (out5) at (\xcoors[6]-0.9,\ycoors[2]-0.05) {\scriptsize$(\circ,5)$};
+		\node (out6) at (\xcoors[7]-0.9,\ycoors[2]-0.5) {\scriptsize$(\circ,6)$};
+		
+		\node (T1_1x1_2) at (\xcoors[2], \ycoors[4]) {$\bullet$};
+		\node (T1_1y2_2) at (\xcoors[2], \ycoors[5]) {\tprod};
+		
+		\node (T1_1x1_6) at (\xcoors[6], \ycoors[4]) {$\square$};
+		\node (T1_1y2_6) at (\xcoors[6], \ycoors[5]) {$\square$};
+		
+		\node (T2_1x1_3) at (\xcoors[3], \ycoors[6]) {$\bullet$};
+		\node (T2_1y2_3) at (\xcoors[3], \ycoors[7]) {\tprod};
+		\node (T2_2x2_3) at (\xcoors[3], \ycoors[8]) {$\bullet$};
+		
+		\node[black!40] (T2_1x1_5) at (\xcoors[5], \ycoors[6]) {$\bullet$};
+		\node (T2_1y2_5) at (\xcoors[5], \ycoors[7]) {\tprod};
+		\node (T2_2x2_5) at (\xcoors[5], \ycoors[8]) {$\bullet$};
+		\node (T2_1x3_5) at (\xcoors[5], \ycoors[9]) {$\bullet$};
+		
+		\def\edgea{\draw[gray,out=110,in=-50]}
+		\def\edgeb{\draw[gray]}
+		\def\edgec{\draw[gray,out=220,in=20]}
+		
+		\draw[gray] (T1_1x1_2) to (S_11_1);
+		\edgeb (T1_1y2_2.west) to (S_11_1);
+		\draw[gray] (T1_1y2_2.west) to (out1.east);
+		
+		\edgec (T2_1x1_3) to (S_11_2);
+		\edgec (T2_1y2_3.west) to (S_11_2);
+		\edgec (T2_2x2_3) to (S_22_2);
+		\draw[gray] (T2_1y2_3.west) to (out2.east);
+		
+		\edgea (S_11_4.west) to (T2_1x1_3.east);
+		\draw[gray] (S_11_4.west) to (S_11_3.east);
+		\edgea (S_22_4.west) to (T2_2x2_3.east);
+		\draw[gray] (S_22_4.west) to (S_22_3.east);
+		\edgea (S_13_4.west) to (T2_1y2_3.east);
+		\draw[gray] (S_13_4.west) to (S_22_3.east);
+		\draw[gray] (S_13_4.west) to (out3.east);
+		
+		\edgec[gray!40] (T2_1x1_5.west) to (S_11_4.east);
+		\edgec (T2_1y2_5.west) to (S_11_4.east);
+		\edgec (T2_2x2_5.west) to (S_22_4.east);
+		\edgec (T2_1x3_5.west) to (S_13_4.east);
+		\draw[gray] (T2_1y2_5.west) to (out4.east);
+		
+		\edgea[gray!40] (S_11_6.west) to (T2_1x1_5.east);
+		\draw[gray!40] (S_11_6.west) to (S_11_5.east);
+		\edgea (S_22_6.west) to (T2_2x2_5.east);
+		\draw[gray] (S_22_6.west) to (S_22_5.east);
+		\edgea (S_13_6a.west) to (T2_1y2_5.east);
+		\draw[gray] (S_13_6a.west) to (S_22_5.east);
+		\edgea (S_13_6b.west) to (T2_1x3_5.east);
+		\draw[gray] (S_13_6b.west) to (S_33_5.east);
+		\draw[gray,-] (S_13_6.west) to (S_13_6a.east);
+		\draw[gray,-] (S_13_6.west) to (S_13_6b.east);
+		\draw[gray] (S_13_6a.west) to (out5.east);
+		
+		\draw[gray!40,out=150,in=-20] (S_11_7.west) to (T1_1x1_6);
+		\draw[gray!40] (S_11_7.west) to (S_11_6.east);
+		\draw[gray,out=150,in=-20] (S_13_7a.west) to (T1_1y2_6);
+		\draw[gray] (S_13_7a.west) to (S_22_6.east);
+		\draw[gray,out=130,in=-20] (S_13_7b.west) to (T1_1x1_6);
+		\draw[gray] (S_13_7b.west) to (S_13_6.east);
+		\draw[gray,-] (S_13_7.west) to (S_13_7a.east);
+		\draw[gray,-] (S_13_7.west) to (S_13_7b.east);
+		\draw[gray] (S_13_7a.west) to (out6);
+	\end{tikzpicture}
+	\caption{Example of running Algorithm~\ref{alg:preprocessing} over the VPAnn $\cT_1$ and a stream $\Stream$ such that $\Stream[1,6] = {\tt < < > < > >}$.}
+	\label{nested:fig-alg-ex}
+\end{figure}

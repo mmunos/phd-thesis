@@ -1,0 +1,46 @@
+Arguably the most fundamental problem in database research is query
+evaluation: given as input a query and data, we must find the results of the query over the data.
+Database theory research has studied the complexity of such problems for 
+decades.
+However, in some contexts, for instance over large datasets, the usual
+complexity measures are not well-suited to this study.
+Indeed, the number of query results might be so large that it is unreasonable in
+practice to produce all of them.
+Further, in theoretical terms, the complexity of an algorithm may be dominated by the cost of writing
+the full output, hiding the actual complexity of the
+computation.
+For this reason, a significant line of research on query evaluation has adopted the perspective of \emph{enumeration algorithms}.
+Instead of explicitly producing all results, the task is to \emph{enumerate} them, in any order and without repetition.
+The cost of the algorithm is then measured across two dimensions: the
+\emph{preprocessing time}, which is the time needed to read the input and
+prepare an enumeration data structure; and the \emph{delay}, the worst-case time
+elapsed between any two solutions while enumerating using the data structure.
+
+This study of enumeration algorithms has managed in some cases to achieve a
+\emph{constant-delay} guarantee. In this case, once the algorithm has
+preprocessed its input, the delay between any two outputs is \emph{constant},
+i.e., it is independent from the input. Of course, the challenge is to achieve
+this strong guarantee after a preprocessing phase that runs in a limited amount
+of time -- in particular, one that does not explicitly materialize all solutions.
+%
+Starting with the work of Durand and Grandjean~\cite{durand2007first}, researchers have designed
+constant-delay algorithms for several query evaluation problems, e.g., the evaluation of some queries over relational databases~\cite{bagan2007acyclic,kara2020trade}, query evaluation over dynamic data~\cite{berkholz2017answering,idris2017dynamic}, query evaluation over graph data~\cite{hartig2018semantics,kroll2016complexity}, among others~\cite{Segoufin13}. 
+
+One area where enumeration algorithms have been especially successful is the problem of \emph{information extraction}, studied through the lens of \emph{document spanners}~\cite{FaginKRV15}. In this data management task, the data is a textual document (i.e., a string), and the query is a declarative specification of information to extract from the text, formalized as a \emph{spanner}. The spanner describes \emph{mappings}, which are possible choices of how to map variables to substrings of the document (called spans). The enumeration problem is then to enumerate all mappings of a spanner on an input document, i.e., to enumerate efficiently all possible results for the information extraction task.
+%
+The work by Florenzano et al.~\cite{FlorenzanoRUVV18} showed that the task could be solved with preprocessing linear in the document and polynomial in a finite deterministic automaton describing the spanner, improving on a theoretical result by Bagan~\cite{bagan2006mso}; and 
+this was extended in~\cite{amarilli2019constant} to spanners described using nondeterministic automata or regular expressions.
+
+However, while regular spanners are natural, they do not capture all
+possible information extraction tasks. More
+expressiveness is needed for extraction over structured data (e.g., XML,
+or JSON documents), over the source code of programs, or possibly over
+natural language texts. 
+
+In this thesis, we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
+These are: (1.) nested automata over document streams, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
+Each of these formalisms is either strictly more expressive than regular spanners, or deals with instances of data presented with further restrictions.
+
+It is worthy of note that these tasks are largely inspired by Document Spanners, but the results are all developed for queries that define languages of valid {\it annotations} of the input data. Namely, the enumeration task receives a data instance $d$ and an annotation query $Q$ which defines a set $Q(d)$ that contains the desired annotations of $d$.
+
+

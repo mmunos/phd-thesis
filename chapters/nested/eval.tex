@@ -1,0 +1,310 @@
+%!TEX spellcheck = en_US
+%!TEX root = ../../Thesis.tex
+
+
+The goal of this section is to describe an algorithm that takes an I/O-unambiguous \vpann $\cT$ plus a stream $\Stream$, and enumerates the set $\br{\cT}(\Stream[1,n])$ for an arbitrary $n\geq 0$ with $\cO(|Q|^2 |\Delta|)$-update-time and output-linear delay.
+We divide the presentation of the algorithm into two parts. The first part explains the determinization of a VPA, which is instrumental in understanding the update phase. The second part gives the algorithm and proves its correctness. 
+Given that a neutral symbol $a$ can be represented as a pair $\op{a} \cdot \cl{a}$, in this section we present the algorithm and definitions without neutral letters, that is, the structured alphabet is $\Sigma = (\opS, \clS)$. 
+%Thus, from now on we use $a$ for denoting any symbol in $\opS \cup \clS$. 
+%For the sake of simplification, in this section we present the algorithm and definitons without neutral letters, that is, the structured alphabet is $\Sigma = (\opS, \clS)$. 
+%Indeed, a neutral symbol $a$ can be represented as a pair $\op{a} \cdot \cl{a}$ and, therefore, it is straightforward to extend the techniques of this section to consider neutral symbols. Given this assumption, from now on we use $a$ for denoting any symbol in $\opS \cup \clS$. 
+
+\paragraph{Determinization of visibly pushdown automata} 
+An important result in Alur and Madhusudan's paper~\cite{AlurM04} that introduces \vpa was that one can always determinize them. We provide here an alternative proof for this result that requires a somewhat more direct construction. This determinization process is behind our update algorithm and serves to give some crucial notions of how it works. We start by providing the determinization construction, introducing some useful notation, and then giving some intuition.
+
+%Consider the following determinization of a non-deterministic VPA.
+Given a VPA $\cA = (Q, \Sigma, \Gamma, \Delta, \qinit, F)$, we define the following deterministic \vpa: 
+\[
+\cA^\dets = (Q^\dets, q_0^\dets, \Gamma^\dets, \delta^\dets, F^\dets)
+\] 
+with state set $Q^\dets = 2^{Q\times Q}$ and stack symbol set $\Gamma^\dets = 2^{Q\times \Gamma \times Q}$. The initial state is $q_0^\dets = \{(q,q)\mid q\in I\}$ and the set of final states is $F^\dets = \{\aS \in Q^\dets \mid \aS \cap (I\times F) \neq \emptyset\}$. 
+Finally, we define the transition function $\delta^\dets$ such that if $\op{a}\in\opS$, then $\delta^\dets(\aS,\op{a}) = (\aS',\aT')$ where
+$\aS' =  \{(q,q) \mid \exists p, p', \gamma. \ (p,p')\in \aS \, \wedge \,  (p',\op{a},q,\gamma)\in\Delta\}$ and $\aT' = \{ (p,\gamma, q) \mid \exists p'. \ (p,p')\in \aS  \, \wedge \,  (p',\op{a},q,\gamma)\in\Delta\}$; if $\cl{a}\in\clS$, then $\delta^\dets(\aS,\aT,\cl{a}) = \aS'$ where
+$\aS' = \{ (p,q) \mid \exists p',q', \gamma. \ (p,\gamma,p')\in \aT \, \wedge \, (p',q')\in \aS \text \, \wedge \, (q',\cl{a},\gamma, q)\in\Delta \}$.
+
+
+%Finally, the transition function $\delta^\dets$ is defined as follows:
+%\begin{itemize}
+%	\item if $\op{a}\in\opS$, then $\delta^\dets(\aS,\op{a}) = (\aS',\aT')$ where:
+%	\[
+%	\begin{array}{rcl}
+%	\aS' & = & \big\{\, (q,q) \ \mid \ \exists p, p', \gamma. \ (p,p')\in \aS \, \wedge \,  (p',\op{a},q,\gamma)\in\Delta \,\big\} \vspace{1mm} \\
+%	\aT' & = & \big\{\, (p,\gamma, q) \ \mid \ \exists p'. \ (p,p')\in \aS  \, \wedge \,  (p',\op{a},q,\gamma)\in\Delta\, \big\}
+%	\end{array}
+%	\]
+%	\item if $\cl{a}\in\clS$, then $\delta^\dets(\aS,\aT,\cl{a}) = \aS'$ where:
+%	\[\begin{array}{rcl}
+%	\aS' & = & \big\{\, (p,q) \ \mid \ \exists p',q', \gamma. \ (p,\gamma,p')\in \aT \, \wedge \, (p',q')\in \aS \text \, \wedge \, (q',\cl{a},\gamma, q)\in\Delta \,\big\}
+%	\end{array}\]
+%\end{itemize}
+
+To explain the purpose of this construction, first we need to introduce some notation.
+Fix a well-nested word $w = a_1 a_2 \cdots a_n$. A span $s$ of $w$ is a pair $\spanc{i}{j}$ of natural numbers $i$ and~$j$ with $1 \leq i \leq j \leq n+1$. 
+We denote by $w[i,j\rangle$ the subword $a_i\cdots a_{j-1}$ of~$w$ and, when $i = j$, we assume that $w[i,j\rangle = \eps$.
+Intuitively, spans are indexing $w$ with intermediate positions like: 
+\[
+\underset{\tiny\texttt 1}{}a_1 \underset{\tiny\texttt 2}{}a_2 \underset{\tiny\texttt 3}{} \ldots \underset{\tiny\texttt n}{} a_n \underset{\tiny\texttt{n+1}}{}
+\] 
+where $i$ is between symbols $a_{i-1}$ and $a_i$. Then $\spanc{i}{j}$ represents an interval $\{i, \ldots, j\}$ that captures the subword $a_i \ldots a_{j-1}$.
+
+Now, we say that a span $\spanc{i}{j}$ of $w$ is well-nested if $w\spanc{i}{j}$ is well-nested. Note that $\eps$ is well-nested, so $\spanc{i}{i}$ is a well-nested span for every $i$. 
+For a position $k\in[1,n+1]$, we define the {\em current-level span} of $k$, $\clevel(k)$, as the well-nested span $\spanc{j}{k}$ such that $j = \min\{j' \mid \spanc{j'}{k} \text{ is well-nested}\}$. Note that $\spanc{k}{k}$ is always well-nested and thus $\clevel(k)$ is well defined. 
+We also identify the {\em lower-level span} of $k$, $\llevel(k)$, defined as $\llevel(k) = \clevel(j-1) = \spanc{i}{j-1}$ whenever $\clevel(k) = \spanc{j}{k}$ and $j > 1$. 
+In contrast to $\clevel(k)$, $\llevel(k)$ is not always well defined given that it is ``one level below'' than $\clevel(k)$, and this level may not exist. More concretely, for $\clevel(k) = \spanc{j}{k}$ and  $\llevel(k) = \spanc{i}{j-1}$, 
+\noindent these spans will look as follows:
+$$
+\underset{\tiny\texttt 1}{} a_1 
+\underset{\tiny\texttt 2}{} a_2 
+\underset{\tiny\texttt 3}{} \ldots 
+\op{a}_{i-1} \underset{\tiny\texttt{i}}{}  
+\overbrace{a_{i} \ldots a_{j-2}}^{\llevel(k)} 
+\underset{\tiny\texttt{j-1}}{} \op{a}_{j-1} 
+\underset{\tiny\texttt{j}}{} 
+\overbrace{a_{j} \ldots  a_{k-1}}^{\clevel(k)} 
+\overset{\text{\LARGE $\downarrow$}}{\underset{\tiny\texttt{k}}{}} a_{k} \ldots
+\underset{\tiny\texttt n}{} a_n \underset{\tiny\texttt{n+1}}{}
+$$
+As an example, consider the word $ 
+\underset{\tiny\texttt 1}{} {\texttt (} \, 
+\underset{\tiny\texttt 2}{} {\texttt (} \, 
+\underset{\tiny\texttt 3}{} {\texttt )} \, 
+\underset{\tiny\texttt 4}{} {\texttt (} \, 
+\underset{\tiny\texttt 5}{} {\texttt (} \, 
+\underset{\tiny\texttt 6}{} {\texttt )} \, 
+\underset{\tiny\texttt 7}{} {\texttt )} \, 
+\underset{\tiny\texttt 8}{} {\texttt )} \,
+\underset{\tiny\texttt 9}{}$. 
+The only well-nested spans besides the ones of the form $\spanc{i}{i}$ are $\spanc{1}{9}$, $\spanc{2}{4}$, $\spanc{2}{8}$, $\spanc{4}{8}$ and $\spanc{5}{7}$, therefore $\clevel(8) = \spanc{2}{8}$, and $\llevel(7) = \spanc{2}{4}$.
+
+We are ready to explain the purpose of the determinization above. Let $w = a_1 a_2 \cdots a_n$ be a well-nested word and $\rho^\dets = (\aS_1, \tau_1) \trans{a_1} \ldots \trans{a_{k-1}} (\aS_k, \tau_k)$ be the (partial) run of $\cA^\dets$ until some $k$.
+Furthermore, assume $\tau_k = \aT_k \cdot \tau$ for some $\aT_k \in \Gamma^\dets$ and $\tau \in (\Gamma^\dets)^*$.  
+The connection between $\rho^\dets$ and the runs of $\cA$ over $a_1\ldots a_{k-1}$ is given by the following invariants:
+\begin{enumerate}
+	\item[(a)] $(p,q) \in \aS_k$ if, and only if, there exists a run $(q_1, \sigma_1) \trans{a_1} \ldots \trans{a_{k-1}} (q_k, \sigma_k)$ of $\cA$ over $a_1 \ldots a_{k-1}$ such that $q_j = p$, $q_k=q$, and $\clevel(k) = \spanc{j}{k}$. 
+	\item[(b)] $(p,\gamma, q) \in \aT_k$ if, and only if, there exists a run $(q_1, \sigma_1) \trans{a_1} \ldots \trans{a_{k-1}} (q_k, \sigma_k)$ of $\cA$ over $a_1 \ldots a_{k-1}$ such that $q_i = p$, $q_j=q$, $\sigma_k = \gamma \sigma$ for some $\sigma$, and $\llevel(k) = \spanc{i}{j-1}$. 
+\end{enumerate}
+On one hand, (a) says that each pair $(p,q)\in \aS_k$ represents some non-deterministic run of $\cA$ over $w$ for which $q$ is the $k$-th state, and $p$ was visited on the step when the current symbol at the top of the stack was pushed. On the other hand, (b) says that $(p,\gamma,q)\in \aT_k$ represents some run of $\cA$ over $w$ for which $\gamma$ is at the top of the stack, $q$ was visited on the step when $\gamma$ was pushed, and $p$ was visited on the step when the symbol below $\gamma$ was pushed (see Figure~\ref{nested:fig:delta-schema} (left)). More importantly, these conditions are exhaustive, that is, every run of $\cA$ over $a_1 \ldots a_{k-1}$ is represented by $\rho^\dets$. 
+
+\input{./figures/nested/openclosefig}
+
+By these two invariants, the correctness of $\cA^\dets$ easily follows, and the reader can get some intuition behind the construction of $\delta^\dets(\aS,\op{a})$ and $\delta^\dets(\aS,\aT,\cl{a})$ (see Figure~\ref{nested:fig:delta-schema} (right) for a graphical description). 
+Indeed, the most important consequence of these two invariants is that a tuple $(q_j,q_k) \in \aS_k$ represents the interval of some run over $w\spanc{j}{k}$ with $\clevel(k) = \spanc{j}{k}$ and the tuple $(q_i, \gamma, q_j) \in \aT_k$ represents the interval of some run over $w\spanc{i}{j-1}$ with $\llevel(k) = \spanc{i}{j-1}$, i.e., the level below. 
+In other words, the configuration $(\aS_k, \tau_k)$ of $\cA^\dets$ forms a succinct representation of all the non-deterministic runs of $\cA$. This is the starting point of our update algorithm, that we discuss next.
+\smallskip
+
+\paragraph{The streaming evaluation algorithm} In Algorithm~\ref{nested:alg:preprocessing}, we present the update phase for solving the streaming version of $\enumvpann$. The main procedure is {\sc UpdatePhase}, that receives an I/O-unambiguous \vpann $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$ and a stream~$\Stream$, reads the next ($k$-th) symbol and computes the set of outputs $\br{\cT}(\Stream[1,k])$.
+More specifically, it constructs an \dsepsabbr~$\cD$ and a vertex $v_{\text{out}}$ such that $\L_{\cD}(v_{\text{out}}) = \sem{\cT}(\Stream[1,k])$ if $\Stream[1,k]$ is well-nested, and $\emptyset$ otherwise.
+After the {\sc UpdatePhase} procedure is done, we can enumerate $\L_{\cD}(v_{\text{out}})$ with output-linear delay by calling the enumeration phase, that is, by applying Theorem~\ref{nested:theo:data-structure-eps}. An example execution and the resulting data structure are shown in Figure~\ref{nested:fig-alg-ex}.
+
+Towards this goal, in Algorithm~\ref{nested:alg:preprocessing} we make use of the following data structures. First, we use an \dsepsabbr $\cD = (\oalph, V, \ell, r, \lambda)$, nodes $v \in V$, and the operations $\add$, $\union$, and $\prod$ over $\cD$ and $v$ (see Section~\ref{nested:sec:ds}). For the sake of simplification, we overload the notation of these operators slightly so that if $v = \emptyset$, then $\union(\cD,v,v') = \union(\cD,v',v) = (\cD,v')$. 
+We use a constant-time-access map (which we will call hash table) $\aS$ which indexes nodes $v$ in $\cD$ by pairs of states $(p,q) \in Q\times Q$. We denote the elements of $\aS$ as ``$(p,q) : v$'' where $(p,q)$ is the index and $v$ is the content. Furthermore, we write $\aS_{p,q}$ to access the node $v$. We also use a stack $\aT$ that stores hash tables: each element is a hash table that indexes vertices $v$ in $\cD$ by triples $(p, \gamma, q) \in Q \times \Gamma \times Q$. 
+We assume that $\aT$ has the standard stack methods $\push$ and $\pop$ where if $\aT = t_k\cdots\,t_1$, then $\push(\aT,t) = t\, t_k\cdots\,t_1$ and $\pop(\aT) = t_{k-1}\cdots\,t_1$. We write $\emptyset$ for denoting the empty stack or for checking if $T$ is empty.
+Similarly to $\aS$, we use the notation $\aT_{p,\gamma,q}$ to access the nodes in the topmost hash table in $\aT$ (i.e., $\aT$ is a stack of hash tables). 
+We assume that accessing a non-assigned index in these hash tables returns the empty set.
+All variables (e.g., $S$ or $T$) are defined globally in Algorithm~\ref{nested:alg:preprocessing} and they can be accessed by any of the subprocedures. 
+Since we use the RAM model (see Section~\ref{nested:sec:prelim}), every operation over hash tables or stacks takes constant~time. 
+
+Algorithm~\ref{nested:alg:preprocessing} builds the \dsepsabbr $\cD$ incrementally, reading the stream $\Stream$ one letter at a time by calling $\yield{\Stream}$ and keeping a counter $k$ for the position of the current letter. 
+For every $k \in [1,n+1]$, {\sc UpdatePhase} builds the $k$-th iteration of table $\aS$ and stack $\aT$, which we note as $\aS^k$ and $\aT^k$, respectively. 
+Before {\sc UpdatePhase} is called for the first time, it runs {\sc Intialize} (lines \ref{nested:line1}-\ref{nested:line4}) to set the initial values of $k$, $\cD$, $\aS$, and $\aT$.
+We consider the initial $\aS$ and $\aT$ as the $1$-st iteration, defined as $\aS^1 = \{(q,q): v_\eps \mid q \in I\}$ and $\aT^1 = \emptyset$ (i.e. the empty stack) where $v_\eps$ is a node in $\cD$ such that $\L_{\cD}(v_\eps) = \{\eps\}$ (lines \ref{nested:line3}-\ref{nested:line4}).
+
+In the $k$-th iteration, depending on whether the current letter is an open symbol or a close symbol, the {\sc OpenStep} or {\sc CloseStep} procedures are called, updating $\aS^{k-1}$ and $\aT^{k-1}$ to $\aS^{k}$ and $\aT^{k}$, respectively.  
+More specifically, {\sc UpdatePhase} adds nodes to $\cD$ such that the nodes in $\aS^k$ represent the runs over $w\spanc{j}{k}$ where $\clevel(k)=\spanc{j}{k}$, and the nodes in the topmost table in $\aT^k$ represent the runs over $w\spanc{i}{j-1}$ where $\llevel(k) = \spanc{i}{j-1}$. 
+Moreover, for a given pair $(p,q)$, the node $\aS^k_{p,q}$ represents all runs over $w\spanc{j}{k}$ with $\clevel(k)=\spanc{j}{k}$ that start on $p$ and end on~$q$. For a given triple $(p,\gamma, q)$ the node $\aT^k_{p,\gamma, q}$ represents all runs over $w\spanc{i}{j-1}$ with $\llevel(k) = \spanc{i}{j-1}$ that start on $p$, and end on~$q$ right after pushing $\gamma$ onto the stack. 
+Here, the intuition gained in the determinization of VPA is helpful. Indeed, table $\aS^k$ and stack $\aT^k$ are the mirror of the configuration $(\aS_k, \tau_k)$ of~$\cA^\dets$ (recall invariants (a) and (b)).
+
+\input{./algorithms/nested/prepralgnew}
+
+%In the sequel, we will using this connection between Algorithm~\ref{alg:preprocessing} and $\cA^\dets$ continually.
+
+Before formalizing the previous ideas, we will describe in more detail what the procedures {\sc OpenStep} and {\sc CloseStep} exactly do. Recall that the operation $\add(\D, a)$ simply creates a node in $\D$ labeled as $a$; the operation $\prod(\cD,v_1,v_2)$ returns a pair $(\cD',v')$ such that $\L_{\cD'}(v') = \L_{\cD}(v_1) \cdot \L_{\cD}(v_2)$; and the operation $\union(\cD,v_3,v_4)$ returns a pair $(\cD',v')$ such that $\L_{\cD'}(v') = \L_{\cD}(v_3)\cup \L_{\cD}(v_4)$. To improve the presentation of the algorithm, we include a simple procedure called \textsc{IfProd}~(lines \ref{nested:line19}-\ref{nested:line25}). Basically, this procedure receives a node $v$, an element $b$ which can be either an input symbol $a$, or a pair $(a, \oout)$ for some output symbol $\oout$, and a position $k$, and computes $(\cD', v')$ such that $\L_{\cD'}(v') = \L_{\cD}(v) \cdot \{(\oout, k)\}$ if $b = (a, \oout)$, and $\L_{\cD'}(v') = \L_{\cD}(v)$ otherwise.
+
+
+In {\sc OpenStep}, $\aS^k$ is created (i.e. $S'$), and an empty table is pushed onto $\aT^{k-1}$ to form~$\aT^k$~(line~\ref{nested:line27}). 
+Then, all nodes in $\aS^{k-1}$ (i.e. $S$) are checked to see if the runs they represent can be extended with a transition in $\Delta$ (lines \ref{nested:line28}-\ref{nested:line29}). 
+If this is the case (line \ref{nested:line30} onwards), a node $v_\eps$  with the $\eps$-output is added in $\aS^k$ to start a new level (lines \ref{nested:line30}-\ref{nested:line32}). 
+Then, if the transition had a non-empty output, the node $\aS^k_{p,p'}$ is connected with a new label node to form the node $v$ (lines \ref{nested:line33}-\ref{nested:line34}). 
+This node is stored in $\aT^k_{p,\gamma,q}$, or united with the node that was already present there (lines \ref{nested:line35}-\ref{nested:line36}).
+
+In {\sc CloseStep}, $\aS^k$ is initialized as empty (line \ref{nested:line41}). 
+Then, the procedure looks for all of the valid ways to join a node in $\aT^{k-1}$, a node in $\aS^{k-1}$, and a transition in $\Delta$ to form a new node in $\aS^k$. 
+More precisely, it looks for quadruples $(p,\gamma,p',q')$ for which $\aT^{k-1}_{p,\gamma,p'}$ and $\aS^{k-1}_{p',q'}$ are defined, and there is a close transition that starts on $q'$ that reads $\gamma$ (lines \ref{nested:line42}-\ref{nested:line43}). 
+These nodes are joined and connected with a new label node if it corresponds (lines \ref{nested:line44}-\ref{nested:line45}), and stored in~$\aS^k_{p,q}$ or united with the node that was already present there (lines \ref{nested:line46}-\ref{nested:line47}). Finally, the top of the stack $T$ is popped after all tuples $(p,\gamma,p',q')$ are checked (line \ref{nested:line48}).
+
+As was already mentioned, in each step the construction of $\cD$ follows the ideas of the determinization of a visibly pushdown automaton.
+As such, Figure~\ref{nested:fig:delta-schema} also aids to illustrate how the table $\aS^k$ and the top of the stack $\aT^k$ are constructed.
+
+\input{./figures/nested/algexample4}
+\begin{example}
+	To illustrate the inner workings of the algorithm, we provide an example of a run with the VPAnn from Example~\ref{nested:ex-vpann-ex} as input, and an input stream $\Stream$ whose first characters are ${\tt < < > < > >}$. 
+	At this point we remind the reader that the states of this VPAnn are named ${\sf p}$,  ${\sf q}$ and ${\sf r}$, written in a serif-less font, and they should not be read as generic states.
+	The execution consists in calling {\sc Initialize} over $\cT$ and $\Stream$ and then calling {\sc UpdatePhase} repeatedly six times. The resulting ECS $\cD$ and node $v_{\sf out}$ will be shown to satisfy $\cL_{\cD}(v_{\sf out}) = \sem{\cT}(\Stream[1,6])$.
+	
+	Recall the three accepting runs of $\cT$ over the nested word ${\tt < < > < > >}$:
+	
+	\begin{center}
+		\begin{tikzpicture}[yscale=0.6, node distance=0.5em]
+			%		\node[white] (n0) at (0,5) {0};
+			%		\node (n1) at (2,4.5) {1};
+			%		\node (n2) at (4,4.5) {2};
+			%		\node (n3) at (6,4.5) {3};
+			%		\node (n4) at (8,4.5) {4};
+			%		\node (n5) at (10,4.5) {5};
+			%		\node (n6) at (12,4.5) {6};
+			%		%		
+			%		\node[below=of n0,white] (l0) {$\texttt{<}$};
+			%		\node[below=of n1] (l1) {$\texttt{<}$};
+			%		\node[below=of n2] (l2) {$\texttt{<}$};
+			%		\node[below=of n3] (l3) {$\texttt{>}$};
+			%		\node[below=of n4] (l4) {$\texttt{<}$};
+			%		\node[below=of n5] (l5) {$\texttt{>}$};
+			%		\node[below=of n6] (l6) {$\texttt{>}$};
+			
+			\node[left=of q11] {$\rho_1: $};
+			\node (q11) at (1, 3) {${\sf p}, \eps$};
+			\node (q12) at (3, 3) {${\sf q}, {\sf Y}$};
+			\node (q13) at (5, 3) {${\sf q}, {\sf X}{\sf Y}$};
+			\node (q14) at (7, 3) {${\sf q}, {\sf Y}$};
+			\node (q15) at (9, 3) {${\sf q}, {\sf X}{\sf Y}$};
+			\node (q16) at (11, 3) {${\sf q}, {\sf Y}$};
+			\node (q17) at (13, 3) {${\sf r}, \eps$};
+			
+			\draw[->] (q11) to node [above] {\small$(\texttt{<},\triangleright)$} (q12);
+			\draw[->] (q12) to node [above] {\small$\texttt{<}$} (q13);
+			\draw[->] (q13) to node [above] {\small$\texttt{>}$} (q14);
+			\draw[->] (q14) to node [above] {\small$\texttt{<}$} (q15);
+			\draw[->] (q15) to node [above] {\small$\texttt{>}$} (q16);
+			\draw[->] (q16) to node [above] {\small$(\texttt{>},\triangleleft)$} (q17);
+			
+			\node[left=of q21] {$\rho_2: $};
+			\node (q21) at (1, 2) {${\sf p}, \eps$};
+			\node (q22) at (3, 2) {${\sf p}, {\sf X}$};
+			\node (q23) at (5, 2) {${\sf q}, {\sf Y}{\sf X}$};
+			\node (q24) at (7, 2) {${\sf r}, {\sf X}$};
+			\node (q25) at (9, 2) {${\sf r}, {\sf X}{\sf X}$};
+			\node (q26) at (11, 2) {${\sf r}, {\sf X}$};
+			\node (q27) at (13, 2) {${\sf r}, \eps$};
+			
+			\draw[->] (q21) to node [above] {\small$\texttt{<}$} (q22);
+			\draw[->] (q22) to node [above] {\small$(\texttt{<},\triangleright)$} (q23);
+			\draw[->] (q23) to node [above] {\small$(\texttt{>},\triangleleft)$} (q24);
+			\draw[->] (q24) to node [above] {\small$\texttt{<}$} (q25);
+			\draw[->] (q25) to node [above] {\small$\texttt{>}$} (q26);
+			\draw[->] (q26) to node [above] {\small$\texttt{>}$} (q27);
+			
+			\node[left=of q31] {$\rho_3: $};
+			\node(q31) at (1, 1) {${\sf p}, \eps$};
+			\node (q32) at (3, 1) {${\sf p}, {\sf X}$};
+			\node (q33) at (5, 1) {${\sf p}, {\sf X}{\sf X}$};
+			\node (q34) at (7, 1) {${\sf p}, {\sf X}$};
+			\node (q35) at (9, 1) {${\sf q}, {\sf Y}{\sf X}$};
+			\node (q36) at (11, 1) {${\sf r}, {\sf X}$};
+			\node (q37) at (13, 1) {${\sf r}, \eps$};
+			
+			\draw[->] (q31) to node [above] {\small$\texttt{<}$} (q32);
+			\draw[->] (q32) to node [above] {\small$\texttt{<}$} (q33);
+			\draw[->] (q33) to node [above] {\small$\texttt{>}$} (q34);
+			\draw[->] (q34) to node [above] {\small$(\texttt{<},\triangleright)$} (q35);
+			\draw[->] (q35) to node [above] {\small$(\texttt{>},\triangleleft)$} (q36);
+			\draw[->] (q36) to node [above] {\small$\texttt{>}$} (q37);
+		\end{tikzpicture}
+	\end{center}
+	The call to {\sc Initialize} is depicted in column 1. The table $S$ is created and its only index is $(p,p)$. This index includes the only node in $\cD$, which is an $\eps$-node. The stack $T$ is also created and is empty at this point.
+	
+	The following columns represent the state of the indices and what is stored in each after each call to {\sc UpdatePhase}. The upper region shows the indices from $S$ as they end up being defined at the end of each call; the middle region shows the state of the stack $T$ in full, also at the end of each call (the stacks in the figure show the latest element on top; whenever the stack is empty, it is represented by a single horizontal line); the bottom region shows, in each column $k$, the nodes in the ECS $\cD$ that are referenced directly by $S^k$ and $T^k$. Note that the indices of each $S^k$ are lost at the end of step $k-1$, yet the indices of $T^k$ might be used in a later step, as is the case of $T^2$ at step 7.
+	
+	To explain a bit further, in these regions, the indices are mapped to their respective sets, which are written as the logic of the algorithm defines them. Let us explain the definition of two particular indices to illustrate the constructions in more detail.
+	\begin{itemize}
+		\item First is index $T^{3}_{{\sf p},\sf{Y},{\sf q}}$: Since it is first defined in step three, after an open symbol, it is built through lines~\ref{nested:line28}-\ref{nested:line36}. The only relevant transition for this index is $({\sf p}, ({\sf <}, \triangleright), {\sf q}, {\sf Y})$. After seeing that $S^2_{{\sf p}, {\sf p}}$ is not empty, in this same iteration the algorithm builds the index $S^3_{{\sf q}, {\sf q}}$ with an $\eps$-node (lines~\ref{nested:line31},\ref{nested:line32}), and after doing this, it builds a node $v$ that represents the concatenation of $S^2_{{\sf p}, {\sf p}}$ with the set $\{(\triangleright, 2)\}$ (line~\ref{nested:line34}) -- and since $S^2_{{\sf p}, {\sf p}}$ contained only an $\eps$-node, $v$ ends up as a bottom node with label $(\triangleright, 2)$. This node then goes through a union with an empty index (line~\ref{nested:line35}), so it remains unchanged, and then it is assigned to $T^{3}_{{\sf p},\sf{Y},{\sf q}}$ (line~\ref{nested:line36}). In the end, the node in $\cD$ that is assigned to the index is only this bottom node $v$, which is depicted in the bottom part of the figure.
+		\item Now let us see index $S^{7}_{{\sf p}, {\sf r}}$: This index is defined through lines~\ref{nested:line42}-\ref{nested:line47}. The relevant transitions in this case are $({\sf q},({\sf >}, \triangleleft), {\sf Y}, {\sf r})$ and $({\sf r},{\sf >}, {\sf X}, {\sf r})$. Note how when the procedure goes through lines~\ref{nested:line44}-\ref{nested:line45} for the first transition, it defines 
+		a node $v$ that represents the concatenation of $T^2_{{\sf p},{\sf Y},{\sf q}}$, $S^6_{{\sf q},{\sf q}}$ and the set $\{(\triangleleft, 6)\}$, and when it goes through these lines for the second transition, $v$ represents the concatenation of $T^2_{{\sf p},{\sf X},{\sf r}}$ and $S^6_{{\sf r},{\sf r}}$. It is worth noting that indices $T^2_{{\sf p},{\sf Y},{\sf q}}$ and $T^2_{{\sf p},{\sf X},{\sf r}}$ were defined back in step 2, remained in the stack during steps 3 through 6, and only now at step 7 are they used. The two mentioned sets are merged by the union operator in line~\ref{nested:line46}. Finally, the index is assigned a union node that represents this merging, which can be also seen in the bottom part of the figure.
+		
+	\end{itemize}
+	
+	To conclude the example, note how the only relevant index that is used in line~\ref{nested:line16} is $S^{7}_{{\sf p}, {\sf r}}$. At the very end, the node $v_{\sf out}$ is equal to the union node stored at this index, which when enumerated will produce the set $\sem{\cT_1}(\Stream[1, 6])$.
+\end{example}
+
+\paragraph{Correctness of the streaming evaluation algorithm} The way how the table $\aS^k$ and the stack $\aT^k$ are constructed in Algorithm~\ref{nested:alg:preprocessing} is formalized in the following result. Recall that a run of $\cT$ over a well-nested word $w = a_1\cdots a_n$ is a sequence of the form:
+\[
+\rho = (q_1, \sigma_1) \xrightarrow{b_1} \ldots  \xrightarrow{b_n} (q_{n+1}, \sigma_{n+1})
+\]
+where each $b_i\in\{a_i, (a_i, \oout_i)\}$.
+% and note that since $w$ is well-nested we have that $\sigma_0 = \sigma_n = \eps$. 
+Given a span $\spanc{i}{j}$, define a subrun of $\rho$ as a subsequence
+$
+\rho\spanc{i}{j} = (q_i, \sigma_i) \xrightarrow{b_{i}}  \ldots  \xrightarrow{b_{j-1}} (q_j, \sigma_j).
+$
+We also extend the function $\out$ to receive a subrun $\rho\spanc{i}{j}$ in the following way:
+$
+\out(\rho\spanc{i}{j}) \ = \  \out(\oout_{i},{i}) \cdot \ldots \cdot \out(\oout_{j-1}, j-1)
+$.
+Finally, define $\Runs(\cT,w)$ as the set of all runs of $\cT$ over $w$. %For a given \dsepsabbr $\cD$, we say that a subrun $\rho\spanc{i}{j}$ is represented in a node $v\in\cD$ if $\out(\rho\spanc{i}{j})\in\L_{D}(v)$.
+
+\begin{lemma}\label{nested:vpt:steps}
+	Let $\cT$ be a \vpann and $w = a_1\cdots a_n$ be a well-nested word. While running the procedure {\sc UpdatePhase} of Algorithm~\ref{nested:alg:preprocessing}, for every $k\in[1,n+1]$, every pair of states $p,q$ and stack symbol $\gamma$ the following hold:
+	\begin{enumerate}
+		\item $\L_{\D}(\aS^k_{p,q})$ has exactly all sequences $\out(\rho\spanc{j}{k})$ such that $\rho\in\Runs(\cT,w\spanc{1}{k})$, $\clevel(k) = \spanc{j}{k}$, and $\rho\spanc{j}{k}$ starts on $p$ and ends on $q$.
+		\item If $\llevel(k)$ is defined,  then $\L_{\D}(\aT^k_{p,\gamma,q})$ has exactly all sequences $\out(\rho\spanc{i}{j})$ such that $\rho\in\Runs(\cT,w\spanc{1}{j})$, $\llevel(k) = \spanc{i}{j-1}$, and $\rho\spanc{i}{j}$ starts on $p$, ends on $q$, and the last symbol pushed onto the stack was $\gamma$.
+	\end{enumerate}
+\end{lemma}
+
+\input{./proofs/nested/lemma-alg}
+
+
+Since $w$ is well nested, then  $\clevel(|w|+1) = \spanc{1}{|w|+1}$, and so, the lemma implies that the nodes in $\aS^{|w|+1}$ represent all runs of $\cT$ over $w$. 
+Then, whenever $\Stream[1, k]$ is well-nested, the stack $T$ is empty (i.e., $T = \emptyset$) and there may be something to enumerate (line \ref{nested:line14}). 
+By taking the union of all pairs
+in $\aS^{k+1}$ that represent accepting runs (as is done in lines \ref{nested:line15}-\ref{nested:line16}), we can conclude the correctness of Algorithm~\ref{nested:alg:preprocessing}.
+
+%\footnote{By the definition of enumeration algorithm with one pass preprocessing, the preprocessing phase should end right after the \texttt{EOF} is read. However, one can assume that lines 11-13 are executed at the end of each iteration, without affecting the asymptotic performance of the algorithm.}
+
+\begin{theorem}\label{nested:eval:prep}
+	Given a \vpann $\cT$ and a stream $\Stream$, {\sc UpdatePhase}$(\cT, \Stream)$ fulfils the conditions of a streaming evaluation algorithm and, after reading the $k$-th symbol, produces a pair $(\cD,v_{\operatorname{out}})$ such that $\L_{\cD}(v_{\operatorname{out}}) = \sem{\cT}(\Stream[1,k])$.
+\end{theorem}
+
+At this point, we address the fact that $\cD$ needs to be duplicate-free in order to enumerate all the outputs from $(\cD,v_{\text{out}})$ without repetitions.
+This is guaranteed, essentially, by the fact that $\cT$ is I/O-unambiguous.
+Indeed, the previous result holds even if $\cT$ is not I/O-unambiguous.
+The next result guarantees that the output can be enumerated efficiently.
+
+\begin{lemma}\label{nested:eval:unambiguous}
+	Let $\cT$ be an I/O-unambiguous \vpann. While running the {\sc UpdatePhase} procedure of Algorithm~\ref{nested:alg:preprocessing}, the \dsepsabbr $\cD$ is duplicate-free at every step.
+\end{lemma}
+
+\input{./proofs/nested/lemma-evalunam}
+
+
+The complexity of this algorithm can be easily deduced from the fact that the \dsepsabbr operations we use take constant time (Theorem~\ref{nested:theo:data-structure-eps}). For a \vpann $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$, in each of the calls to {\sc OpenStep}, lines \ref{nested:line29}-\ref{nested:line36} perform a constant number of instructions, and they are visited at most $\vert Q\vert\vert\Delta\vert$ times. In each of the calls to {\sc CloseStep}, lines \ref{nested:line43}-\ref{nested:line47} perform a constant number of instructions, and they are visited at most $\vert Q\vert^2\vert\Delta\vert$ times. 
+Combined with Theorem~\ref{nested:eval:prep}, Lemma~\ref{nested:eval:unambiguous}, and Theorem~\ref{nested:theo:data-structure-eps}, this proves the main result in this chapter (i.e., Theorem~\ref{nested:theo:main}).
+
+
+\paragraph{Extension to prefixes of well-nested words}
+The aforementioned algorithm is described only for well-nested inputs. In this subsection, we will give the main ideas of how it can be extended to handle prefixes of well-nested words. First, we note that if Algorithm~\ref{nested:alg:preprocessing} were to be used over a prefix $w\spanc{1}{k}$ of a well-nested word $w\in\wnS$, the resulting $\cD$ in line~\ref{nested:line17} would represent only outputs from the span $\spanc{j}{k} = \clevel(k)$. Then, the idea is to add a second stack $T'$ to the algorithm, and the invariant will be that the topmost element in it contains the outputs that correspond to the span $\spanc{1}{j}$. To be a bit more precise, each element contains an extra one-dimensional table, indexed by states in $Q$, such that $T'_q$ is the union of $T_{p,\gamma,q}$ for every state $p$ and stack symbol $\gamma$. Recall that we are abusing notation by using $T'$ to also represent the topmost element in the stack. This extension can be added to {\sc OpenStep} with no extra cost, and in {\sc CloseStep} we need only to add an extra pop to the topmost element in $T'$. The final change is to replace line~\ref{nested:line16} by the steps $(\cD, v)\gets \prod(\cD, T'_p, S_{p,q})$ and $(\D,v_{\text{out}}) \gets \union(\D,v_{\text{out}},v)$, and of course eliminate the restriction that $p\in I$ in the {\bf for} argument. For the sake of presentation, we omit a formal proof of~correctness.
+
+
+
+
+
+%\begin{corollary}
+%	Let $\cT$ be an I/O-unambiguous \vpann and $\Stream$ be a stream. The outputs of evaluating $\cT$ over $\Stream$ can be enumerated with a streaming evaluation algorithm that has $\cO(\vert Q\vert^2\vert\Delta\vert)$ update time and output-linear delay.
+%\end{corollary}
+
+
+%\cristian{Acá la versión anterior}
+%
+%
+%%The objective of this section is to describe an algorithm that takes an unambiguous \vpann $\cT$ and word $w$, and enumerates the set $\br{\cT}(w)$ with output-linear delay after a preprocessing phase that takes $O(\vert \cT\vert^3\times\vert w\vert)$ time. First we detail a result that is instrumental in defining the enumeration process. Then we will describe a structure that extends this result to enumerate $\br{\cT}(w)$ with suboptimal delay. The last two subsections describe the final algorithm, which is obtained by pruning this structure so it can be represented by an \dsabbr of small enough size.
+%
+%
+%\subsection{Determinization of visibly pushdown automata}
+%\input{../sections/vpadet}
+%
+%\subsection{Enumerating $\br{\cT}(w)$ suboptimally}
+%\input{../sections/evalintuiton}
+%
+%\subsection{Preprocessing phase}
+%\input{../sections/prepr}
+%
+%\subsection{Enumerating outputs in general \vpanns}
+%\input{../sections/vptdet}

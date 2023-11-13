@@ -1,0 +1,161 @@
+%!TEX spellcheck = en_US
+%!TEX root = ../../Thesis.tex
+
+%\cristian{También dividir esta sección en subsecciones, ya que esta muy larga.}
+
+This section presents a data structure, called \dsnamebigcaps{} (\dsabbr{}), which is the cornerstone of our enumeration algorithm for \vpann. This data structure is strongly inspired by the work in~\cite{AmarilliBJM17,AmarilliBMN19}. Indeed, \dsabbr{} can be considered a refinement of the d-DNNF circuits used in~\cite{AmarilliBJM17} or of the set circuits used in~\cite{AmarilliBMN19}.
+Several papers~\cite{OlteanuZ15,AmarilliBJM17,AmarilliBMN19pods,Torunczyk20}   have considered circuits-like structures for encoding outputs and enumerate them with constant delay. The novelty of ECS is twofold. First, we use ECS for solving a streaming evaluation problem. Although people have studied streaming query evaluation with enumeration before~\cite{IdrisUV17,BerkholzKS17}, this is the first work that uses a circuit-like data structure in an online setting. 
+Second and more important, there is a difference in performance if we compare ECS to the previous approaches.
+In offline evaluation, constant-delay algorithms usually create an initial circuit from the input, making several passes over the structure, building indices, and then running the enumeration process. Given time restrictions for the online evaluation, we cannot create a circuit and do this linear-time preprocessing before enumerating. On the contrary, we must extend the circuit-like data structure for each data item in constant time and then be ready to start the enumeration. This requirement justifies the need for a new data structure for representing and enumerating outputs.  Therefore, ECS differs from previous proposals because each operation must take constant time, and we can run the enumeration process with output-linear delay, at any time and without any further preprocessing. In the following, we present \dsabbr{} step-by-step to use them later in the next section.
+
+
+%The main difference between \dsabbr{} and the knowledge-compilation approach is that we see a ``circuit'' as a data structure and treat it as such. With this, we can avoid using the heavy notation of circuits, or applying special operations to convert them, or computing indices to enumerate the output. Instead, we use \dsabbr{} to simplify the presentation and apply all these reductions and optimizations at once, improving the conceptual understanding of the structure. The conceptual contributions of this approach are to understand that we need a succinct data structure to store the outputs, we need to retrieve these outputs with output-linear delay, and we need the data structure to be fully-persistent~\cite{driscoll1986making}, that is, it always preserves the previous version of itself when it is modified. In fact, this last property is crucial for our update algorithm to manage different runs that share part of the same output. In the following, we present \dsabbr{} step-by-step to use it later in the next section.
+
+Let $\infAlph$ be a (possibly infinite) alphabet. We define an \emph{\dsnamebigcaps{}} (\dsabbr) as a tuple:
+$$
+\D = (\infAlph, V, \ell, r, \lambda)
+$$ 
+such that $V$ is a finite set of nodes, $\ell\colon V\to V$ and $r\colon V\to V$ are the {\em left} and {\em right} partial functions, and $\lambda\colon V\to\infAlph\cup\{\cup,\odot\}$ is a labeling function. For every node $v\in V$, both $\ell(v)$ and $r(v)$ are defined if $\lambda(v)\in\{\cup,\odot\}$, and neither is defined otherwise. Further, we assume that the directed graph $(V, \{(v,\ell(v)),(v,r(v))\mid v\in V\})$ is acyclic. Note how this implies that nodes labeled by $\infAlph$ are bottom nodes in the DAG and nodes labelled by $\cup$ or $\odot$ are inner nodes. We will use the terms {\it inner} and {\it bottom} to refer to such nodes, respectively. Furthermore, we say that $v$ is a {\em product node} if $\lambda(v) = \odot$, and a {\em union node} if $\lambda(v) = \cup$. We define the size of $\D$ as $|\D| = |V|$.
+For each node $v$ in $\D$, we associate a set of words $\sem{\D}(v)$ recursively as follows: (1) $\sem{\D}(v) = \{a\}$ whenever $\lambda(v) = a\in\infAlph$, (2) $\sem{\D}(v) = \sem{\D}(\ell(v)) \cup \sem{\D}(r(v))$ whenever $\lambda(v) = \cup$, and (3) $\sem{\D}(v) = \sem{\D}(\ell(v)) \cdot \sem{\D}(r(v))$ whenever $\lambda(v) = \odot$,
+where $L_1 \cdot L_2 = \{w_1\cdot w_2 \mid w_1\in L_1\text{ and }w_2\in L_2\}$.
+
+Since the size of the set $\sem{\D}(v)$ can be exponential with respect to $|\D|$, we say that $\D$ is a \emph{compact} representation of $\sem{\D}(v)$ for any $v \in V$.
+Although $\sem{\D}(v)$ is very large, the goal is to enumerate all of its elements efficiently. Specifically, we consider the following problem:
+\vspace{.1cm}
+\begin{center}
+	\framebox{
+		\begin{tabular}{rl}
+			\textbf{Problem:} & $\enumds$\\
+			\textbf{Input:} & An \dsabbr{} $\D = (\infAlph, V, \ell, r, \lambda)$ and $v \in V$.  \\
+			\textbf{Output:} & Enumerate the set $\sem{\D}(v)$ without repetitions. \\
+		\end{tabular}
+	}
+\end{center}
+\vspace{.1cm}
+Additionally, we want to solve $\enumds$ with output-linear delay. 
+A reasonable strategy to enumerate $\sem{\cD}(v)$ is to do a sequence of traversals on the structure, each of which builds a different output from the set. 
+However, to be able to do this without repetitions and output-linear delay, we need to guarantee two conditions: first that one can obtain every output from $\cD$ in only one way and, second, that union nodes are {\it close} to a bottom node or a product node, in the sense that we can always reach one of them in a bounded number of steps. To ensure that these conditions hold, we impose two restrictions on an ECS:
+\begin{enumerate}
+	\item We say that $\D$ is \emph{duplicate-free} if $\D$ satisfies the following two properties: (1) for every union node $v$ it holds that $\sem{\D}(\ell(v))$ and $\sem{\D}(r(v))$ are disjoint, and (2) for every product node $v$ and for every $w \in \sem{\D}(v)$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \sem{\D}(\ell(v))$ and $w_2 \in \sem{\D}(r(v))$. 
+	
+	\item We define the notion of \emph{$k$-bounded}~\dsabbr{} as follows. 
+	Given an \dsabbr{} $\D$, define the (left) output-depth of a node $v\in V$, denoted by $\odepth_{\D}(v)$, recursively as follows:
+	$\odepth_{\D}(v) = 0$ whenever $\lambda(v)\in\infAlph$ or $\lambda(v) = \odot$, and $\odepth_{\D}(v) = \odepth_{\D}(\ell(v))+1$ whenever $\lambda(v) = \cup$.
+	Then, for $k\in\nat$ we say that $\D$ is $k$-bounded if $\odepth_{\D}(v)\leq k$ for all $v\in V$.
+\end{enumerate}
+
+
+
+Given the definition of output depth, we say that $v$ is an output node of $\D$ if $v$ is a bottom node or a product node. 
+Note that if $\D$ only has output nodes, then it is 0-bounded, and one can easily check that $\sem{\D}(v)$ can be enumerated with output-linear delay.
+Indeed, for a fixed $k$ the same happens with every duplicate-free and $k$-bounded \dsabbr{}.
+
+
+\begin{proposition}\label{nested:ds:lindelay}
+	Fix $k\in\nat$. Let $\D = (\infAlph, V, \ell, r, \lambda)$ be a duplicate-free and $k$-bounded \dsabbr{}. Then one can enumerate the set $\sem{\D}(v)$ with output-linear delay for any $v\in V$.
+\end{proposition}
+\input{./proofs/nested/prop-enum-cris}
+The enumeration algorithm above does not require any preprocessing over $\D$. By this proposition, from now we assume that all \dsabbr{} are duplicate-free and $k$-bounded for some fixed~$k$.
+
+
+
+%The enumeration algorithm of the previous proposition does not require any preprocessing over $\D$ and the main idea is to perform some sort of DFS traversal over the nodes. Given that $\D$ is unambiguous, we know that this procedure will not enumerate any output twice. Moreover, given that $\D$ is $k$-bounded, we also know that on a \edit{fixed} number of steps it will find something to output, which is necessary to bound the delay. 
+%Therefore, from now we assume that all \dsabbr{} are unambiguous and $k$-bounded for some \edit{fixed}~$k$.
+
+\paragraph{Operations allowed by an ECS}
+The next step is to provide a set of operations that allow extending an \dsabbr{} $\D$ while maintaining $k$-boundedness. Furthermore, we require these operations to be \emph{fully-persistent}: a data structure is called fully-persistent if every version can be both accessed and modified~\cite{driscoll1986making}. In other words, the previous version of the data structure is always available after each operation.
+To satisfy the last requirement, the strategy will consist in extending $\D$ to $\D'$ for each operation, by adding new nodes and maintaining the previous nodes unmodified. Then $\cL_{\D'}(v) = \cL_{\D}(v)$ for each node $v \in V$, and so, the data structure will be fully-persistent. 
+
+%\cristian{Martin: Cambie la presentación/definición de las operaciones de $O := \mathsf{op}(I)$ a $\mathsf{op}(I) \rightarrow O$ explicando la notación. Por favor, revisa esta notación y actualiza la presentación de las operaciones en el apendice (cuando definimos $\epsilon$-ECS.} 
+Fix an \dsabbr{} $\D = (\infAlph, V, \ell, r, \lambda)$. In the following, we say that $\D' = (\infAlph, V', \ell', r', \lambda')$ is an \emph{extension} of $\D$ if, and only if, $\mathsf{X} \subseteq \mathsf{X}'$ for every $\mathsf{X} \in \{V, \ell, r, \lambda\}$. Further, we write $\mathsf{op}(I) \rightarrow O$ to define the signature of an operation $\mathsf{op}$ where $I$ is the input and $O$ is the output. 
+Then for any $a \in \infAlph$ and $v_1, \ldots, v_4 \in V$, we define the operations:
+\[
+\begin{array}{rclrclrcl}
+\add(\D,a) & \!\!\!\!\rightarrow\!\!\!\! & (\D',v')   \ \ \ \ \ \	 & \prod(\D,v_1, v_2) & \!\!\!\! \rightarrow \!\!\!\! & (\D',v')   \ \ \ \ \ \ \ &  \union(\D,v_3, v_4) & \!\!\!\!\rightarrow\!\!\!\! & (\D',v')
+\end{array}
+\]
+\noindent such that $\D'$ is an extension of $\D$  and $v' \in V' \setminus V$ is a fresh node such that $\cL_{\D'}(v') = \{a\}$, $\cL_{\D'}(v') = \cL_{\D}(v_1) \cdot \cL_{\D}(v_2)$, and $\cL_{\D'}(v') = \cL_{\D}(v_3) \cup \cL_{\D}(v_4)$, respectively.
+We assume that the $\union$ and $\prod$ satisfy properties (1) and (2) of a duplicate-free \dsabbr{}, namely, $\cL_{\D}(v_1)$ and $\cL_{\D}(v_2)$ are disjoint and, for every $w \in \sem{\D}(v_3) \cdot \sem{\D}(v_4)$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \sem{\D}(v_3)$ and $w_2 \in \sem{\D}(v_4)$. 
+%Furthermore, we would like that each operation takes constant time and preserves $k$-boundedness.
+
+
+Next, we show how to implement these operations, where the case of $\add$ and $\prod$ are straightforward. For $ \add(\D,a) \rightarrow (\D',v')$ define $V' := V \cup \{v'\}$ and $\lambda'(v') = a$. One can easily check that $\L_{\D'}(v') = \{a\}$ as expected. For $\prod(\D,v_1, v_2) \rightarrow (\D',v')$ we proceed in a similar way: define $V' := V \cup\{v'\}$, $\ell'(v') :=v_1$, $r'(v') = v_2$, and $\lambda'(v') = \odot$. 
+Then $\L_{\D'}(v') = \sem{\D}(v_1)\cdot\sem{\D}(v_2)$.
+Furthermore, one can check that each operation takes constant time, $\D'$ is a valid \dsabbr{} (i.e. duplicate-free and $k$-bounded), and the operations are fully-persistent (i.e. the previous version $\D$ is available).
+
+To define the union, we need to be a bit more careful to guarantee output-linear delay, specifically, the  $k$-bounded property.
+For $v\in V$, we say that $v$ is {\em safe} if (1) $\odepth_{\D}(v) \leq 1$, and (2) if $\odepth_{\D}(v) = 1$, then $\odepth_{\D}(r(v)) \leq 1$. In other words, $v$ is safe if either $v$ is an output node, or its left child is an output node and its right child is either an output node or has output depth 1.
+Note that a leaf or a product node are safe nodes by definition and, thus, the $\add$ and $\prod$ operations always produce safe nodes. 
+
+The strategy then is to show that, if $v_3$ and $v_4$ are safe nodes, then we can implement the operation $\union(\D,v_3, v_4) \rightarrow (\D',v')$ and produce a safe node $v'$. To reach this goal, define $(\D',v')$ as follows:
+\begin{itemize}
+	\item  If $v_3$ or $v_4$ are output nodes then $V' := V\cup\{v'\}$ and $\lambda(v') := \cup$. Moreover, if $v_3$ is the output node, then $\ell'(v') := v_3$ and $r'(v') := v_4$. Otherwise, we connect $\ell'(v') := v_4$ and~$r'(v') := v_3$.
+	\item If $v_3$ and $v_4$ are not output nodes (i.e. both are union nodes), then $V' := V \cup\{v',u_1,u_2\}$, $\ell'(v') := \ell(v_3)$, $r'(v') := u_1$, and $\lambda'(v') := \cup$; $\ell'(u_1) := \ell(v_4)$, $r'(u_1) := u_2$, and $\lambda'(u_1) := \cup$; $\ell'(u_2) := r(v_3)$, $r'(u_2) := r(v_4)$, and $\lambda'(u_2) := \cup$.
+\end{itemize}
+This gadget\footnote{Note that a similar trick was used in~\cite{AmarilliBJM17} for computing an index over a circuit.} is depicted in Figure~\ref{nested:fig-union-def}. % and it is known as Louis' trick.
+%(also used in~\cite{AmarilliBJM17}).
+This construction has several properties.
+First, one can easily check that $\L_{\D'}(v') = \sem{\D}(v_1)\cup\sem{\D}(v_2)$ and so its semantics is well-defined. 
+Second, $\union$ can be computed in constant time in $|\D|$ given that we only need to add three fresh nodes, and the operation is fully-persistent given that we connect them without modifying the nodes of~$\D$. 
+Third, the produced node $v'$ is safe in $\D'$, although nodes $u_1$ and $u_2$ are not necessarily safe. 
+Finally, $\D'$ is 2-bounded whenever $\D$ is $2$-bounded. This is straightforward to verify for the first case when $v_3$ or $v_4$ are output nodes. For the second case (i.e., Figure~\ref{nested:fig-union-def}), recall that $v_3$ and $v_4$ are safe nodes, which means that $\ell(v_3)$ and $\ell(v_4)$ are output nodes, and then $\odepth_{\D'}(v') = \odepth_{\D'}(u_1) = 1$. Further, given that $v_3$ is safe, we know that $\odepth_{\D}(r(v_3)) \leq 1$, so $\odepth_{\D'}(u_2)\leq 2$. Given that the output depths of all fresh nodes in $\D'$ are bounded by $2$ and $\D$ is $2$-bounded, then we conclude that $\D'$ is $2$-bounded~as~well.
+
+\begin{figure}[t]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,inner sep=1pt},squarednode/.style={rectangle,inner sep=2pt}, scale=0.95]
+	\node[squarednode] (0) at (0, 0) {$\ell(v_3)$};
+	\node[squarednode] (1) at (2, 0) {$r(v_3)$};
+	\node[roundnode] (2) at (1, 0.65) {$v_3$};
+	\node[squarednode] (3) at (4, 0) {$\ell(v_4)$};
+	\node[squarednode] (4) at (6, 0) {$r(v_4)$};
+	\node[roundnode] (5) at (5, 0.65) {$v_4$};
+	\node[roundnode] (6) at (5, 1.3) {$u_2$};
+	\node[roundnode] (7) at (4, 1.95) {$u_1$};
+	\node[roundnode] (8) at (3, 2.6) {$v'$};
+	\draw[dashed] (2) to[out=-135,in=45] (0);
+	\draw (2) to[out=-45,in=135] (1);
+	\draw[dashed] (5) to[out=-135,in=45] (3);
+	\draw (5) to[out=-45,in=135] (4);
+	\draw (6) to[out=-45,in=90] (4);
+	\draw[dashed] (6) to[out=-135,in=45] (1);
+	\draw (7) to[out=-45,in=135] (6);
+	\draw[dashed] (7) to[out=-135,in=90] (3);
+	\draw (8) to[out=-45,in=135] (7);
+	\draw[dashed] (8) to[out=-135,in=90] (0);
+	\end{tikzpicture}
+	\caption{Gadget for $\union(\D,v_3,v_4)$. Nodes $v',u_1,u_2,v_3$ and $v_4$ are labeled as $\cup$. Dashed and solid lines denote the mappings in $\ell'$ and $r'$ respectively.}
+	\label{nested:fig-union-def}
+	\vspace{-3mm}
+\end{figure}
+
+By the previous discussion, if we start with an \dsabbr\ $\D$ which is 2-bounded (or empty) and we apply the $\add$, $\prod$, or $\union$ operators between safe nodes (which also produce safe nodes), then the result is 2-bounded as well. Finally, by Proposition~\ref{nested:ds:lindelay}, the result can be enumerated with output-linear delay.
+
+\begin{theorem}\label{nested:theo:data-structure}
+	The operations $\add$, $\prod$, and $\union$ require constant time and are fully-persistent. Furthermore, if we start from an empty \dsabbr\ $\D$ and apply $\add$, $\prod$, or $\union$ operations over safe nodes, the partial results $(\D', v')$ satisfy that $v'$ is always a safe node and the set $\L_{\D'}(v)$ can be enumerated with output-linear delay for every node $v$.
+\end{theorem}  
+
+We want to remark that restricting the operations over safe nodes does not limit the final user of the data structure. Indeed, since we will usually start from an empty \dsabbr\ and apply these operations over previously returned nodes, the whole algorithm will always use safe nodes during its computation, satisfying the conditions of Theorem~\ref{nested:theo:data-structure}. 
+
+\paragraph{Extending ECS with $\eps$-nodes}
+For technical reasons, our algorithm of the next section needs a slight extension of \dsabbr{} by allowing leaves that produce the empty string $\eps$. Let $\eps\not\in\infAlph$ be a symbol representing the empty string (i.e. $w\cdot\eps = \eps\cdot w = w$). We define an \dsname{} with $\eps$ (called \dsepsabbr) as a tuple $\D = (\infAlph, V, \ell, r, \lambda)$ defined identically to an \dsabbr{} except that:
+\[
+\lambda\colon V\to\infAlph\cup\{\cup, \odot,\eps\}
+\] 
+and $\lambda(v)\in\{\cup,\odot\}$ if, and only, both $\ell(v)$ and $r(v)$ are defined. Further, $\sem{\D}(v) = \{\epsilon\}$ whenever $\lambda(v) = \eps$. The duplicate-free restriction is the same for \dsepsabbr and one has to slightly extend $k$-boundedness to consider $\epsilon$-nodes. %, giving an ``infinite'' depth to a node if its left node can produce $\epsilon$.}
+However, to support the $\prod$ and $\union$ operations in constant time and to maintain the $k$-boundedness invariant, we need to extend the notion of safe nodes, called \emph{$\epsilon$-safe}, and the gadgets for $\prod$ and $\union$. We summarize all these details in the proof of the following theorem which is a straightforward extension of Theorem~\ref{nested:theo:data-structure}.
+
+%Given space restrictions, we show these extensions in the appendix and state here the main result, that will be used in the next section.
+ 
+\begin{theorem}\label{nested:theo:data-structure-eps}
+	The operations $\add$, $\prod$, and $\union$ over \dsepsabbr{} take constant time and are fully-persistent. Furthermore, if we start from an empty \dsepsabbr{} $\D$ and apply $\add$, $\prod$, and $\union$ over $\epsilon$-safe nodes, the partial results $(\D', v')$ satisfy that $v'$ is always an $\epsilon$-safe node and the set $\L_{\D'}(v)$ can be enumerated with output-linear delay for every node $v$.
+\end{theorem}  
+
+\input{./proofs/nested/theo-dseps}
+
+
+
+	
+
+
+
+

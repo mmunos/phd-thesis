@@ -1,0 +1,55 @@
+% !TeX spellcheck = en_US
+
+
+\begin{proof}
+Let $\D = (\infAlph, V, \ell, r, \lambda)$ be a duplicate-free and $k$-bounded \dsabbr{}.
+The algorithm that we present is a depth-first traversal of the DAG, done in a recursive fashion to ensure that after retrieving some output $w$, the next one $w'$ can be printed in $O(k\cdot (|w| + |w'|))$ time. The entire procedure is detailed in Algorithm~\ref{nested:alg:enumeration}.
+
+\input{./algorithms/nested/enumalg-cris}
+
+To simplify the presentation of the algorithm, we use the interface of an \emph{iterator} that, given a node $v$, it contains all information and methods to enumerate the outputs $\sem{\D}(v)$. Specifically, an iterator $\uit$ must implement the following three methods:
+\[
+\begin{array}{rclrclrcl}
+	\textsc{create}(v) & \!\!\!\!\rightarrow\!\!\!\! & \uit   \ \ \ \ \ \	 & \uit.\textsc{next} & \!\!\!\! \rightarrow \!\!\!\! & b  \ \ \ \ \ \ \ &  \uit.\textsc{print}  & \!\!\!\!\rightarrow\!\!\!\! & \emptyset
+\end{array}
+\]
+where $v$ is a node, $b$ is either {\bf true} or {\bf false}, and $\emptyset$ means ``no output''. 
+The first method, \textsc{create}, receives a node $v$ and creates an iterator $\uit$ of the type of $v$. We will implement three types of iterators, one for each node type: bottom, product, and union nodes. The second method, $\uit.\textsc{next}$, moves the iterator to the next output, returning {\bf true} if, and only if, there is an output to print. Then the last method, $\uit.\textsc{print}$, write the current output pointed by $\uit$ to the output registers. 
+We assume that, after creating an iterator $\uit$, one must first call $\uit.\textsc{next}$ to move to the first output before printing. Furthermore, if $\uit.\textsc{next}$ outputs {\bf false}, then the behavior of $\uit.\textsc{print}$ is undefined. Note that one can call $\uit.\textsc{print}$ several times, without calling $\uit.\textsc{next}$, and the iterator will write the same output each time in the output registers. 
+
+Assume we can implement the iterator interface for each node type. Then the procedure $\textsc{Enumerate}(v)$ in Algorithm~\ref{nested:alg:enumeration} (lines 61-64) shows how to enumerate the set $\sem{\D}(v)$ by using an iterator $\uit$ for $v$. In the following, we show how to implement the iterator interface for each node type and how the size of the following output bounds the delay between two outcomes.
+
+We start by presenting the iterator $\uit_\infAlph$ for a bottom node $v$ (lines 1-13), called a \emph{bottom node iterator}. We assume that each $\uit_\infAlph$ has internally two values $\bnodelabel$ and $\hasnext$, where $\bnodelabel$ is a reference to $v$ and $\hasnext$ is a boolean variable. The purpose of a bottom node iterator is only to print $\lambda(u)$. For this goal, when we create $\uit_\infAlph$, we initialize $u$ equal to $v$ and $\hasnext = {\bf true}$ (lines 3-4). Then, when we call $\uit_\infAlph.\textsc{next}$ for the first time, we swap $\hasnext$ from {\bf true} to {\bf false} and output {\bf true} (i.e., there is one output ready to be returned). Then any following call to $\uit_\infAlph.\textsc{next}$ will be false (lines 6-10). Finally, the $\uit_\infAlph.\textsc{print}$ writes the value $\lambda(u)$ to the output registers (lines 12-13). Here, we assume the existence of a method {\bf print} on the RAM model for writing to the output registers. 
+
+For a product node, we present a \emph{product node iterator} $\uit_\odot$ in Algorithm~\ref{nested:alg:enumeration} (lines 15-32). This iterator receives a product node $v$ with $\lambda(v) = \odot$ and stores a reference of $v$, called $u$, and two iterators $\leftit$ and $\rightit$, for iterating through the left and right nodes $\ell(u)$ and $r(u)$, respectively. 
+The \textsc{create} method initializes $u$ with $v$, creates the iterators $\leftit$ and $\rightit$, and calls $\leftit.\textsc{next}$ to be prepared for the first call of $\uit_\odot.\textsc{next}$ (lines 16-20).
+The idea of $\uit_\odot.\textsc{next}$ is to fix one output for the left node $\ell(u)$ and iterate over all outputs of $r(u)$ (lines 22-28). When we stop enumerating all outputs of $\sem{\D}(r(u))$, we move to the next output of $\leftit$, and iterate again over all $\sem{\D}(r(u))$ (lines 24-27).
+For printing, we recursively call first the printing method of $\leftit$, and then the one of $\rightit$ (lines 30-32).
+
+The most involved case is the \emph{union node iterator} $\uit_\cup$ (lines 33-59). Similarly to a product node iterator, it receives a union node $v$ with $\lambda(v) = \cup$ and keeps a \emph{stack} of nodes $\ustack$ and an iterator~$\uit$. We assume the standard implementation of a stack with the native methods $\text{\sf push}$, $\text{\sf pop}$, $\text{\sf top}$, and $\text{\sf length}$ over stacks -- the first three define the standard operations over stacks, and $\text{\sf length}$ counts the elements in it. 
+The purpose of the stack is to perform a \emph{depth-first-search} traversal of all union nodes below $v$, reaching all possible output nodes $u$ such that there is a path of union nodes between $v$ and $u$. If the top node of $\ustack$ is an output node, then $\uit$ is an iterator for that node, which enumerates all their outputs.  
+
+For performing the \emph{depth-first-search} traversal of union nodes, we use the auxiliary method $\textsc{traverse}(\ustack)$ (lines 53-59). While the top node $u$ in $\ustack$ is a union node, it pops $u$ and pushes its right and left nodes in that order. 
+This method will eventually reach an output node (i.e., a non-union node) at the top of the stack and end. 
+It is important to note that $\textsc{traverse}(\ustack)$ takes $\cO(k)$-steps, given that the ECS is $k$-bounded. Then if $k$ is fixed, the  $\textsc{traverse}$ procedure takes constant time. In Figure~\ref{nested:fig-enum-stacks}, we illustrate the evolution of a stack $\ustack$ inside a union node iterator when we call $\textsc{traverse}(\ustack)$ several times. 
+\begin{figure}[t]
+	\centering
+	\input{./figures/nested/enumfigurenew.tex}
+	\caption{Evolution of the stack $\ustack$ (represented by dashed arrows) for an iterator over the topmost union node in the figure. The underlying ECS contains only union nodes and six bottom nodes. The first figure is $\ustack$ after calling $\ustack \gets {\sf push}(\ustack, v)$, the second is after calling $\ustack \gets\textsc{Traverse}(\ustack)$. The last two figures represent successive calls to ${\sf pop}(\ustack), \ustack \gets\textsc{Traverse}(\ustack)$.}
+	\label{nested:fig-enum-stacks}
+\end{figure}
+
+The methods of a union node iterator $\uit_\cup$ are then straightforward. For \textsc{create} (lines 34-37), we push $v$ into $\ustack$ (line 35) and traverse $\ustack$, finding the first rightmost output node from $v$ (line~36). Then we build the iterator $\uit$ of this output node for being ready to start enumerating their outputs (line~37). 
+For \textsc{next}, we consume all outputs by calling $\uit.\textsc{next}$ (line 40). When there are no more outputs (lines 41-47), we pop the top node from $\ustack$ and check if the stack is empty or not (lines~41-42). If this is the case, there are no more outputs and we output {\bf false}. Instead, if $\ustack$ is non-empty but the top node $\text{\sf top}(\ustack)$ is a union node, we apply the \textsc{traverse} method for finding the rightmost output node from $\text{\sf top}(\ustack)$ (lines 44-45). When the procedure is done, we know that the top node is an output node, and then we create an iterator and move to its first output (lines~46-47). 
+For \textsc{print}, we call the print method of $\uit$ which is ready to write the current output (lines 50-51). 
+
+For proving the correctness of the enumeration procedure, since $\D$ is duplicate-free, one can verify that $\textsc{Enumerate}(v)$ in Algorithm~\ref{nested:alg:enumeration} enumerates all the set $\sem{\D}(v)$, one by one, and without repetitions. For the delay between outputs, since $\D$ is $k$-bounded, it is straightforward to prove by induction that, if $w_0$ is the first output, then:
+\begin{itemize}
+	\item $\textsc{create}(v)$ takes time $\cO(k\cdot |w_0|)$,
+	\item $\textsc{next}$ takes time $\cO(k\cdot |w_0|)$ for the first call, and $\cO(k\cdot |w|+|w'|)$ for the next call where $w$ and $w'$ are the previous and next outputs, respectively, and
+	\item $\textsc{print}$ takes time $\cO(k\cdot |w|)$ where $w$ is the current output to be printed.  
+\end{itemize}
+Overall, $\textsc{Enumerate}(v)$ in Algorithm~\ref{nested:alg:enumeration} have delay $O(k\cdot (|w| + |w'|))$ to write the next output $w'$ in the output register, after printing the previous output $w$. 
+
+We end by pointing out that the existence of an enumeration algorithm $\enumE$ with delay $O(k\cdot (|w| + |w'|))$ between any consecutive outputs $w$ and $w'$, implies the existence of an enumeration algorithm $\enumE'$ with output-linear delay as defined in Section~\ref{nested:sec:enum}. We start noting that $k$ is a fixed value and then the delay of $\enumE$ only depends on $|w| + |w'|$. For depending only on the next output $w'$, one can perform the following strategy for $\enumE'$: start by running $\enumE$, enumerate the first output $w_0$, proceed $k \cdot |w_0|$ more steps of $\enumE$, stop, and print the separator symbol $\#$. Then continue running $\enumE$ to prepare the next output $w_1$, proceed $k |w_1|$ more steps, stop, and print the separator symbol $\#$. By repeating this enumeration process, one can verify that the delay between the $i$-th output $w_i$ and the $(i+1)$-th output $w_{i+1}$ is $O(|w_{i+1}|)$. Therefore, $\enumE'$ has output-linear delay. 
+\end{proof}

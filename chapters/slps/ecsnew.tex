@@ -1,0 +1,435 @@
+%!TEX root = ../../Thesis.tex
+
+In this section, we present the data structure, called \emph{Enumerable Compact Sets with Shifts}, that will be used to compactly store the outputs of evaluating an annotated automaton over a straight-line program. This structure extends Enumerable Compact Sets (ECS) introduced in Chapter~\ref{ch1} (which were, in turn, strongly inspired by the work in~\cite{AmarilliBJM17,AmarilliBMN19}). Indeed, people have also used ECS extensions in~\cite{
+%AmarilliJMR22,
+BucchiGQRV22}. This new version extends ECS by introducing a shift operator, which allows to succinctly move all outputs' positions with a single call. Although the shift nodes require a revision of the complete ECS model, it simplifies the evaluation algorithm in Section~\ref{slps:sec:evaluation} and achieves output-linear delay for enumerating all the outputs. For completeness of presentation, this section goes through all main details of ECS, as it was done in Chapter~\ref{ch1}, and how to modify them with shifts. 
+%We will follow a preprint of the full version of~\cite{MunozR22} as base of this section~\cite{MunozR22Arxiv}.
+
+\paragraph{The structure} 
+Let $\infAlph$ be an output alphabet such that $\infAlph$ has no elements in common with $\int$ or $\{\cup,\odot\}$ (i.e., $\infAlph \cap \int = \emptyset$ and $\infAlph \cap \{\cup,\odot\} = \emptyset$).
+We define an \emph{\dsnamebigcaps{}} (\dsabbr) as a tuple:
+$$
+\cD \ = \  (\infAlph, V, \lch, \rch, \lambda)
+$$ such that $V$ is a finite sets of nodes,
+$\lch\colon V \to V$ and $\rch\colon V \to V$ are the {\em left} and {\em right} partial functions, and $\lambda\colon V\to\infAlph \cup \int \cup\{\cup,\odot\}$ is a labeling function.
+We assume that $\cD$ forms an acyclic graph, namely, the induced graph $(V, \{(v,\lch(v)),(v,\rch(v))\mid v\in V\})$ is acyclic. 
+Further, for every node $v \in V$, $\lch(v)$ is defined iff  $\lambda(v)\in \int \cup \{\cup, \odot\}$, and $\rch(v)$ is defined iff $\lambda(v)\in \{\cup, \odot\}$.
+%Also, we will assume that if $\ell(v) = u$, then $\lambda(u)\not\in\int$.
+% This last assumption implies that chains of $\int$-nodes are not allowed.
+Notice that, by definition, nodes labeled by $\infAlph$ are bottom nodes in the acyclic structure formed by $\cD$, and nodes labeled by $\int$ or $\{\cup, \odot\}$ are inner nodes. Here, $\int$-nodes are unary operators (i.e., $\rch(\cdot)$ is not defined over them), and $\cup$-nodes or $\odot$-nodes are binary operators. 
+Indeed, we say that $v \in V$ is a {\em bottom node} if $\lambda(v) \in \infAlph$, a {\em product node} if $\lambda(v) = \odot$, a {\em union node} if $\lambda(v) = \cup$, and a {\em shift node} if $\lambda(v)\in\int$. 
+Finally, we define the size of $\cD$ as $|\cD| = |V|$.
+
+The outputs retrieved from a \dsabbr are strings of the form $(\oout_1, i_1)(\oout_2, i_2)\ldots(\oout_\ell, i_\ell)$, where $\oout_j\in\infAlph$ and $i_j\in\int$.
+To build them, we use the {\em shifting function} $\shift: (\infAlph \times \int) \times \int \to (\infAlph \times \int)$ such that $\shift((\oout, i), s) = (\oout, i+s)$.
+We extend this function to strings over $\infAlph \times \int$ such that $\shift((\oout_1, i_1)\ldots(\oout_\ell, i_\ell), s) = (\oout_1, i_1+s)\ldots(\oout_\ell, i_\ell+s)$ and to set of strings such that $\shift(L, s) = \{\shift(w, s) \mid w \in L\}$ for every $L \subseteq (\infAlph \times \int)^*$.
+
+Each node $v \in V$ of a \dsabbr $\cD = (\infAlph, V, \lch, \rch, \lambda)$ defines a set of output strings. Specifically, we associate a set of strings $\sem{\cD}(v)$ recursively as follows. For any two sets of strings $L_1$ and $L_2$, define $L_1 \cdot L_2 = \{w_1\cdot w_2 \mid w_1\in L_1\text{ and }w_2\in L_2\}$. Then: 
+\begin{itemize}
+	\item if $\lambda(v) = \oout \in \infAlph$, then $\sem{\cD}(v) = \{(\oout, 1)\}$;
+	\item if $\lambda(v) = \cup$, then $\sem{\cD}(v) = \sem{\cD}(\lch(v)) \cup \sem{\cD}(\rch(v))$;
+	\item if $\lambda(v) = \odot$, then $\sem{\cD}(v) = \sem{\cD}(\lch(v)) \cdot \sem{\cD}(\rch(v))$; and 
+	\item if $\lambda(v) \in \int$, then $\sem{\cD}(v) = \shift(\sem{\cD}(\lch(v)), \lambda(v))$.
+\end{itemize}
+
+\begin{example}
+Suppose $\infAlph = \{x, y\}$. 
+Consider the \dsabbr $\cD = (\infAlph, V, \lch, \rch, \lambda)$ where $V = \{v_1, v_2, v_3, v_4, v_5\}$, $\lch(v_1) = v_4$, $\rch(v_1) = v_2$, $\lch(v_2) = v_3$, $\lch(v_3) = v_4$, $\rch(v_3) = v_5$, $\lambda(v_1) = \odot$, $\lambda(v_2) = +2$, $\lambda(v_3) = \cup$, $\lambda(v_4) = x$ and $\lambda(v_5) = y$. 
+We show an illustration of this \dsabbr in Figure~\ref{slps:fig-ecsex}. One can easily check that the sets of words $\sem{\cD}$ associated to each node are: 
+$$
+\begin{array}{rcl}
+	\sem{\cD}(v_4) & = & \{(x, 1)\} \\  \sem{\cD}(v_5) & = & \{(y, 1)\} \\ \sem{\cD}(v_3) & = & \{(x, 1), (y, 1)\} \\ \sem{\cD}(v_2) & = & \{(x, 3), (y, 3)\} \\
+	\sem{\cD}(v_1) & = & \{(x, 1)(x, 3), (x, 1)(y, 3)\}.
+\end{array}
+$$
+\end{example}
+
+\begin{figure}[t]
+	\centering
+	\begin{tikzpicture}[every label/.style={black!60}, ->,>=stealth',roundnode/.style={circle,inner sep=2pt},squarednode/.style={rectangle,inner sep=2pt}]
+		\node [roundnode, label=180:$v_4\!:$] (4) at (0, 0) {$x$};
+		\node [roundnode, label=180:$v_5\!:$] (5) at (4, 0) {$y$};
+		\node [squarednode, label=180:$v_3\!:$] (3) at (2, 1) {$\cup$};
+		\node [squarednode, label=180:$v_2\!:$] (2) at (3, 2) {$+2\ $};
+		\node [squarednode, label=180:$v_1\!:$] (1) at (2, 3) {$\odot$};
+		\draw[dashed] (1) to[out=-135,in=90] (4);
+		\draw (1) to[out=-45,in=120] (2);
+		\draw[dashed] (2) to[out=-135,in=45] (3);
+		\draw[dashed] (3) to[out=-135,in=45] (4);
+		\draw (3) to[out=-45,in=135] (5);
+	\end{tikzpicture}
+	\caption{An example of an \dsabbr with output alphabet $\{x, y\}$. We use dashed and solid edges for the left  and right partial functions, respectively.}
+	\label{slps:fig-ecsex}
+\end{figure}
+
+
+\paragraph{The enumeration algorithm} 
+Given that every node of a \dsabbr represents a set of strings, we are interested in enumerating them with output-linear delay. Specifically, we focus on the following problem. Let $\mathcal{C}$ be a class of \dsnamesbigcaps{}.
+
+\vspace{0.2em}
+
+\begin{center}
+	\framebox{
+		\begin{tabular}{rl}
+			\textbf{Problem:} & $\enumecs[\mathcal{C}]$\\
+			\textbf{Input:} & a \dsabbr $\cD \in \mathcal{C}$ and a node $v$ of $\cD$ \\
+			\textbf{Output:} & Enumerate $\sem{\cD}(v)$.
+		\end{tabular}
+	}
+\end{center}
+
+The plan then is to provide an enumeration algorithm with output-linear delay for $\enumecs[\mathcal{C}]$ and some helpful class $\mathcal{C}$.
+A reasonable strategy to enumerate the set $\sem{\cD}(v)$ is to do a traversal on the structure while accumulating the shift values in the path to each leaf. However, to be able to do this without repetitions and output-linear delay, we need to guarantee two conditions: first, that one can obtain every output from $\cD$ in only one way and, second, union and shift nodes are \emph{close} to an output node (i.e., a bottom node or a product node), in the sense that we can always reach them in a bounded number of steps. To ensure that these conditions hold, we impose two restrictions on an ECS. 
+
+\begin{enumerate}
+	\item[(i)] We say that $\D$ is \emph{duplicate-free} if $\D$ satisfies the following two properties: (1) for every union node $v$ it holds that $\sem{\D}(\ell(v))$ and $\sem{\D}(r(v))$ are disjoint, and (2) for every product node $v$ and for every $w \in \sem{\D}(v)$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \sem{\D}(\ell(v))$ and $w_2 \in \sem{\D}(r(v))$. 
+	
+	\item[(ii)] We define the notion of \emph{$k$-bounded}~\dsabbr{} as follows. 
+	Given an \dsabbr{} $\D$, define the (left) output-depth of a node $v\in V$, denoted by $\odepth_{\D}(v)$, recursively as follows:
+	$\odepth_{\D}(v) = 0$ whenever $\lambda(v)\in\infAlph$ or $\lambda(v) = \odot$, and $\odepth_{\D}(v) = \odepth_{\D}(\ell(v))+1$ whenever $\lambda(v) \in \{\cup\}\cup\int$.
+	Then, for $k\in\nat$ we say that 
+	$\D$ is $k$-bounded if $\odepth_{\D}(v)\leq k$ for all $v\in V$.
+\end{enumerate}
+
+
+%For the first restriction, we say that an ECS $\cD$ is \emph{duplicate-free} if the following hold: (1) for every union node $v$ in $\cD$ it holds that $\sem{\cD}(\lch(v))$ and $\sem{\cD}(\rch(v))$ are disjoint and (2) for every product node $v$ and for every $w \in \sem{\cD}(v)$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \sem{\cD}(\lch(v))$ and $w_2 \in \sem{\cD}(\rch(v))$.
+%
+%For the second restriction, we define \emph{$k$-bounded}~\dsabbr{}. 
+%Given a \dsabbr{} $\cD$, define the (left) output-depth of a node $v\in V$, denoted by $\odepth_{\cD}(v)$, recursively as follows:
+%$\odepth_{\cD}(v) = 0$ whenever $\lambda(v)\in \{\odot\}\cup\Omega$, and $\odepth_{\cD}(v) = \odepth_{\cD}(\lch(v))+1$ whenever $\lambda(v) \in \{\cup\}\cup\int$.
+%Then, for $k\in\nat$ we say that $\cD$ is $k$-bounded if $\odepth_{\cD}(v)\leq k$ for all $v\in V$.
+
+\begin{proposition}\label{slps:prop:lindelay}
+	Fix $k\in\nat$. 
+	Let $\mathcal{C}_k$ be the class of all  duplicate-free and $k$-bounded \dsabbrs{}. Then one can solve the problem $\enumecs[\mathcal{C}_k]$ with output-linear delay and without preprocessing (i.e. constant preprocessing time).
+\end{proposition}
+\begin{proof}
+	\newcommand{\len}{\mathsf{len}}
+	
+	Let $\D = (\infAlph, V, \ell, r, \lambda)$ be a duplicate-free and $k$-bounded \dsabbr{}.
+	The algorithm that we present is a depth-first traversal of the DAG, done in a recursive fashion to ensure that after retrieving some output $w$, the next one $w'$ can be printed in $O(k\cdot (|w| + |w'|))$ time. The entire procedure is detailed in Algorithm~\ref{slps:alg:enumeration}.
+	
+	\input{./algorithms/slps/enumalg-cris}
+	
+	To simplify the presentation of the algorithm, we use an \emph{iterator interface} that, given a node $v$, it contains all information and methods to enumerate the outputs $\sem{\D}(v)$. Specifically, an iterator $\uit$ must implement the following three methods:
+	\[
+	\begin{array}{rclrclrcl}
+		\textsc{create}(v) & \!\!\!\!\rightarrow\!\!\!\! & \uit   \ \ \ \ \ \	 & \uit.\textsc{next} & \!\!\!\! \rightarrow \!\!\!\! & b  \ \ \ \ \ \ \ &  \uit.\textsc{print}(s)  & \!\!\!\!\rightarrow\!\!\!\! & \emptyset
+	\end{array}
+	\]
+	where $v$ is a node, $b$ is either {\bf true} or {\bf false}, and $\emptyset$ means that the method does not return an output. 
+	The first method, \textsc{create}, receives a node $v$ and creates an iterator $\uit$ of the type of $v$. We will implement three types of iterators, one for bottom nodes ($\uit_\infAlph$), one for product nodes ($\uit_\odot$), and one for union and $\int$-nodes together ($\uit_{\cup/\int}$). The second method, $\uit.\textsc{next}$, moves the iterator to the next output, returning {\bf true} if, and only if, there is an output to print. Then the last method, $\uit.\textsc{print}$, receives an integer value $s$, and writes the current output pointed by $\uit$ to the output registers after shifting the output by $s$. 
+	We assume that, after creating an iterator $\uit$, one must first call $\uit.\textsc{next}$ to move to the first output before printing. Furthermore, if $\uit.\textsc{next}$ outputs {\bf false}, then the behavior of $\uit.\textsc{print}$ is undefined. Note that one can call $\uit.\textsc{print}$ several times, without calling $\uit.\textsc{next}$, and the iterator will write the same output each time in the output registers. 
+	
+	Assume we can implement the iterator interface for each type. Then the procedure $\textsc{Enumerate}(v)$ in Algorithm~\ref{slps:alg:enumeration} (lines \ref{slps:alg1enum1}-\ref{slps:alg1enum3}) shows how to enumerate the set $\sem{\D}(v)$ by using an iterator $\uit$ for $v$. In the following, we show how to implement the iterator interface for each type and how the size of the next output bounds the delay between two outcomes.
+	
+	
+	We start by presenting the iterator $\uit_\infAlph$ for a bottom node $v$ (lines \ref{slps:alg1bottom0}-\ref{slps:alg1bottom11}), called a \emph{bottom node iterator}. We assume that each $\uit_\infAlph$ has internally two values, denoted by $\bnodelabel$ and $\hasnext$, where $\bnodelabel$ is a reference to $v$ and $\hasnext$ is a boolean variable. The purpose of a bottom node iterator is only to print $(\lambda(u), 1+s)$ for some shift $s$. For this goal, when we create $\uit_\infAlph$, we initialize $u$ equal to $v$ and $\hasnext = {\bf true}$ (lines \ref{slps:alg1bottom2}-\ref{slps:alg1bottom3}). Then, when we call $\uit_\infAlph.\textsc{next}$ for the first time, we swap $\hasnext$ from {\bf true} to {\bf false} and output {\bf true} (i.e., there is one output ready to be returned). Then any following call to $\uit_\infAlph.\textsc{next}$ will be false (lines \ref{slps:alg1bottom4}-\ref{slps:alg1bottom8}). Finally, the $\uit_\infAlph.\textsc{print}$ writes the pair $(\lambda(u),1+s)$ to the output registers (lines \ref{slps:alg1bottom9}-\ref{slps:alg1bottom11}). Here, we assume the existence of a method {\bf print} on the RAM model for writing the next entry to the output~registers. 
+	
+	
+	For a product node, we present a \emph{product node iterator} $\uit_\odot$ in Algorithm~\ref{slps:alg:enumeration} (lines \ref{slps:alg1prod0}-\ref{slps:alg1prodlast}). 
+	This iterator receives a product node $v$ with $\lambda(v) = \odot$ and stores a reference of $v$, called $u$, and two iterators $\leftit$ and $\rightit$, for iterating through the left and right nodes $\ell(u)$ and $r(u)$, respectively. 
+	The \textsc{create} method initializes $u$ with $v$, creates the iterators $\leftit$ and $\rightit$, and calls $\leftit.\textsc{next}$ to be prepared for the first call of $\uit_\odot.\textsc{next}$ (lines \ref{slps:alg1prod1}-\ref{slps:alg1prod5}).
+	The purpose of $\uit_\odot.\textsc{next}$ is to fix one output for the left node $\ell(u)$ and iterate over all outputs of $r(u)$ (lines \ref{slps:alg1prod6}-\ref{slps:alg1prod12}). When we stop enumerating all outputs of $\sem{\D}(r(u))$, we move to the next output of $\leftit$, and iterate again over all $\sem{\D}(r(u))$ (lines \ref{slps:alg1prod8}-\ref{slps:alg1prod11}).
+	For printing, we recursively call first the printing method of $\leftit$, and then the one of $\rightit$ (lines \ref{slps:alg1prod13}-\ref{slps:alg1prodlast}).
+		
+	The most involved case is the \emph{union/$\int$ node iterator} $\uit_{\cup/\int}$ (lines \ref{slps:alg1union0}-\ref{slps:alg1unionlast}). 
+	This iterator receives a node $v$ of one of two types, either a union node, or a $\int$-node. It keeps a \emph{stack} $\ustack$ and an iterator~$\uit$. The elements in the stack are pairs $(u, s)$ where $u$ is a node and $s$ is an integer. We assume the standard implementation of a stack with the native methods $\text{\sf push}$, $\text{\sf pop}$, $\text{\sf top}$, and $\text{\sf length}$: the first three define the standard operations over stacks, and $\text{\sf length}$ counts the elements in a stack. 
+	The purpose of the stack is to perform a \emph{depth-first-search} traversal of all union and $\int$ nodes below $v$, reaching all possible output nodes $u$ such that there is a path of only union and $\int$ nodes between $v$ and $u$. At every point, if an element $(u,s)$ is in the stack, then $s$ is equal to the sum of all $\int$ nodes in the path from $v$ to $u$. If the top node of $\ustack$ is a pair $(u, s)$ such that $u$ is an output node, then $\uit$ is an iterator for $u$, which enumerates all their outputs. If $p = (u,s)$, we will use the notation $p.u$ to refer to $u$.
+	
+	In order to perform the \emph{depth-first-search} traversal of union and $\int$ nodes, we use the auxiliary method $\textsc{traverse}(\ustack)$ (lines \ref{slps:alg1traverse0}-\ref{slps:alg1unionlast}). While the node $u$ at the top of $\ustack$ is a union or a shift node, we pop the top pair $(u,s)$ from $\ustack$. If $u$ is a shift node (lines~\ref{slps:alg1traverseIfStart}-\ref{slps:alg1traverseIfEnd}), we push the pair $(v, s')$ in the stack where $v$ is the node $\ell(u)$ pointed by $u$ and $s'$ is the sum of the current shift $s$ with the shift $\lambda(u)$.
+	Otherwise, if $u$ is a union node (lines~\ref{slps:alg1traverseElseStart}-\ref{slps:alg1traverseElseEnd}), we first push the right pair $(r(u), s)$ followed by the left pair $(\ell(u), s)$ into the stack. 	
+	The while-loop will eventually reach an output node at the top of the stack and end. 
+	It is important to note that $\textsc{traverse}(\ustack)$ takes $\cO(k)$ steps, given that the ECS is $k$-bounded. Then if $k$ is fixed, the  $\textsc{traverse}$ procedure takes constant time. In Figure~\ref{slps:fig-enum-stacks}, we illustrate the evolution of a stack $\ustack$ inside a union node iterator when we call $\textsc{traverse}(\ustack)$ several times. 
+	\begin{figure}[t]
+		\centering
+		\input{./figures/slps/enumfignew.tex}
+		\caption{Evolution of the stack $\ustack$ (written on the bottom and represented by dashed arrows) for an iterator over the node $v$ in the figure. 
+		The underlying ECS is made of union nodes, two $\int$ nodes, and six bottom nodes. The first figure is $\ustack$ after calling $\ustack \gets {\sf push}(\ustack, (v,0))$, the second is after calling $\ustack \gets\textsc{Traverse}(\ustack)$. The last two figures represent successive calls to ${\sf pop}(\ustack), \ustack \gets\textsc{Traverse}(\ustack)$.}
+		% \cristian{TODO: actualizar la figura y leyenda según la nueva versión del traverse.}
+		\label{slps:fig-enum-stacks}
+	\end{figure}
+	
+	The methods of a union/$\int$ node iterator $\uit_{\cup/\int}$ are then straightforward. For \textsc{create} (lines \ref{slps:alg1union1}-\ref{slps:alg1union6}), we push $(v,0)$ and then traverse $\ustack$, finding the first leftmost output node from~$v$~(lines~\ref{slps:alg1union4}-\ref{slps:alg1union5}). 
+	Then we build the iterator $\uit$ of this output node for being ready to start enumerating their outputs (line~\ref{slps:alg1union6}). 
+	For \textsc{next}, we consume all outputs by calling $\uit.\textsc{next}$ (line~\ref{slps:alg1unionnext1}). When there are no more outputs, we pop the top node from $\ustack$ and check if the stack is empty or not (lines~\ref{slps:alg1unionnext2}-\ref{slps:alg1unionnext3}). If this is the case, there are no more outputs and we output {\bf false}. Otherwise, if $\ustack$ is non-empty but the top pair $(u,s)$ of $\ustack$ contains a union node, then we apply the \textsc{traverse} method for finding the leftmost output node from~$u$~(lines \ref{slps:alg1unionnext5}-\ref{slps:alg1unionnext6}). When the procedure is done, we know that the node in the top pair is an output node, and then we create an iterator and move to its first output (lines~\ref{slps:alg1unionnext7}-\ref{slps:alg1unionnext8}). 
+	For $\textsc{print}(s)$, we see the pair $(u, s')$ at the top, where we remind that $s'$ represents the sum of all $\int$ nodes on the way to $u$ (line~\ref{slps:alg1unionprint1}), and $u$ is assumed to be an output node. Then, we call the print method of $\uit$ which is ready to write the current output, and over which we add the value $s+s'$ (line~\ref{slps:alg1unionprint2}). 
+		
+	In order to prove the correctness of the enumeration procedure, one can verify that $\textsc{Enumerate}(v)$ in Algorithm~\ref{slps:alg:enumeration} enumerates all the outputs in the set $\sem{\D}(v)$ one by one, and without repetitions, which follows from the fact that $\D$ is duplicate-free. To bound the delay between outputs, the fact that $\D$ is $k$-bounded implies that the delay is bounded by $\cO(k\cdot |w_0|)$ if $w_0$ is the first output, or $O(k\cdot (|w| + |w'|))$ if $w$ and $w'$ are the previous and next outputs, respectively. Specifically:
+	\begin{itemize}
+		\item $\textsc{create}(v)$ takes time $\cO(k\cdot |w_0|)$,
+		\item $\textsc{next}$ takes time $\cO(k\cdot |w_0|)$ for the first call, and $\cO(k\cdot (|w|+|w'|))$ for the next call, and
+		\item $\textsc{print}(s)$ takes time $\cO(k\cdot |w'|)$ where $w'$ is the current output to be printed.  
+	\end{itemize}
+	Overall, $\textsc{Enumerate}(v)$ in Algorithm~\ref{slps:alg:enumeration} requires $O(k\cdot (|w| + |w'|))$ delay to write the next output $w'$ in the output register, after printing the previous output $w$. 
+	
+	We end by pointing out that the existence of an enumeration algorithm $\enumE$ with delay $O(k\cdot (|w| + |w'|))$ between any consecutive outputs $w$ and $w'$, implies the existence of an enumeration algorithm $\enumE'$ with output-linear delay as defined in Section~\ref{slps:sec:setting}. We start noting that $k$ is a fixed value and then the delay of $\enumE$ only depends on $|w| + |w'|$. For depending only on the next output $w'$, one can perform the following strategy for $\enumE'$: start by running~$\enumE$, enumerate the first output $w_0$, advance $k \cdot |w_0|$ more steps of $\enumE$, and stop. Then continue running $\enumE$, enumerate the next output $w_1$, advance $k \cdot |w_1|$ more steps, and stop\footnote{If advancing $k \cdot |w_1|$ more steps requires printing part of the next outputs $w_2, w_3, \ldots$, we could store these outputs in some temporary registers of the RAM model to retrieve them later.}. By repeating this enumeration process, one can verify that the delay between the $i$-th output $w_i$ and the $(i+1)$-th output $w_{i+1}$ is $O(|w_{i+1}|)$. Therefore, $\enumE'$ has output-linear delay. 
+\end{proof}
+
+\paragraph{Operations} 
+The next step is to provide a set of operations that allow extending a \dsabbr{} $\cD$ in a way that maintains $k$-boundedness. Fix a \dsabbr{} $\cD = (\infAlph, V, \lch, \rch, \lambda)$. Then for any $\oout \in \infAlph$, $v_1, \ldots, v_4, v \in V$ and $k\in\int$, we define the operations:
+\[
+\begin{array}{rclrclrcl}
+	\add(\oout) \! \! \! &\to&\! \! \! v'  \ \ \ \ \ \  \prod(v_1, v_2) \! \! \! &\to&\! \! \! v'   \\  \union(v_3, v_4) \! \! \! &\to&\! \! \! v' \ \ \ \ \ \  \shiftop(v, k) \! \! \! \! \! &\to&\! \! \! v'
+\end{array}
+\]
+such that $\sem{\cD}(v') := \{(\oout,1)\}$; $\sem{\cD}(v') := \sem{\cD}(v_1) \cdot \sem{\cD}(v_2)$; $\sem{\cD}(v') := \sem{\cD}(v_3) \cup \sem{\cD}(v_4)$; and $\sem{\cD}(v') := \shift(\sem{\cD}(v), k)$, respectively.
+Here we assume that the $\union$ and $\prod$ respect properties (1) and (2) of a duplicate-free \dsabbr{}, namely, $\sem{\cD}(v_3)$ and $\sem{\cD}(v_4)$ are disjoint and, for every $w \in \sem{\cD}(v_1) \cdot \sem{\cD}(v_2)$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \sem{\cD}(v_1)$ and $w_2 \in \sem{\cD}(v_2)$.
+
+Strictly speaking, each operation above should receive as input the data structure $\cD$, and output a fresh node $v'$ plus a new data structure $\cD' = (\infAlph, V', \lch', \rch', \lambda')$ such that $\cD'$ is an extension of $\cD$, namely, $\mathsf{obj} \subseteq \mathsf{obj}'$ for every $\mathsf{obj} \in \{V, \lch, \rch, \lambda\}$ and $v' \in V' \setminus V$. Note that we assume that each operation can only extend the data structure with new nodes and that old nodes are immutable after each operation. For simplification, we will not explicitly refer to $\cD$ on the operations above, although they modify $\cD$ directly by adding new nodes. 
+
+To define the above operations, we impose further restrictions on the structure below the operations' input nodes to ensure $k$-boundedness. Towards this goal, we introduce the notion of \emph{safe nodes}.
+We say that a node $v \in V$ is \emph{safe} if $v$ is a shift node and either $\lch(v)$ is an output node (i.e., a bottom or product node), or $u = \lch(v)$ is an union node,  $\odepth_{\cD}(u) = 1$, and $\rch(u)$ is a shift node with $\odepth_{\cD}(\rch(u)) \leq 2$.
+In other words, $v$ is safe if it is a shift node over an output node or over a union node with an output on the left and a shift node on the right, whose output depth is less or equal to $2$. 
+The trick then is to show that all operations over \dsabbrs{} receive only safe nodes and always output safe nodes. 
+As we will see, safeness will be enough to provide a light structural restriction on the operations' input nodes in order to maintain $k$-boundedness after each operation.  
+
+Next, we show how to implement each operation assuming that every input node is safe. In fact, the cases of $\add$ and $\shiftop$ are straightforward. 
+For $\add(\oout)\to v'$ we extend $\cD$ with two fresh nodes $v'$ and $u$ such that $\lambda(u) = \oout$, $\lambda(v') = 0$, and $\lch(v') = u$. In other words, we hang a fresh $0$-shift node $v'$ over a fresh $\oout$-node $u$, and output $v'$. 
+For $\shiftop(v, k) \to v'$, add the fresh node $v'$ to $\cD$, and set $\ell(v') = \ell(v)$ and $\lambda(v') = \lambda(v) + k$.
+One can easily check that in both cases the node $v'$ represents the desired set, is safe, and $k$-boundedness is preserved.
+
+To show how to implement $\prod(v_1, v_2)\to v'$, recall that $v_1$ and $v_2$ are safe and, in particular, both are shift nodes. 
+Then we need to extend $\cD$ with fresh nodes $v'$, $v''$, and $v'''$ such that  $\ell(v') = v''$, $\ell(v'') = \ell(v_1)$, $r(v'') = v'''$, $\ell(v''') = \ell(v_2)$, $\lambda(v') = \lambda(v_1)$, $\lambda(v'') = \odot$ and $\lambda(v''') = \lambda(v_2) - \lambda(v_1)$. 
+Figure~\ref{slps:fig:gadgets}(a) shows a diagram of this gadget. One can easily check that $v'$ represents the product of $v_1$ and $v_2$, $v'$ is safe, and the new version of $\cD$ is $k$-bounded whenever $\cD$ is also $k$-bounded.
+
+The last operation is $\union(v_3, v_4)\to v'$. The strategy is then to prove that if $v_3$ and $v_4$ are safe nodes, then we can implement the operator and produce a safe node $v'$. Let us define $v'$ as follows:
+\begin{itemize}
+	\item If at least one among $\ell(v_3)$ and $\ell(v_4)$ is an output node, assume without loss of generality that it is $\ell(v_3)$. We extend $\cD$ with nodes $v'$, $v''$ and $v'''$, where $\ell(v') = v''$, $\ell(v'') = \ell(v_3)$, $r(v'') = v'''$, $\ell(v''') = \ell(v_4)$, $\lambda(v') = \lambda(v_3)$, $\lambda(v'') = \cup$ and $\lambda(v''') = \lambda(v_4) - \lambda(v_3)$. 
+	This construction is identical to the $\prod$ construction shown in Figure~\ref{slps:fig:gadgets}(a), except replacing $v_1$ and $v_2$ by $v_3$ and $v_4$ respectively, and $\lambda(v'')$ from $\odot$ to $\cup$.
+	%This construction is illustrated in FIgure~\ref{slps:fig-theo-ds}. 
+	\item When both $u_3 = \lch(v_3)$ and $u_4 = \lch(v_4)$ are union nodes, let $k'_1 = \lambda(r(u_3))$ and let $k'_2 = \lambda(r(u_4))$. 
+	We extend $\cD$ with fresh nodes $v',v'_1,v'_2,v'_3,v'_4,v'_5$ and $v'_6$. 
+	Define $\lambda(v') = k_1$, $\lambda(v'_1) = \cup$, $\lambda(v'_2) = k_2 - k_1$, $\lambda(v'_3) = \cup$,  $\lambda(v'_4) = k_1+k'_1-k_2$, $\lambda(v'_5) = \cup$ and $\lambda(v'_6) = k_2 + k'_2 - k_1 - k'_1$. 
+	Then define $\ell(v') = v'_1$, $\ell(v'_1) = \ell(u_3)$, $r(v'_1) = v'_2$, $\ell(v'_2) = v'_3$, $\ell(v'_3) = \ell(u_4)$, $r(v'_3) = v'_4$, $\ell(v'_4) = v'_5$, $\ell(v'_5) = \ell(r(u_3))$, $r(v'_5) = v'_6$ and $\ell(v'_6) = \ell(r(u_4))$. 
+	We show an illustration of this gadget in Figure~\ref{slps:fig:gadgets}(b).
+\end{itemize}
+
+
+
+We can prove that the last construction has several interesting properties.
+First, one can check that $\sem{\cD}(v') = \sem{\cD}(v_3)\cup \sem{\cD}(v_4)$ since each shift value is 
+%carefully 
+constructed so that the accumulated shift value from $v'$ to each node remains unchanged.
+Thus, the semantics is well-defined. 
+Second, $\union$ can be computed in constant time in $|\cD|$ given that we only need to add a fixed number of fresh nodes.
+%and the operation is fully-persistent given that we connect them to previous nodes without modifying $\cD$. 
+Furthermore, the produced node $v'$ is safe, even though some of the new nodes are not necessarily safe. 
+Finally, the new $\cD$ is 3-bounded whenever $\cD$ is 3-bounded. This is straightforward to see for the case when $\ell(v_3)$ (or $\ell(v_4)$) is an output node. To see this for the second case, we first have to notice that $\ell(u_3)$ and $\ell(u_4)$ are output nodes, and that $\odepth(\ell(r(u_3)))\leq 1$ and $\odepth(\ell(r(u_4)))\leq 1$. We can check the depth of each node going from the bottom to the top: $\odepth(v_6') \leq 2$, $\odepth(v_5') \leq 2$, $\odepth(v_4') \leq 3$, $\odepth(v_3')\leq 1$, $\odepth(v_2') \leq 2$, $\odepth(v_1') \leq 1$ and $\odepth(v')\leq 2$.
+
+\begin{figure}[t]
+	\centering
+	\begin{tikzpicture}[every label/.style={black!60}, ->,>=stealth',roundnode/.style={circle,inner sep=1pt},squarednode/.style={rectangle,inner sep=2pt}, scale=0.85]
+		
+	
+		\begin{scope}[xshift=-8cm, yshift=0cm]
+			\node[squarednode] (0) at (0, 0) {$\ell(v_1)$};
+			\node[squarednode, draw, label=180:\footnotesize{$v_1\!:$}] (2) at (2, 1.2) {$k_1$};
+			\node[squarednode] (3) at (4, 0) {$\ell(v_2)$};
+			\node[squarednode, draw, label=180:\footnotesize{$v_2\!:$}] (5) at (6, 1.2) {$k_2$};
+			\node[squarednode, label=180:\footnotesize{$v'''\!:$}] (7) at (5.5, 2.1) {$(k_2-k_1)$};
+			\node[squarednode, label=180:\footnotesize{$v''\!:$}] (8) at (3, 3.0) {$\odot$};
+			\node[squarednode, draw, label=180:\footnotesize{$v'\!:$}] (9) at (4.5, 4.2) {$k_1$};
+			\draw[dashed] (2.south west) to[out=-135,in=45] (0);
+			\draw[dashed] (5.south west) to[out=-135,in=45] (3);
+			\draw[dashed] (7.south west) to[out=-135,in=90] (3);
+			\draw (8) to[out=-45,in=135] (7.north west);
+			\draw[dashed] (8) to[out=-135,in=90] (0);
+			\draw[dashed] (9.south west) to[out=-135,in=90] (8);
+			
+			\node at (3, -0.7) {(b)}; 
+	
+		\end{scope}
+		
+		
+		\node[squarednode] (0) at (0, 0) {$\ell(u_3)$};
+		\node[squarednode] (1) at (2, 0) {$\ell(r(u_3))$};
+		\node[squarednode, label=180:\footnotesize{$r(u_3)\!:$}] (1p) at (2, 1) {$k_1'$};
+		\node[squarednode, label=180:\footnotesize{$u_3\!:$}] (2) at (1, 2) {$\cup$};
+		\node[squarednode, draw, label=180:\footnotesize{$v_3\!:$}] (2p) at (1.2, 3) {$k_1$};
+		\node[squarednode] (0b) at (4, 0) {$\ell(u_4)$};
+		\node[squarednode] (1b) at (6, 0) {$\ell(r(u_4))$};
+		\node[squarednode, label=180:\footnotesize{$r(u_4)\!:$}] (1bp) at (6, 1) {$k_2'$};
+		\node[squarednode, label=180:\footnotesize{$u_4\!:$}] (2b) at (5, 2) {$\cup$};
+		\node[squarednode, draw, label=180:\footnotesize{$v_4\!:$}] (2bp) at (5.2, 3) {$k_2$};
+		\node[squarednode, draw, label=180:\footnotesize{$v'\!:$}] (vp) at (3.5, 9) {$k_1$};
+		\node[squarednode, label=180:\footnotesize{$v_1'\!:$}] (v) at (3, 8) {$\cup$};
+		\node[squarednode, label=180:\footnotesize{$v_2'\!:$}] (u1p) at (4.5, 7) {$k_2 - k_1$};
+		\node[squarednode, label=180:\footnotesize{$v_3'\!:$}] (u1) at (4, 6) {$\cup$};
+		\node[squarednode, label=180:\footnotesize{$v_4'\!:$}] (u2p) at (5.5, 5) {$k_1+k_1'-k_2$};
+		\node[squarednode, label=180:\footnotesize{$v_5'\!:$}] (u2) at (4.8, 4) {$\cup$};
+		\node[squarednode, label=180:\footnotesize{$v_6'\!:\!\!\!\!\!\!\!$}] (u3) at (7, 3) {$
+			\begin{array}{r}
+			k_2 +k_2' \\
+			- k_1 - k_1'
+			\end{array}$};
+		\draw[dashed] (vp) to (v);
+		\draw[dashed] (v) to[out=-135, in=110] (0);
+		\draw (v) to[out=-45] (u1p);
+		\draw[dashed] (u1p) to (u1);
+		\draw[dashed] (u1) to[out=-135, in=110] (0b);
+		\draw (u1) to[out=-45] (u2p);
+		\draw[dashed] (u2p) to (u2);
+		\draw[dashed] (u2) to[out=-135, in=45] (1);
+		\draw (u2) to[out=-45] (u3);
+		\draw[dashed] (u3) to[out=-135,in=45] (1b);
+		\draw[dashed] (2) to[out=-135, in=90] (0);
+		\draw (2) to[out=-45,in=135] (1p);
+		\draw[dashed] (1p) to[out=-135,in=90] (1);
+		\draw[dashed] (2p) to (2);
+		\draw[dashed] (2b) to[out=-135, in=90] (0b);
+		\draw (2b) to[out=-45,in=135] (1bp);
+		\draw[dashed] (1bp) to[out=-135,in=90] (1b);
+		\draw[dashed] (2bp) to (2b);
+		
+		\node at (3, -0.7) {(c)}; 
+	\end{tikzpicture}
+	\caption{
+	(a) Gadget for $\prod(\cD,v_1,v_2, k)$. 
+	(b) Gadget for $\union(\cD,v_3,v_4)$. 
+	We use dashed and solid edges for the left and right mappings, respectively. 
+	Node names are in grey at the left of each node. Nodes in square boxes are the input and output nodes of each~operation.}
+	\label{slps:fig:gadgets}
+	\vspace{-3mm}
+\end{figure}
+
+By the previous discussion, if we start with a \dsabbr\ $\cD$ which is 3-bounded (in particular, empty) and we apply the $\add$, $\prod$, $\union$ and $\shiftop$ operators between safe nodes (which also produce safe nodes), then the result is 3-bounded as well.
+Furthermore, the data structure is fully-persistent~\cite{DriscollSST86}: for every node $v$ in $\cD$, $\sem{\cD}(v)$ is immutable after each operation. Finally, by Proposition~\ref{slps:prop:lindelay}, the result can be enumerated with output-linear~delay.
+
+\begin{theorem}\label{slps:theo:data-structure}
+	The operations $\add$, $\prod$, $\union$ and $\shiftop$ take constant time and are fully persistent. Furthermore, if we start from an empty \dsabbr\ $\cD$ and apply these operations over safe nodes, the result node $v'$ is always a safe node and the set $\sem{\cD}(v)$ can be enumerated with output-linear delay (without preprocessing) for every node $v$.
+\end{theorem} 
+
+
+\paragraph{The empty- and $\epsilon$-nodes} 
+The last step of constructing our model of \dsabbr{} is the inclusion of two special nodes that produce the empty set and the empty string, called empty- and $\epsilon$-nodes, respectively. 
+%For the sake of presentation, we include both nodes here, although they are crucial for our evaluation algorithm in Section~\ref{slps:sec:evaluation}.
+
+We start with the empty node, which is easier to incorporate into a \dsabbr{}. Consider a special node $\bot$ and include it on every \dsabbr{} $\cD$, such that $\sem{\cD}(\bot) = \emptyset$. 
+Then extend the operations $\prod$, $\union$, and $\shiftop$ accordingly to the empty set, namely, $\prod(v_1, v_2) \to \bot$ whenever $v_1$ or $v_2$ is equal to $\bot$, $\union(v, \bot) = \union(\bot, v) \to v$, and $\shiftop(\bot, k) \to \bot$ for every nodes $v_1, v_2, v$, and $k \in \int$. It is easy to check that one can include the $\bot$-node into \dsabbrs{} without affecting the guarantees of Theorem~\ref{slps:theo:data-structure}.
+
+The other special node is the $\epsilon$-node. Let $\eps$ denote a special node, included on every \dsabbr{} $\cD$, such that $\sem{\cD}(\epsilon) = \{\epsilon\}$. With these new nodes in a \dsabbr{}, we need to revise our notions of output-depth, duplicate-free, and $k$-boundedness to change the enumeration algorithm, and to extend the operations $\add$, $\prod$, $\union$, and $\shiftop$ over so-called $\epsilon$-safe nodes (i.e., the extension of safe nodes with $\epsilon$). 
+
+%Given space restrictions, we show the use of $\epsilon$-nodes in an extended version and how we can preserve Proposition~\ref{slps:prop:lindelay} and Theorem~\ref{slps:theo:data-structure}. 
+
+%	Extending these four operations to deal with empty nodes is straightforward, and this has already been defined, so we will focus on operations that deal with the $\eps$-node.
+	First, we add the condition that for any \dsabbr $\cD$ the $\eps$-node is either parentless (and thus disconnected to the rest of the structure), or if it has any parents, then they must be parentless union nodes, and the $\eps$-node must be the left child of each. We call this the {\it $\eps$-condition}. We will see that any node that might be the result of applying the operations $\add$, $\prod$, $\union$ and $\shiftop$ is equivalent to a node in a \dsabbr $\cD$ that satisfies this. 
+	
+	The notions of output-depth, duplicate-free, and $k$-boundedness are mostly unchanged in this setting: If $v$ is the $\eps$-node, then $\odepth(v) = 0$, and if $v$ is a union node with the $\eps$-node as its left child, $\odepth(v) = 1$. No other node has the $\eps$-node as a descendant, so the definition of output-depth remains the same; and the definitions of duplicate-free and $k$-bounded remain unchanged as well. By assuming the $\eps$-condition, one can see that enumeration remains identical as before, except now the $\eps$-node might be seen once as the left child of the root. Then we can state the following as a corollary of Proposition~\ref{slps:prop:lindelay}:
+	
+	\begin{corollary}\label{slps:prop:lindelayeps}
+		Fix $k\in\nat$. Let $\mathcal{C}_k$ be the class of all  duplicate-free and $k$-bounded \dsabbrs{} that satisfy the $\eps$-condition. Then one can solve the problem $\enumecs[\mathcal{C}_k]$ with output-linear delay and without preprocessing (i.e. constant preprocessing time).
+	\end{corollary}
+	
+	
+	We now define the notion of {\it $\eps$-safe} nodes. These are nodes $v$ which satisfy one of three conditions: (1) $v$ is the $\eps$-node, (2) $v$ is safe and none of its descendants is the $\eps$-node, and (3) $v$ is a union node, its left child is the $\eps$-node, and its right child is a safe node for which none of its descendants is the $\eps$-node. 
+	To guide the constructions, we call these conditions 1, 2 and 3.
+	These conditions will allow us to use the constructions already given for $\prod$, $\union$, and $\shiftop$ over safe nodes, such as node $v$, in the case of condition 2, or $r(v)$, in the case of condition 3.
+	The rest of this proof will be extending these operations to work over $\eps$-safe nodes, and check that they can be done in constant time, return an $\eps$-safe node, maintain the $\eps$-condition in the \dsabbr, and satisfy the specifications of each operation (i.e., that for the resulting node $v'$ the set $\sem{\cD}(v')$ contains what it should). 
+	
+	We define the operation $\add$ the same as in a \dsabbr without $\eps$. The operation $\add(\eps)$ is not defined since the $\eps$-node is always part of $\cD$.
+	
+	The $\prod$ case is somewhat more involved. First, assume that some node among $v_1$ and $v_2$ is the $\eps$-node (condition 1). Without loss of generality, assume that $v_1 = \eps$ . If $v_2$ is the $\eps$-node as well, we simply return $v_1$; and if $v_2$ is not the $\eps$-node (conditions 2 or 3), we simply return $v_2$. The requirements of the construction follow trivially. Now, assume that both $v_1$ and $v_2$ satisfy condition 2. For this case we simply return $\prod(v_1, v_2)$ as it was defined for a \dsabbr without $\eps$. Lastly, assume at least one node among $v_1$ and $v_2$ satisfies condition~3 and none of them are the $\eps$-node. These cases are depicted in Figure~\ref{slps:fig-prod-multi-gadget}. 
+	We describe them formally as follows, assuming that $v'$ is the output and using the operations $\union$ and $\prod$ as they were defined for a \dsabbr without $\eps$.
+	\begin{itemize}
+		\item If $v_1$ satisfies condition 2 and $v_2$ satisfies condition 3, define $v'' \gets \prod( v_1, r(v_2))$ and $v' \gets \union( v_1, v'')$.
+		\item If $v_1$ satisfies condition 3 and $v_2$ satisfies condition 2, define $v'' \gets \prod( r(v_1), v_2)$ and $v' \gets \union( v'', v_2)$.
+		\item If both $v_1$ and $v_2$ satisfy condition 3, define $v'' \gets \prod( r(v_1), r(v_2))$, $v_3 \gets \union( v'', r(v_2))$, and $v_4 \gets \union( r(v_1), v_3)$. Lastly, define $\lambda(v') = \cup$, $\ell(v') = \eps$, and $r(v') = v_4$.
+	\end{itemize}
+	
+	One can verify that these constructions work as expected, namely, $\sem{\cD'}(v) = \sem{\cD}(v_1)\cdot\sem{\cD}(v_2)$. Also, if $v_1$ and $v_2$ are $\eps$-safe, then $v'$ is $\eps$-safe as well. Also, each construction does a fixed number of steps, so they take constant time.
+	
+	\begin{figure}[t]
+		\centering
+		\hfill
+		\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.2pt},squarednode/.style={rectangle,inner sep=2pt}, scale=1]
+			\node [squarednode] (c) at (1.12, -0.6) {$(a)$};
+			\node [squarednode] (0) at (0.8, 2.75) {$\union$};
+			\node [squarednode] (6) at (-0.05, 2.75) {$v'\gets$};
+			\node [squarednode] (1) at (0, 1) {$v_1$};
+			\node [squarednode] (2) at (1.6, 1.75) {$\prod$};
+			\node [squarednode] (3) at (1.6, 1) {$v_2$};
+			\node [squarednode] (4) at (0.8, 0) {$\eps$};
+			\node [squarednode] (5) at (2.4, 0) {$r(v_2)$};
+			\draw[dashed] (0) to[out=-135,in=90] (1);
+			\draw (0) to[out=-45,in=120] (2);
+			\draw (2) to[out=-45,in=90] (5);
+			\draw[dashed] (3) to[out=-135,in=60] (4);
+			\draw (3) to[out=-45,in=120] (5);
+			\draw[dashed] (2) to (1);
+		\end{tikzpicture} \hfill
+		\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.2pt},squarednode/.style={rectangle,inner sep=2pt}, scale=1]
+			\node [squarednode] (c) at (1.6, -0.6) {$(b)$};
+			\node [squarednode] (0) at (2.5, 2.75) {$\union$};
+			\node [squarednode] (6) at (1.65, 2.75) {$v'\gets$};
+			\node [squarednode] (1) at (3, 1) {$v_2$};
+			\node [squarednode] (2) at (1.90, 1.75) {$\ \prod$};
+			\node [squarednode] (3) at (0.85, 1) {$v_1$};
+			\node [squarednode] (4) at (0.2, 0) {$\eps$};
+			\node [squarednode] (5) at (1.5, 0) {$r(v_1)$};
+			\draw (0) to[out=-60,in=90] (1);
+			\draw[dashed] (0) to[out=-135,in=70] (2);
+			\draw[dashed] (2) to[out=-120,in=90] (5);
+			\draw[dashed] (3) to[out=-135,in=60] (4);
+			\draw (3) to[out=-45,in=120] (5);
+			\draw (2) to (1);
+		\end{tikzpicture} \hfill
+		\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.1pt},squarednode/.style={rectangle,inner sep=2pt},scale=1.1]
+			\node [squarednode] (c) at (1.6, -0.5) {$(c)$};
+			\node [squarednode] (0) at (1.5, 2.75) {$\cup$};
+			\node [squarednode] (11) at (0.88, 2.8) {$v'\gets$};
+			\node [squarednode] (1) at (0.75, 2.25) {$\eps$};
+			\node [squarednode] (2) at (2.25, 2.25) {$\union$};
+			\node [squarednode] (3) at (3, 1.75) {$\union$};
+			\node [squarednode] (4) at (2.1, 1) {$\prod$};
+			\node [squarednode] (5) at (3.2, 1) {$v_2$};
+			\node [squarednode] (6) at (2.5, 0) {$\eps$};
+			\node [squarednode] (7) at (4, 0) {$r(v_2)$};
+			\node [squarednode] (8) at (0.5, 1) {$v_1$};
+			\node [squarednode] (9) at (0, 0) {$\eps$};
+			\node [squarednode] (10) at (1, 0) {$r(v_1)$};
+			\draw[dashed] (0) to (1);
+			\draw (0) to (2);
+			\draw[dashed] (2) to[out=-135,in=70] (10);
+			\draw[dashed] (4) to (10);
+			\draw (4) to[out=-45,in=145] (7);
+			\draw[dashed] (5) to[out=-135,in=60] (6);
+			\draw (5) to[out=-45,in=120] (7);
+			\draw (3) to[out=-45,in=90] (7);
+			\draw[dashed] (3) to (4);
+			\draw (2) to (3);
+			\draw (8) to[out=-50,in=100] (10);
+			\draw[dashed] (8) to[out=-125,in=80] (9);
+		\end{tikzpicture} \ \ \hfill
+		\caption{Gadgets for $\prod$ as defined for a \dsabbr with the $\eps$-node.}
+		\label{slps:fig-prod-multi-gadget}
+	\end{figure}
+	
+	%We now address the $\union$ case. To aid the intuition behind these constructions, notice that the \dsabbr structure with the $\eps$-node and the empty-node define sets in $2^{\infAlph^*}$, and can be thought of as the semiring $(2^{\infAlph^*}\!\!, \emptyset, \{\eps\}, \times, \cup)$. In particular 
+	
+	Similarly, we address the operation $\union(v_3, v_4) \to v'$ by considering each case separately.
+	%Since this is a commutative operation, in the sense that the result of $\union( v_3, v_4)$ and $\union( v_4, v_3)$ should define the same set, we only describe the cases where the conditions satisfied by $v_3$ and $v_4$ are $(1,1)$, $(1, 2)$, $(1, 3)$, $(2, 2)$, $(2, 3)$ and $(3, 3)$.
+	\begin{itemize}
+		\item Assume $v_3$ is the $\eps$-node (condition 1). (1) If $v_4$ also is the $\eps$-node, then we simply return $v'\gets\eps$. (2) If $v_3$ satisfies condition 2, let $v'$ be a union node such that $\ell(v') = \eps$ and $r(v') = v_4$. It can be seen that $v'$ satisfies condition 3 and that its $\eps$-safe. (3) If $v_4$ satisfies condition 3, we simply return $v'\gets v_4$.
+		\item Assume $v_3$ satisfies condition 2. (1) If $v_4$ is the $\eps$-node, we return $v'\gets \union( v_4, v_3)$ using the construction for the case (2) in the previous item. (2) If $v_4$ satisfies condition 2, then we return $v'\gets \union( v_3, v_4)$ as it was defined for \dsabbrs without $\eps$. (3) If $v_4$ satisfies condition 3, let $v'' \gets \union( v_3, r(v_4))$, and let $v'$ be a union node such that $\ell(v') = \eps$ and $r(v) = v''$. Again, it can be seen that $v'$ is $\eps$-safe.
+		\item Assume $v_3$ satisfies condition 3. (1) If $v_4$ is the $\eps$-node, we simply return $v'\gets\eps$. (2) If $v_4$ satisfies condition 2, we follow the construction given in case (3) of the previous item. (3) If $v_4$ satisfies condition 3, let $v''\gets\union( r(v_3), r(v_4))$ and let $v'$ be a union node such that $\ell(v') = \eps$ and $r(v) = v''$. It can be seen that $v'$ is $\eps$-safe.
+	\end{itemize}
+	
+	Clearly, in each of these cases above we have that $\sem{\cD}(v') = \sem{\cD}(v_3)\cup \sem{\cD}(v_4)$, and if $v_3$ and $v_4$ are $\eps$-safe, then $v'$ is $\eps$-safe as well. In addition, they all take constant time and in each case the new version of $\cD$ satisfies the $\eps$-condition.
+	
+	The operation $\shiftop( v, k)$ is defined as follows. If $v$ is the $\eps$-node, we return $v'\gets\eps$. If $v$ satisfies condition 2, we return $v'\gets\shiftop( v, k)$ as it was defined for \dsabbrs without $\eps$. If $v$ satisfies condition 3, let $v''\gets\shiftop(r(v), k)$ and let $v'$ be a union node such that $\ell(v') =\eps$ and $r(v) = v''$. It can be seen that $v'$ is $\eps$-safe.
+	
+	By the previous constructions, we can conclude that the operations $\add$, $\prod$, $\union$ and $\shiftop$, when done over $\eps$-safe nodes, can be done in constant time, return an $\eps$-safe node, maintain the $\eps$-condition in the \dsabbr, and satisfy the specifications of each operation. Furthermore, by virtue of Corollary~\ref{slps:prop:lindelayeps}, the set $\sem{D}(v)$ can be enumerated with output-linear~delay for each node $v$ in $\cD$.
+
+%We summarize the case of $\epsilon$-nodes in the following theorem which is an extension of Theorem~\ref{slps:theo:data-structure}.
+
+\begin{theorem}\label{slps:theo:data-structure-eps}
+	The operations $\add$, $\prod$, $\union$ and $\shiftop$ over \dsabbr{} extended with empty- and $\epsilon$-nodes take constant time. Furthermore, if we start from an empty \dsabbr{}~$\cD$ and apply $\add$, $\prod$, $\union$, and $\shiftop$ over $\epsilon$-safe nodes, the resulting node $v'$ is always an $\epsilon$-safe node, and the set $\sem{\cD}(v)$ can be enumerated with output-linear delay without preprocessing for every node $v$.
+\end{theorem} 
+
+For the rest of the chapter, we assume that a \dsabbr{} is a tuple $\cD = (\infAlph, V, \lch, \rch, \lambda, \bot, \epsilon)$ where we define $\infAlph, V, \lch, \rch,\lambda$ as before, and $\bot, \epsilon \in V$ are the empty and $\epsilon$ nodes, respectively. Further, we assume that $\lch$, $\rch$, and $\lambda$ are extended accordingly, namely,  $\lch(v)$ and $\rch(v)$ are not defined whenever $v \in \{\bot, \epsilon\}$, and $\lambda:V\to\infAlph\cup\int \cup \{\cup, \odot,\bot, \eps\}$ such that $\lambda(v) = \bot$ ($\lambda(v) = \epsilon$) iff $v = \bot$ ($v = \eps$, respectively). 
+%Finally, we can extend Theorem~\ref{slps:theo:data-structure} for the \dsabbr{} extension as follows. 
+
+
+
+

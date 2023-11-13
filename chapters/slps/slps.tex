@@ -1,0 +1,34 @@
+%!TEX root = main.tex
+
+	A context-free grammar is a tuple $G = (N,\Sigma,R,S_0)$, where $N$ is the set of non-terminals, $\Sigma$ is the terminal alphabet, $S_0\in N$ is the start symbol and $R\subseteq N \times(N \cup\Sigma)^{+}$ is the set of rules (as a convention, the rule $(A,w) \in R$ is commonly written as $A\to w$). A context-free grammar $S = (N,\Sigma,R,S_0)$ is a \emph{straight-line
+program} (SLP) if $R$ is a total function $N\to(N \cup\Sigma)^{+}$ and the directed graph $(N, \{(A,B)\mid (A,w) \in R \text{ and } B\text{ appears in } w\})$ is acyclic. 
+For every $A \in N$, let $\derst_S(A)$ be the unique $w \in (N \cup\Sigma)^{+}$ such that $(A,w) \in R$, and for every $a \in \Sigma$ let $\derst_S(a) = a$.
+\cristian{Yo cambiaria ese $\derst_S$, por extender $R$. Ya que $R$ es una función, creo que naturalmente se extiende y no necesitas símbolos nuevos.}
+%we also call $A \to \derst_S(A)$ {\em the rule for} $A$. 
+For an SLP $S = (N,\Sigma,R,S_0)$, we extend $\derst_S$ to a morphism $(N \cup\Sigma)^{+}\to(N \cup\Sigma)^{+}$ by defining $\derst_S(\alpha_1 \ldots \alpha_n) = \derst_S(\alpha_1)\cdot \ldots \cdot \derst_S(\alpha_n)$, where $\alpha_i \in (N \cup\Sigma)$, for $i\in[1,n] $. Furthermore, we define $\str_S(\alpha) = \alpha$ if $\alpha\in\Sigma^+$, and $\str_S(\alpha) = \str_S(\derst_S(\alpha))$ if $\alpha\in (N\cup\Sigma)^+\setminus\Sigma^+$. By our definition of SLP, $\str_S(A)$ is in $\Sigma^+$ (in particular, it is finite), and uniquely defined for each $A\in N$. We will sometimes write the function $\str_S$ as $\str$ if $S$ is obvious from the context.
+%Furthermore, for every $\alpha \in (N \cup\Sigma)^{+}$, we set $\derst^1_S(\alpha) = \derst_S(\alpha)$, $\derst^k_S(\alpha) =
+%\derst_S(\derst^{k-1}_S (\alpha))$, for every $k \geq 2$, and $\mathfrak{D}_S(\alpha) = \derst^{|N|}_S (\alpha)$ is the derivative of $\alpha$. By definition, $\mathfrak{D}_S(\alpha) \in \Sigma^+$ for every $\alpha \in (N \cup\Sigma)^{+}$. 
+
+\cristian{Sacar estos resultados y poner la definición principal del problema con Annotated Automata y ejemplos.}
+
+We define the size of an SLP $S$, noted by $|S|$, as the size of its set of non-terminals $N$.
+	
+	\begin{lemma}\label{slps:sizes}
+		Given an SLP $S$, we can compute the values of $|\str(A)|$ for all non-terminals $A$ in $S$ in time $\bigcal{O}(|S|)$.		
+	\end{lemma}
+
+%\cristian{Quizás es bueno definir que es el tamaño $|S|$.}
+
+%\begin{lemma}
+%	Let $S$ be a SLP for a string $w$ and let $M$ be a regular automaton with state set $Q$. We can check whether $d\in L(M)$ in time $\bigcal{O}(|S| \cdot |Q|^3)$.
+%\end{lemma}
+
+
+
+From now on, we assume that all SLPs are in Chomsky normal form, due to the following result:
+
+\begin{theorem}[SLP Balancing theorem]
+	There is a $c\in\nat$ such that any given SLP $S$ for string $w$ can be transformed in time $\cO(|S|)$ into a SLP $S'$ for $w$ in Chomsky normal form with $|S'| \leq c\cdot|S|$.
+\end{theorem}
+
+%\cristian{Es necesario esta suposición? Quizás para lo nuestro lo podemos hacer directamente. }

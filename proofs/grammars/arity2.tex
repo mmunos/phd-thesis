@@ -1,0 +1,204 @@
+\paragraph{Conditions 1 and 2: removing useless nonterminals}
+We first perform a linear-time exploration from the terminals to mark the
+nonterminals $X$ that can derive some string of terminals. The base case is if a nonterminal
+$X$ has a rule $X \rightarrow \alpha$ where $\alpha$ only consists of terminals
+(in particular $\alpha = \epsilon$), then we mark it.
+The induction is that whenever a nonterminal $X$ has a rule $X
+\rightarrow \alpha$ where $\alpha$ only consists of terminals and of
+marked nonterminals, then we mark~$X$. At the end of this process, it is clear that any nonterminal
+that is not known to derive a string of terminals indeed does not derive any
+string, because any derivation of a string of terminals from a nonterminal $X$
+would witness that all nonterminals in this derivation, including $X$, should
+have been marked, which is impossible. Hence, we can remove the nonterminals
+that are not marked without changing the language or
+successful derivations of the grammar, and satisfy condition 1 in linear time.
+
+Second, we perform a linear-time exploration from the start symbol $S$ to mark the
+nonterminals $X$ that can be reached in a derivation from $S$. The base case is
+that $S$ is marked. The induction is that whenever a nonterminal $Y$ occurs in
+the right-hand side of a rule having $X$ as its left-hand side, and $X$ is
+marked, then we mark $Y$. At the end of the process, if a nonterminal $X$ is
+not marked, then indeed there is no derivation from $S$ that produces a string
+featuring $X$, as otherwise it would witness that $X$ is marked, which is
+impossible. Hence, we can again remove the nonterminals that are not marked,
+the grammar and successful derivations are again unchanged, and we
+satisfy condition 2 in linear time.
+
+As the transformations here only remove nonterminals and rules that cannot
+appear in a derivation, they clearly preserve unambiguity as well as rigidity.
+
+\paragraph{Condition 3: shape of rules}
+We first ensure that every right-hand side of a rule is of size $\leq 2$.
+Given the annotated grammar $\mathcal{G}$, for every rule $X \rightarrow \alpha$ where
+$|\alpha| > 2$, letting $\alpha = \alpha_1\cdots\alpha_n$,
+we introduce $n-2$ fresh nonterminals $X_{\alpha,1},
+\ldots, X_{\alpha,n-2}$, and replace the rule by the following: $X
+\rightarrow \alpha_1 X_{\alpha,1}$, $X_{\alpha,1} \rightarrow \alpha_2
+X_{\alpha,2}$, ..., $X_{\alpha,n-2} \rightarrow \alpha_{n-1} \alpha_{n}$.
+
+We make sure that the right-hand side of rules of size 2 consist only of
+nonterminals by introducing fresh intermediate nonterminals whenever
+necessary, which rewrite to the requisite terminal.
+
+%
+%
+%
+It is then clear that the result satisfies condition 3, and that there is
+a one-to-one correspondence between derivations in the original grammar and derivations in the rewritten grammar. To see this, note that there is an obvious one-to-one function which maps derivations from the original grammar into derivations in the new grammar, and that there is a slightly more involved function which receives a derivation in the new grammar, and builds a derivation in the original grammar by following the steps detailed above (and using the fact that each fresh nonterminal is associated to exactly one rule), which is also one-to-one. We conclude that the original grammar is unambiguous if and only if the new grammar is unambiguous.
+
+%
+The last point to check is that the arity-2 transformation preserves rigidity,
+i.e., if the original annotated grammar is rigid then so is the image of the
+transformation. Let $X$ be some symbol of the original grammar $\cG$, and
+$w \in \Sigma^*$ be a string. Let us show that all derivations from the
+corresponding
+symbol $X'$ of the rewritten grammar $\cG'$ have same shape. We do so by
+induction on the length of~$w$ and then on the topological order on
+nonterminals. The base case of $w$ of length $0$ is clear: the possible
+derivations are sequences of applications of rules of the form $Y \rightarrow Z$
+in a sequence of some fixed length, followed by a rule of the form $Y
+\rightarrow \epsilon$, and what can happen in the rewritten grammar is the same.
+
+For the inductive case, as $\cG$ is rigid, we know that there must be one
+fixed profile $\pi \in \{0, 1\}^k$ such that all derivations of~$w$ from~$X$ start by the
+application of a rule $X \rightarrow \alpha$ where $\alpha$ corresponds to
+profile~$\pi$, i.e., it has length~$k$ and its $i$-th character is a nonterminal
+or terminal according to the value of the $i$-th bit of~$\pi$.
+Otherwise the existence of two different right-hand-side profiles would
+contradict rigidity. Furthermore, by considering the possible sub-derivations
+from~$\alpha_1$ (including the empty derivation if $\alpha_1$ is a terminal), we
+know that $\alpha_1$ derives some fixed prefix of~$w$ and that all
+such derivations have the same sequence of profiles; otherwise we would witness
+a contradiction to rigidity. By applying the same argument successively to
+$\alpha_2,
+\ldots, \alpha_k$, we deduce
+that there must be a partition of $w =
+w_1 \cdots w_k$ such that, in all derivations of~$w$ from~$X$, the derivation
+applies a rule with right-hand having profile $\pi$ to produce some string $\alpha_1 \cdots
+\alpha_k$, and then each $\alpha_i$ derives an annotation of~$w_i$ and
+for each $i$ all possible derivations of some annotation of~$w_i$ by some $i$-th
+element in the right-hand size of such a rule has the same sequence of
+profiles.
+
+As the string is nonempty we know that $k > 0$. Further, if $k = 1$ then $X$ and
+the productions involving $X$ were not rewritten so we immediately conclude
+either with the case of a rule $X \rightarrow \tau$ for a terminal $\tau$ or by
+induction hypothesis on the nonterminals in the topological order for the case
+of a rule of the form $X \rightarrow Y$. Hence, we assume that $k \geq 2$.
+
+We know by induction that, in the rewritten grammar, the derivation from $X$
+will start by rewriting $X$ to $Y_1 X_{\alpha, 1}$, the $X_{\alpha, 1}$ being
+itself rewritten to $Y_2 X_{\alpha, 2}$, and so on, for some right-hand size
+$\alpha$ of a rule $X \rightarrow \alpha$ having profile $\pi$. Clearly each
+$Y_i$ will have to derive an annotation of the $w_i$ in the partitioning of~$w$, as
+a derivation following a different partitioning would witness a derivation in
+the original grammar that contradicts rigidity.
+Now, the profile
+$\pi$ indicates if each $Y_i$ is a nonterminal of the initial grammar or a fresh
+nonterminal introduced to rewrite to a terminal. In the latter case, there is no
+possible deviation in profiles. In the former case, we conclude by induction
+hypothesis that each $Y_i$ derives annotations of its~$w_i$ that all have the
+same profile, and we conclude that all derivations in the rewritten grammar
+indeed have the same profile, concluding the proof.~\qedhere
+
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+%
+%
+
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+%
+
+%
+

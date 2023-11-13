@@ -320,9 +320,9 @@
   \z@{10pt plus 0pt minus 0pt}{.01\linespacing}% .0\linespacing\@plus.2\linespacing
   {\normalfont\bfseries}}
 
-\def\paragraph{\@startsection{paragraph}{4}%
-  \z@{-\fontdimen2\font}
-  \normalfont}
+%\def\paragraph{\@startsection{paragraph}{4}%
+%  \z@{-\fontdimen2\font}
+%  \normalfont}
 
 \def\subparagraph{\@startsection{subparagraph}{5}%
   \z@\z@{-\fontdimen2\font}

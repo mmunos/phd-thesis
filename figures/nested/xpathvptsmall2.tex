@@ -1,0 +1,44 @@
+%!TEC root = ../main/main.tex
+
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}[scale=0.7,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,state/.style={circle,draw}, color=black, initial text= {},
+		initial distance= {5mm}]
+		%\node[state,draw=none,scale=0.1] (in) at (-1,0) {};
+		\node[state,initial] (q0) at (0,0) {$q_0$};
+		\node[state] (q2) at (4,0) {$q_1$};
+		\node[state] (q4) at (8,0) {$q_2$};
+		\node[state] (q6) at (12,0) {$q_3$};
+		\node[state, accepting] (q8) at (16,0) {$q_4$};
+		%\draw (in) to (q0);
+		
+		\draw (q0) to[loop above] node {$\opS / {\sf C}$} (q0);
+		\draw (q0) to[loop below] node {$\clS\,\! ,\,\! {\sf C}$} (q0);
+		
+		\draw (q0) to node [above] {$\op{a} / {\sf A}$} (q2);
+		
+		\draw (q2) to[loop above] node {$\opS / {\sf C}$} (q2);
+		\draw (q2) to[loop below] node {$\clS\,\! ,\,\! {\sf C}$} (q2);
+		
+		\draw (q2) to node [above] {$\op{b} / {\sf B} \, : \ \, \downarrow$} (q4);
+		
+		\draw (q4) to[loop above] node {$\opS / {\sf C}$} (q4);
+		\draw (q4) to[loop below] node {$\clS\,\! ,\,\! {\sf C}$} (q4);
+		
+		\draw (q4) to node [above] {$\cl{b}\, ,\,\! {\sf B} \, : \ \, \downarrow$} (q6);
+		
+		\draw (q6) to[loop above] node {$\opS / {\sf C}$} (q6);
+		\draw (q6) to[loop below] node {$\clS\,\! ,\,\! {\sf C}$} (q6);
+		
+		\draw (q6) to node [above] {$\cl{a} \, ,\,\!  {\sf A}$} (q8);
+		
+		\draw (q8) to[loop above] node {$\opS / {\sf C}$} (q8);
+		\draw (q8) to[loop below] node {$\clS\,\! ,\,\! {\sf C}$} (q8);
+		
+	\end{tikzpicture}
+	
+	\caption{A \vpann implementing the CPath query $\cQ = \texttt{//a/b}$. Its input alphabet consists of the sets $\opS$ and $\clS$ of open and closed tags, respectively, $\{{\sf A}, {\sf B}, {\sf C}\}$ is the stack alphabet, and $\{\downarrow\}$ is the output alphabet.}
+	
+	\label{nested:fig-xpath-vpt-small}
+\end{figure}

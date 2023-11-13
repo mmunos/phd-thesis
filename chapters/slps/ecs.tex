@@ -1,0 +1,283 @@
+%!TEX root = main.tex
+
+This section presents a modification of the Enumerable Compact Set data structure that was introduced in~\cite{MunozR22}. This data structure will be crucial in our enumeration algorithm, as it handles the encoding of the outputs, and how to retrieve them efficiently. 
+
+
+Let $\Sigma$ be a (possibly infinite) alphabet. 
+An \emph{\dsnamebigcaps{}} (\dsabbr) is defined as a tuple $\D = (\Sigma, V, I, \lch, \rch, \lambda)$ such that $V$ and $I \subseteq V$ are finite sets of nodes, $\lch\colon I\to V$ and $\rch\colon I\to V\cup\{\perp\}$ are the {\em left} and {\em right} functions, $\lambda\colon V\to\Sigma\cup\{\cup,\odot\}\cup\int$ is a label function such that $v\in I$ if and only if $\lambda(v)\in\{\cup, \odot\}\cup\int$, if $\lambda(v)\in\{\cup,\odot\}$, then $\rch(v) \in V$, and if $\lambda(v)\in\int$ then $\rch(v) = \perp$.
+We assume that the directed graph $(V, \{(v,\lch(v)),(v,\rch(v))\mid v\in V\})$ is acyclic.
+We call the nodes in $I$ {\em inner nodes} and the nodes in $V \setminus I$ {\em leaves}. Furthermore, for $v\in I$ we say that $v$ is a {\em product node} if $\lambda(v) = \odot$, a {\em union node} if $\lambda(v) = \cup$, and a {\em shift node} if $\lambda(v)\in\int$. We define the size of $\D$ as $|\D| = |V|$.
+The outputs that can be retrieved by an \dsabbr are words of the form $(a_1, d_1)(a_2, d_2)\ldots(a_m, d_m)$, where $a_i\in\Sigma$ and $d_i\in\int$.
+To build these elements, we define an infinite collection of {\em shifting functions} $\shift_k((a, d)) = (a, d+k)$ for every $k\in\int$.
+These functions is also extended to words so that $\shift_k((a_1, d_1)(a_2, d_2)\ldots(a_m, d_m)) = (a_1, d_1+k)(a_2, d_2+k)\ldots(a_m, d_m+k)$.
+We extend the functions further so that $\shift_k(L) = \{\shift_k(\mu)\mid \mu\in L\}$ for any set of words $L$.
+For each node $v$ in $\D$, we associate a set of words $\L_{\D}(v)$ recursively as follows: (1) $\L_{\D}(v) = \{(a, 1)\}$ whenever $\lambda(v) = a\in\Sigma$, (2) $\L_{\D}(v) = \L_{\D}(\lch(v)) \cup \L_{\D}(\rch(v))$ whenever $\lambda(v) = \cup$, (3) $\L_{\D}(v) = \L_{\D}(\lch(v)) \cdot \L_{\D}(\rch(v))$ whenever $\lambda(v) = \odot$,
+where $L_1 \cdot L_2 = \{w_1\cdot w_2 \mid w_1\in L_1\text{ and }w_2\in L_2\}$, and (4) $\L_{\D}(v) = \shift_{\lambda(v)}(\L_{\D}(\lch(v)))$ whenever $\lambda(v) \in \int$.
+
+As an example, suppose $\Sigma = \{a, b\}$. Consider the ECS $\D = (\Sigma, V, I, \lch, \rch, \lambda)$ where $V = \{v_1, v_2, v_3, v_4, v_5\}$, $I = \{v_1, v_2, v_3\}$, $\lch(v_1) = v_4$, $\rch(v_1) = v_2$, $\lch(v_2) = v_3$, $\lch(v_3) = v_4$, $\rch(v_3) = v_5$, $\lambda(v_1) = \odot$, $\lambda(v_2) = 2$, $\lambda(v_3) = \cup$, $\lambda(v_4) = a$ and $\lambda(v_5) = b$. This ECS is shown in Figure~\ref{fig-ecsex}. The sets of words $\cL_{\cD}$ associated to each node are thus: $\cL_{\cD}(v_4) = \{(a, 1)\}$, $\cL_{\cD}(v_5) = \{(b, 1)\}$, $\cL_{\cD}(v_3) = \{(a, 1), (b, 1)\}$, $\cL_{\cD}(v_2) = \{(a, 3), (b, 3)\}$ and $\cL_{\cD}(v_1) = \{(a, 1)(a, 3), (a, 1)(b, 3)\}$.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,inner sep=2pt},squarednode/.style={rectangle,inner sep=2pt}]
+		\node [roundnode] (4) at (0, 0) {$a$};
+		\node [roundnode] (5) at (4, 0) {$b$};
+		\node [squarednode] (3) at (2, 1) {$\cup$};
+		\node [squarednode] (2) at (3, 2) {$+2\ $};
+		\node [squarednode] (2p) at (3.5, 1.2) {$\perp$};
+		\node [squarednode] (1) at (2, 3) {$\odot$};
+		\draw[dashed] (1) to[out=-135,in=90] (4);
+		\draw (1) to[out=-45,in=120] (2);
+		\draw[dashed] (2) to[out=-135,in=45] (3);
+		\draw (2) to[out=-60,in=120] (2p);
+		\draw[dashed] (3) to[out=-135,in=45] (4);
+		\draw (3) to[out=-45,in=135] (5);
+	\end{tikzpicture}
+	\caption{Example of an ECS.}
+	\label{slps:fig-ecsex}
+\end{figure}
+The overall strategy to enumerate the set $\cL_{\cD}(v)$ for some $v$ in $\cD$ is to do a traversal on the structure, concatenating and shifting strings where it corresponds. However, to be able to do this without repetitions and output-linear delay we need to ensure two conditions: (1) every output from $\cD$ can be obtained in only one way and (2) union and shift nodes are {\em close} to a leaf or a product node, in the sense that they can always be reached in a bounded number of steps. To see that these conditions hold, we define two notions for an ECS.
+
+We say that an ECS $\cD$ is {\em unambiguous} if the following hold: (1) For every union node $v$ in $\cD$ it holds that $\cL_{\cD}(\lch(v))$ and $\cL_{\cD}(\rch(v))$ are disjoint. (2) For every product node $v$ and for every $w \in \L_{\D}(v)$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \L_{\D}(\lch(v))$ and $w_2 \in \L_{\D}(\rch(v))$.
+
+We define the notion of \emph{$k$-bounded}~\dsabbr{}. 
+Given an \dsabbr{} $\D$, define the (left) output-depth of a node $v\in V$, denoted by $\odepth_{\D}(v)$, recursively as follows:
+$\odepth_{\D}(v) = 0$ whenever $\lambda(v)\in\Sigma$ or $\lambda(v) = \odot$, and $\odepth_{\D}(v) = \odepth_{\D}(\lch(v))+1$ whenever $\lambda(v) \in \{\cup\}\cup\int$.
+Then, for a fixed $k\in\nat$ we say that $\D$ is $k$-bounded if $\odepth_{\D}(v)\leq k$ for all $v\in V$.
+
+\begin{proposition}\label{slps:ds:lindelay}
+	Fix $k\in\nat$. Let $\D = (\Sigma, V, I, \lch, \rch, \lambda)$ be an unambiguous and $k$-bounded \dsabbr{}. Then the set $\L_\D(v)$ can be enumerated with output-linear delay for any $v\in V$.
+\end{proposition}
+\begin{proof}[Proof sketch]
+
+As we mentioned, the general strategy here is to do a traversal over the structure that produces every output in $\cL_{\cD}(v)$. 
+The way we formalize this process is by explicitly representing the tree that produces each output $\mu\in\cL_{\cD}(v)$. 
+We then define a total order over these trees recursively. 
+After this, we define the reduced form of each tree, which has a size linear in the size of the output it produces. 
+Since the number of shift nodes between two nodes is not bounded, these reduced trees skip shift nodes, and they include {\em shift labels} on each node to track the accumulated shift value between nodes.
+To achieve a delay which is almost output-linear, we show an algorithm which navigates over these reduced trees in the order defined by their full forms. 
+This algorithm recursively (1) gets the first tree in the order (2) builds a tree from the previous one in a time linear in the size of both trees and (3) returns a flag when there are no more trees. 
+Finally, we show a general strategy to convert an enumeration algorithm which has a delay equal to the one shown to one with output-linear delay.\footnote{This proof is a slight refinement, and an extension of the one shown in~\cite{cdenested2020}.}
+\end{proof}
+
+The next step is to provide a set of operations that allow extending an ECS $\cD$ in a way that maintains $k$-boundedness. Fix an \dsabbr{} $\D = (\Sigma, V, I, \lch, \rch, \lambda)$. Then for any $a \in \Sigma$, $v_1, \ldots, v_4 \in V$ and $s\in\int$, we define the operations:
+$$
+\begin{array}{rclrclrcl}
+	\add(\D,a)\to (\D',v')  \ \ \ \	 &  \prod(\D,v_1, v_2, s)\to (\D',v')   \ \ \ \ \ &  \union(\D,v_3, v_4, s) \to (\D',v')
+\end{array}
+$$
+\noindent such that $\D' = (\Sigma, V', I', \lch', \rch', \lambda')$ is an extension of $\D$ (i.e. $\mathsf{obj} \subseteq \mathsf{obj}'$ for every $\mathsf{obj} \in \{V,I, \lch, \rch, \lambda\}$) and $v' \in V' \setminus V$ is a fresh node such that $\cL_{\D'}(v') = \{a\}$, $\cL_{\D'}(v') = \cL_{\D}(v_1) \cdot \shift_s(\cL_{\D}(v_2))$, and $\cL_{\D'}(v') = \cL_{\D}(v_3) \cup \shift_s(\cL_{\D}(v_4))$, respectively.
+Here we assume that the $\union$ and $\prod$ respect properties (1) and (2) of an unambiguous \dsabbr{}, that is, $\cL_{\D}(v_1)$ and $\shift_s(\cL_{\D}(v_2))$ are disjoint and, for every $w \in \L_{\D}(v_3) \cdot \shift_s(\L_{\D}(v_4))$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \L_{\D}(v_3)$ and $w_2 \in \shift_s(\L_{\D}(v_4))$. 
+
+From here on, we require any ECS to have the additional property that shift nodes can only be child of another node if, and only if, they are the right child. We call this the {\em shifts-on-the-right} property. In particular, it requires that no shift node is a child of another shift node. The following lemma tells us that requiring this does not restrict the language described by the structure, and that the size blowup is minimal.
+
+\begin{lemma}
+	For a given $k$-bounded ECS $\cD$ with node set $V$, there exists a $k$-bounded shifts-on-the-right compliant ECS $\cD'$ with node set $V'$ and a mapping function $\beta:V\to V'$ such that for every parentless node $v\in V$, they satisfy $\cL_{\cD}(v) = \cL_{\cD'}(v')$ where $\beta(v) = v'$. Furthermore, $|V'| \in \cO(|V|)$ and $\cD'$ is unambiguous if $\cD$ is unambiguous.
+\end{lemma}
+\begin{proof}[Proof]
+	{\bf Pending.}
+	%The idea is to navigate the underlying DAG of $\cD$ starting on the leaves. At each point we keep a set of nodes $V_f$ that have already been checked and the mapping $\beta$ so far. These are updated by considering nodes whose children are all in $V_f$. If it happens that $v$ is a non-shift node with a shift node on its left, we can follow the mapping scheme in Figure~\ref{fig-rsh-lemma}. Shift nodes with children that are shift nodes can be handled by 
+\end{proof}
+
+Next, we show how to implement each operation. In fact, the case of $\add$ is straightforward. 
+For $\add(\D,a)\to(\D',v')$ define $V' := V \cup \{v'\}$, $I' := I$, $\lambda'(v') = a$. 
+One can easily check that $\L_{\D'}(v') = \{a\}$ as expected. 
+To show how to implement $\prod(\D,v_1, v_2, k)\to(\D',v') $ suppose w.l.o.g. that $v_1$ and $v_2$ are shift nodes -- if some $v_i$ is not a shift node we can replace it by a shift node $u$ with label $\lambda(u) = 0$ and $\ell(u) = v_i$. Define $V' = V\cup \{v',v'',v'''\}$, $I' = I\cup\{v',v'',v'''\}$, $\ell(v') = v''$, $\ell(v'') = \ell(v_1)$, $r(v'') = v'''$, $\ell(v''') = \ell(v_2)$, $\lambda(v') = \lambda(v_1)$, $\lambda(v'') = \odot$ and $\lambda(v''') = k+\lambda(v_2) - \lambda(v_1)$.
+
+\begin{figure}[h]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,inner sep=1pt},squarednode/.style={rectangle,inner sep=2pt}, scale=0.95]
+		\node[squarednode] (0) at (0, 0) {$\ell(v_1)$};
+		\node[squarednode] (2) at (2, 1) {$v_1$\scriptsize{$[+x]$}};
+		\node[squarednode] (3) at (4, 0) {$\ell(v_2)$};
+		\node[squarednode] (5) at (6, 1) {$v_2$\,\scriptsize{$[+y]$}};
+		\node[squarednode] (7) at (5.5, 1.7) {$v'''$\scriptsize{$[+k+y  - x]$}};
+		\node[squarednode] (8) at (3, 2.6) {$\ v''$\scriptsize{$[\odot]$}};
+		\node[squarednode] (9) at (4.5, 3.6) {$v'$\scriptsize{$[+x]$}};
+		\draw[dashed] (2.south west) to[out=-135,in=45] (0);
+		\draw[dashed] (5.south west) to[out=-135,in=45] (3);
+		\draw[dashed] (7.south west) to[out=-135,in=90] (3);
+		\draw (8) to[out=-45,in=135] (7.north west);
+		\draw[dashed] (8) to[out=-135,in=90] (0);
+		\draw[dashed] (9.south west) to[out=-135,in=90] (8);
+	\end{tikzpicture}
+	\caption{Gadget for $\prod(\D,v_1,v_2, k)$. Dashed and solid lines denote the mappings in $\ell'$ and $r'$ respectively.}
+	\label{slps:fig-union-def}
+	\vspace{-3mm}
+\end{figure}
+
+%\cristian{Aquí falta decir los casos cuando el $v_1$ no es un shift. También deberías discutir brevemente porque el resultado es $k$-bounded.}
+
+To define the union, we need to be a bit more careful to ensure $k$-boundedness. Towards this goal, we introduce the notion of {\em safe} nodes.
+For a non-shift node $v\in V$, we say that $v$ is safe if (1) $\odepth_{\D}(v) \leq 1$, and (2) if $\odepth_{\D}(v) = 1$, then, if $r(v)$ is not a shift node, then $\odepth_{\D}(r(v)) \leq 1$, and if it is, then $\odepth_{\D}(\ell(r(v))) \leq 1$. If $v$ is a shift node, we say that it is safe if its left child is safe. In other words, $v$ is safe if (i) $v$ is an output node, (ii) its left child is an output node, and the right child is either an output node, has output depth 1, or is a shift node with a left child like one of these two, or (iii) is a shift node with a left child that either satisfies (i) or (ii).
+Note that, by definition, a leaf or a product node, or a shift node that is a parent thereof, are safe nodes and, thus, the $\add$ and $\prod$ operations always produce safe nodes. The trick then is to show that, if $v_3$ and $v_4$ are safe nodes, then we can implement $\union(\D,v_3, v_4, k)\to (\D',v')$ and produce a safe node $v'$. For the sake of presentation, we only provide the construction for the most involved case, which is when $v_3$ and $v_4$ are shift nodes with safe left children that satisfy (2).
+
+
+This gadget is depicted in Figure~\ref{fig-union-def}.
+Interestingly, this construction has several properties.
+First, one can check that $\L_{\D'}(v') = \L_{\D}(v_3)\cup\shift_k(\L_{\D}(v_4))$ since each shift value is carefully constructed so that the accumulated shift value from $v'$ to each node is either unchanged or increased by exactly $s$ where it corresponds.
+Thus, the semantics is well-defined. 
+Second, $\union$ can be computed in constant time in $|\D|$ given that we only need to add a fixed number of fresh nodes; and the operation is fully-persistent given that we connect them to previous nodes without modifying $\D$. 
+Furthermore, the produced node $v'$ is safe in $\D'$, although some of the new nodes are not necessarily safe. 
+Finally, $\D'$ is 3-bounded whenever $\D$ is 3-bounded. To see this, we first have to notice that $\ell(\ell(v_3))$ and $\ell(\ell(v_4))$ are output nodes, and that $\odepth_{\D'}(\ell(v_3'))\leq 1$ and $\odepth_{\D'}(\ell(v_4')) \leq 1$. We can check the depth of each node going from the bottom to the top: $\odepth(u_3) \leq 2$, $\odepth(u_2') \leq 2$, $\odepth(u_2) \leq 3$, $\odepth(u_1')\leq 1$, $\odepth(u_1) \leq 2$, $\odepth(v'') \leq 1$ and $\odepth(v')\leq 2$.
+
+Given that the output depths of all fresh nodes in $\D'$ are bounded by $3$ and $\D$ is $3$-bounded, then we conclude that $\D'$ is $3$-bounded as well.
+
+\begin{figure}[t]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,inner sep=1pt},squarednode/.style={rectangle,inner sep=2pt}, scale=0.85]
+		\node[squarednode] (0) at (0, 0) {$\ell(\ell(v_3))$};
+		\node[squarednode] (1) at (2, 0) {$\ell(v_3')$};
+		\node[squarednode] (1p) at (2, 1) {$v_3'$\scriptsize{$[+x_2]$}};
+		\node[squarednode] (2) at (1, 2) {$\ \ \ \ \ell(v_3)$\scriptsize{$[\cup]$}};
+		\node[squarednode] (2p) at (1.5, 3) {$v_3$\scriptsize{$[+x_1]$}};
+		\node[squarednode] (0b) at (4, 0) {$\ell(\ell(v_4))$};
+		\node[squarednode] (1b) at (6, 0) {$\ell(v_4')$};
+		\node[squarednode] (1bp) at (6, 1) {$v_4'$\scriptsize{$[+y_2]$}};
+		\node[squarednode] (2b) at (5, 2) {$\ \ \ \ell(v_4)$\scriptsize{$[\cup]$}};
+		\node[squarednode] (2bp) at (5.5, 3) {$v_4$\scriptsize{$[+y_1]$}};
+		\node[squarednode] (vp) at (3.5, 9) {$\ \ \ \ \ v'$\scriptsize{$[+x_1]$}};
+		\node[squarednode] (v) at (3, 8) {$\ \ \ \ v''$\scriptsize{$[\cup]$}};
+		\node[squarednode] (u1p) at (4.5, 7) {$\ \ \ \ \ \ \ \ \ \ \ \ \ u_1$\scriptsize{$[+y_1 + s - x_1]$}};
+		\node[squarednode] (u1) at (4, 6) {$\ \ \ \ u_1'$\scriptsize{$[\cup]$}};
+		\node[squarednode] (u2p) at (5.5, 5) {$\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ u_2$\scriptsize{$[+x_1+x_2 -y_1- s]$}};
+		\node[squarednode] (u2) at (5, 4) {$\ \ \ u_2'$\scriptsize{$[\cup]$}};
+		\node[squarednode] (u3) at (7, 3) {$\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ u_3$\scriptsize{$[+y_1 +y_2 + s - x_1 - x_2]$}};
+		\draw[dashed] (vp) to (v);
+		\draw[dashed] (v) to[out=-135, in=110] (0);
+		\draw (v) to[out=-45] (u1p);
+		\draw[dashed] (u1p) to (u1);
+		\draw[dashed] (u1) to[out=-135, in=110] (0b);
+		\draw (u1) to[out=-45] (u2p);
+		\draw[dashed] (u2p) to (u2);
+		\draw[dashed] (u2) to[out=-135, in=45] (1);
+		\draw (u2) to[out=-45] (u3);
+		\draw[dashed] (u3) to[out=-135,in=45] (1b);
+		\draw[dashed] (2) to[out=-135, in=90] (0);
+		\draw (2) to[out=-45,in=135] (1p);
+		\draw[dashed] (1p) to[out=-135,in=90] (1);
+		\draw[dashed] (2p) to (2);
+		\draw[dashed] (2b) to[out=-135, in=90] (0b);
+		\draw (2b) to[out=-45,in=135] (1bp);
+		\draw[dashed] (1bp) to[out=-135,in=90] (1b);
+		\draw[dashed] (2bp) to (2b);
+	\end{tikzpicture}
+	\caption{Gadget for $\union(\D,v_3,v_4, s)$. Nodes $v'$, $u_1$, $u_2$, $u_3$, $v_3$, $v_3'$, $v_4$ and $v_4'$ are shift nodes with label equal to the number between brackets. Nodes $v''$, $u_1$, $u_2$, $\ell(v_3)$ and $\ell(v_4)$ are union nodes.}
+	\label{slps:fig-two}
+	\vspace{-3mm}
+\end{figure}
+
+By the previous discussion, if we start with an \dsabbr\ $\D$ which is 3-bounded (or empty) and we apply the $\add$, $\prod$ and $\union$ operators between safe nodes (which also produce safe nodes), then the result is 3-bounded as well. Finally, by Proposition~\ref{ds:lindelay}, the result can be enumerated with output-linear delay.
+
+\begin{theorem}\label{slps:theo:data-structure}
+	The operations $\add$, $\prod$, and $\union$ take constant time and are fully-persistent. Furthermore, if we start from an empty \dsabbr\ $\D$ and apply $\add$, $\prod$, and $\union$ over safe nodes, the partial results $(\D', v')$ satisfies that $v'$ is always a safe node and the set $\L_{\D'}(v)$ can be enumerated with output-linear delay for every node $v$.
+\end{theorem}  
+
+The last step of the construction of our model of ECS is the inclusion of leaves that produce the empty string $\eps$. Let $\eps\not\in\Sigma$ be a symbol representing the empty string (i.e. $w\cdot\eps = \eps\cdot w = w$). We define an \dsname{} with $\eps$ (called \dsepsabbr) as a tuple $\D = (\Sigma, V, I, \ell, r, \lambda)$ defined identically to an \dsabbr{} except that $\lambda:V\to\Sigma\cup\{\cup, \odot,\eps\} \cup\int$  and $\lambda(v)\in\{\cup,\odot\}\cup\int$ if, and only, if $v\in I$. Also, if $\lambda(v) = \eps$, then $\L_{\D}(v) = \{\epsilon\}$. 
+
+In \dsepsabbr, $\eps$-nodes are treated quite particularly. 
+In a given \dsepsabbr $\cD$, we require that any node $v\in\cD$ satisfies exactly one of the following:
+(1) $\lambda(v) \neq \eps$ and for any node $u$ which is reachable from $v$ it holds that $\lambda(u) \neq \eps$, (2) $\lambda(v) = \eps$ or (3) $\lambda(v) = \cup$, $\lambda(\ell(v)) = \eps$, and $r(v)$ satisfies (1). 
+Nodes that satisfy (1) can essentially be treated as a node in a regular \dsabbr, since none of the nodes they reach is an $\eps$-node. Also, this implies that $\eps$ can only be child of a union node with in-degree 0.
+For the rest of the section, we will refer to a node $v$ that satisfies each case as a node such that (1) $\eps\not\in\cL_{\cD}(v)$, (2) $\lambda(v) = \eps$ or (3) $v$ is {\em in Case 3}, respectively.
+Note that this conditions ensure that if $\eps\in\cL_{\cD}(v)$, it can be retrieved in constant time. It could seem that these restrictions over $\eps$-nodes are too strict, but, as we will see later, the operations $\add$, $\prod$ and $\union$ can be extended through a fixed number of steps so that each node complies with them.
+
+With these conditions in mind, we can address output-depth, $k$-boundedness and safeness in the new setting. The definition of output-depth is unchanged for nodes $v$ for which $\eps\not\in\cL_{\cD}(v)$, if $\lambda(v) = \eps$, then $\odepth(v) = 0$, and if $v$ is in Case 3, $\odepth(v) = 1$. The definition of $k$-bounded is unchanged. The definition of safe nodes is unchanged except for the additional restriction that a node $v$ can only be safe if $\eps\not\in\cL_{\cD}(v)$.
+
+\begin{claim}\label{slps:appendix:eps-enum}
+	For a $k$-bounded unambiguous \dsepsabbr $\D$, the set $\cL_{\cD}(v)$ can be enumerated with output-linear delay for every node $v$ in $\cD$.
+\end{claim}
+\begin{proof}
+	This proof is a direct consequence of Proposition~\ref{ds:lindelay}.
+\end{proof}
+
+One last notion we make use of is $\eps$-safe nodes. For a given \dsepsabbr $\cD$ and $v\in\cD$ we say that $v$ is $\eps$-safe if either (1) $v$ is safe, (2) $\lambda(v) = \eps$, or (3) $v$ is in Case 3 and $r(v)$ is safe.
+
+
+We can now define the operations $\add$, $\prod$ and $\union$ over $\D$ to return a pair $(\D',v')$ such that $\D' = (\Sigma, V', I', \ell', r', \lambda')$ as follows:
+
+For $\add(\D,a)\to(\D',v')$ we define $V' := V \cup \{v'\}$, $I' := I$, and $\lambda'(v') = a$.
+
+For $\prod(\D,v_1,v_2, s) \to (\D',v')$, assume $v_1$ and $v_2$ are $\eps$-safe. 
+Further, assume that for every word in $w\in\L_{\D}(v_1)\cdot\shift_s(\L_{\D}(v_2))$ there exist only two non-empty words $w_1$ and $w_2$ such that $w_1\in\L_{\D}(v_1)$, $w_2\in\shift_s(\L_{\D}(v_2))$ and $w = w_1w_2$.
+As both $v_1$ and $v_2$ are safe, they may be in one of three cases each, which gives us nine cases in total. However, for the sake of presentation, we will only address the three most involved ones (depicted in Figure~\ref{fig-prod-multi-gadget}):
+\begin{itemize}
+	\item[(a)] $\eps\not\in\L_{\D}(v_1)$ and $v_2$ is in Case 3. Let $(\cD'', v'') = \prod(\cD, v_1, r(v_2), s)$, and let $(\cD', v') = \union(\cD'', v_1, v'', 0)$.
+	\item[(b)] $v_1$ is in Case 3 and $\eps\not\in\L_{\D}(v_1)$. Let $(\cD'', v'') = \prod(\cD, r(v_1), v_2, s)$, and let $(\cD', v') = \union(\cD'', v'', v_2, s)$.
+	\item[(c)] Both $v_1$ and $v_2$ are in Case 3. Let $(\cD'', v'') = \prod(\cD, r(v_1), r(v_2), s)$, let $(\cD^3, v^3) = \union(\cD'', v'', r(v_2), s)$, and let $(\cD^4, v^4) = \union(\cD^3, r(v_1), v^3, 0)$. Lastly, let $V' = V^4 \cup\{v^*, v'\}$, $I' = I^4\cup\{v'\}$, $\lambda(v^*) = \eps$, $\lambda(v') = \cup$, $\ell(v') = v^*$, and $r(v') = v^4$.
+\end{itemize}
+
+It can be seen that these constructions work as expected. That is, that $\cL_{\cD'}(v) = \L_{\D}(v_1)\cdot\shift_s(\L_{\D}(v_2))$. Also, if $v_1$ and $v_2$ are $\eps$-safe, then $v'$ is $\eps$-safe as well. The $\prod$ and $\union$ operations used internally are the ones defined for ECS, so they do not recurse. Therefore, each construction does a fixed number of steps, and takes constant time in $|\cD|$.
+
+\begin{figure}[t]
+	\centering
+	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.2pt},squarednode/.style={rectangle,inner sep=2pt}, scale=1]
+		\node [squarednode] (0) at (0.8, 2.75) {$\union(0)$};
+		\node [squarednode] (6) at (1.9, 2.75) {$\to v_a'$};
+		\node [squarednode] (1) at (0, 1) {$v_1$};
+		\node [squarednode] (2) at (1.6, 1.75) {$\prod(s)$};
+		\node [squarednode] (3) at (1.6, 1) {$v_2$};
+		\node [squarednode] (4) at (0.8, 0) {$\eps$};
+		\node [squarednode] (5) at (2.4, 0) {$r(v_2)$};
+		\draw[dashed] (0) to[out=-135,in=90] (1);
+		\draw (0) to[out=-45,in=120] (2);
+		\draw (2) to[out=-45,in=90] (5);
+		\draw[dashed] (3) to[out=-135,in=60] (4);
+		\draw (3) to[out=-45,in=120] (5);
+		\draw[dashed] (2) to (1);
+	\end{tikzpicture}
+	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.2pt},squarednode/.style={rectangle,inner sep=2pt}, scale=1]
+		\node [squarednode] (0) at (2.5, 2.75) {$\union(s)$};
+		\node [squarednode] (6) at (3.6, 2.75) {$\to v_b'$};
+		\node [squarednode] (1) at (3, 1) {$v_2$};
+		\node [squarednode] (2) at (1.90, 1.75) {$\ \prod(s)$};
+		\node [squarednode] (3) at (0.85, 1) {$v_1$};
+		\node [squarednode] (4) at (0.2, 0) {$\eps$};
+		\node [squarednode] (5) at (1.5, 0) {$r(v_1)$};
+		\draw (0) to[out=-60,in=90] (1);
+		\draw[dashed] (0) to[out=-135,in=70] (2);
+		\draw[dashed] (2) to[out=-120,in=90] (5);
+		\draw[dashed] (3) to[out=-135,in=60] (4);
+		\draw (3) to[out=-45,in=120] (5);
+		\draw (2) to (1);
+	\end{tikzpicture}
+	\hspace{-2em}
+	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.1pt},squarednode/.style={rectangle,inner sep=2pt},scale=1.1]
+		\node [squarednode] (0) at (1.5, 2.75) {$\cup$};
+		\node [squarednode] (11) at (2, 2.75) {$\to v_c'$};
+		\node [squarednode] (1) at (0.75, 2.25) {$\eps$};
+		\node [squarednode] (2) at (2.25, 2.25) {$\union$\small{$(0)$}};
+		\node [squarednode] (3) at (3, 1.75) {$\union$\small{$(s)$}};
+		\node [squarednode] (4) at (2.1, 1) {$\prod$\small{$(s)$}};
+		\node [squarednode] (5) at (3.2, 1) {$v_2$};
+		\node [squarednode] (6) at (2.5, 0) {$\eps$};
+		\node [squarednode] (7) at (4, 0) {$r(v_2)$};
+		\node [squarednode] (8) at (0.5, 1) {$v_1$};
+		\node [squarednode] (9) at (0, 0) {$\eps$};
+		\node [squarednode] (10) at (1, 0) {$r(v_1)$};
+		\draw[dashed] (0) to (1);
+		\draw (0) to (2);
+		\draw[dashed] (2) to[out=-135,in=70] (10);
+		\draw[dashed] (4) to (10);
+		\draw (4) to[out=-45,in=145] (7);
+		\draw[dashed] (5) to[out=-135,in=60] (6);
+		\draw (5) to[out=-45,in=120] (7);
+		\draw (3) to[out=-45,in=90] (7);
+		\draw[dashed] (3) to (4);
+		\draw (2) to (3);
+		\draw (8) to[out=-50,in=100] (10);
+		\draw[dashed] (8) to[out=-125,in=80] (9);
+	\end{tikzpicture}
+	\caption{Gadgets for $\prod$ as defined for an \dsepsabbr. Nodes $v_a'$, $v_b'$ and $v_c'$ correspond to $v'$ as is defined for cases (a), (b) and (c) respectively.}
+	\label{slps:fig-prod-multi-gadget}
+\end{figure}
+
+For $\union(\D,v_1,v_2, s) \to (\D',v')$, assume $v_1$ and $v_2$ are $\eps$-safe. 
+For this operation we also need to see nine cases: (1) If $\eps\not\in\L_{\D}(v_1)$ and $\eps\not\in\L_{\D}(v_2)$, we use the $\union$ operation of regular ECS, (2) if $\eps\not\in\L_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we build $v'$ as the Case 3 gadget, (3) if $\eps\not\in\L_{\D}(v_1)$ and $v_2$ is in Case 3, let $(\cD'', v'') = \union(\cD, v_1, r(v_2), s)$ and build $v'$ as the Case 3 gadget with right child $v''$, (4) if $\lambda(v_1) = \eps$ and $\eps\not\in\L_{\D}(v_2)$, assume w.l.o.g. that $v_2$ is a shift node, let $v_2'$ be a shift node with label $s + \lambda(v_2)$ and left child $\ell(v_2)$, and build $v'$ as the Case 3 gadget with right child $v_2'$, (5) if $\lambda(v_1) = \eps$ and $\lambda(v_2) = \eps$, we return one of these nodes, (6) if $\lambda(v_1) = \eps$ and $v_2$ is in Case 3, use construction (4) over $v_1$ and $ r(v_2)$, (7) if $v_1$ is in Case 3 and $\eps\not\in\L_{\D}(v_2)$, we do a construction analogous to (3), (8) if $v_1$ is in Case 3 and $\lambda(v_2) = \eps$ we return $v_1$, and (9) if $v_1$ and $v_2$ are in Case 3, we use (3) over $r(v_1)$ and $v_2$.
+
+These construction also behave as expected, and each renders a $\eps$-safe node $v'$. As in $\prod$, each construction takes constant time as well. With these operations,	 we can prove the main result of this section.
+
+\begin{theorem}\label{slps:theo:data-structure-eps}
+	The operations $\add$, $\prod$, and $\union$ over \dsepsabbr{} take constant time. Furthermore, if we start from an empty \dsepsabbr{} $\D$ and apply $\add$, $\prod$, and $\union$ over $\epsilon$-safe nodes, the partial results $(\D', v')$ satisfy that $v'$ is always an $\epsilon$-safe node and the set $\L_{\D'}(v)$ can be enumerated with output-linear delay for every node $v$.
+\end{theorem} 
+
+

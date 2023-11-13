@@ -23,7 +23,7 @@
 \usepackage{float}
 \floatstyle{boxed}
 \restylefloat{figure}
-\usepackage{subfigure}
+%\usepackage{subfig}
 \usepackage{color}
 
 % Math packages
@@ -59,6 +59,8 @@
 \newtheorem{pf}{Proof}[chapter]
 \newtheorem{example}{\bf Example}[chapter]
 \newtheorem{remark}{Remark}[chapter]
+\newtheorem{observation}{Observation}[chapter]
+\newtheorem{principle}{Principle}[chapter]
 
 % antes y después de este en las dos primeras páginas para que quede centrado.
 
@@ -174,36 +176,75 @@
 
 \chapter[INTRODUCTION]{Introduction}
 
-\section{Setting}
+%\section{Setting}
+
+\input{./chapters/intro}
+
+\section{Summary of contributions}
+
+\subsection{Nested streaming queries}
+
+\input{./chapters/contrib-nested}
+
+\subsection{Annotated Grammars}
+
+\input{./chapters/contrib-grammars}
+
+\subsection{Queries over compressed documents}
+
+\input{./chapters/contrib-slps}
 
 
 %==========================
 
 \chapter[PRELIMINARIES]{Preliminaries}
 
-\section{Document Spanners}
+%\input{./chapters/prelims-intro}
+%
+%\section{Finite State Automata and Regular Expressions}
+%
+%\input{./chapters/prel-regular}
+%
+%\section{Visibly Pushdown Automata}
+%
+%\input{./chapters/prel-nested}
+%
+%\section{Context-free Grammars and Pushdown Automata}
+%
+%\input{./chapters/prel-grammars}
 
-\section{Enumeration Algorithms}
+%\section{Enumeration Algorithms}
 
 %==========================
 
 \chapter[ENUMERATION FOR NESTED QUERIES]{Enumeration for nested queries} \label{ch1}
 
-\section{Introduction}
+\section{Introduction}\label{nested:sec:intro}
+\input{./chapters/nested/intro}
 
-\section{Streaming Evaluation with output-linear delay}
+\section{Preliminaries}\label{nested:sec:prelim}
+\input{./chapters/nested/prelim}
 
-\section{Visibly Pushdown Annotators}
+\section{Streaming evaluation with output-linear delay}\label{nested:sec:enum}
+\input{./chapters/nested/enum}
 
-\section{Outline of the results}
+\section{Visibly pushdown annotators}\label{nested:sec:vpann}
+\input{./chapters/nested/vpann}
 
-\section{Enumerable Compact Sets}
+\section{Results and discussion}\label{nested:sec:results}
+\input{./chapters/nested/results}
 
-\section{Evaluating Visibly Pushdown Annotators with Output-linea Delay}
+\section{Enumerable compact sets: a data structure for output-linear delay}\label{nested:sec:ds}
+\input{./chapters/nested/ds}
 
-\section{Document Spanners and Extraction Grammars}
+\section{Evaluating \vpannnames with \lindelay}\label{nested:sec:eval}
+\input{./chapters/nested/eval}
 
-\section{Related Work}
+\section{Application: document spanners and extraction grammars}\label{nested:sec:spanners}
+\input{./chapters/nested/spanners}
+
+\section{Future work}\label{nested:sec:conclusions}
+\input{./chapters/nested/concl}
 
 
 %==========================
@@ -212,51 +253,51 @@
 
 \section{Introduction}
 
-%\input{./chapters/grammars/intro}
+\input{./chapters/grammars/intro}
 
 \section{Grammars and Annotators}\label{gram:sec:models}
 
-%\input{./chapters/grammars/models}
+\input{./chapters/grammars/models}
 
 \section{Unambiguous Grammars} \label{gram:sec:cubic}
 
-%\input{./chapters/grammars/cubicres}
+\input{./chapters/grammars/cubicres}
 
-%\paragraph{Enumerable sets}
-%\input{./chapters/grammars/ds}
+\paragraph{Enumerable sets}
+\input{./chapters/grammars/ds}
 
-%\paragraph{Arity-two normal form}
-%\input{./chapters/grammars/arity2}
+\paragraph{Arity-two normal form}
+\input{./chapters/grammars/arity2}
 
-%\paragraph{Enumeration algorithm}
-%\input{./chapters/grammars/intervals}
+\paragraph{Enumeration algorithm}
+\input{./chapters/grammars/intervals}
 
-%\paragraph{Lower bounds}
-%%\input{./chapters/grammars/cubiclowerbound}
+\paragraph{Lower bounds}
+\input{./chapters/grammars/cubiclowerbound}
 
 \section{Rigid Grammars} \label{gram:sec:quadratic}
-%\input{./chapters/grammars/quadres}
+\input{./chapters/grammars/quadres}
 
-%\subsection{Definitions}
+\subsection{Definitions}
 \label{gram:sec:profile}
-%\input{./chapters/grammars/profiles}
+\input{./chapters/grammars/profiles}
 
-%\paragraph{Enumeration algorithm}
-%%\input{./chapters/grammars/quadalg}
-%
-%\paragraph{Optimality}
-%%\input{./chapters/grammars/quadlowerbound}
+\paragraph{Enumeration algorithm}
+\input{./chapters/grammars/quadalg}
+
+\paragraph{Optimality}
+\input{./chapters/grammars/quadlowerbound}
 
 \section{Pushdown Annotators} \label{gram:sec:linear}
 
-%\input{./chapters/grammars/linear-alg}
+\input{./chapters/grammars/linear-alg}
 
 \section{Application: Document Spanners} \label{gram:sec:spanners}
 
-%\input{./chapters/grammars/spanners_short}
+ \input{./chapters/grammars/spanners_short}
 
 \section{Conclusions and Future Work}
-%\input{./chapters/grammars/conclusions}
+ \input{./chapters/grammars/conclusions}
 
 
 %==========================
@@ -267,29 +308,29 @@
 
 \input{./chapters/slps/intro}
 
-\section{Setting and main problem}\label{slps:sec:setting}
+\section{Setting and main problem of the chapter}\label{slps:sec:setting}
 
 \input{./chapters/slps/setting}
 
 \section{Enumerable compact sets with shifts}\label{slps:sec:ecs}
 
-%\input{./chapters/slps/ecsnew}
+\input{./chapters/slps/ecsnew}
 
 \section{Evaluation of annotated automata over SLP-compressed strings}\label{slps:sec:evaluation}
 
-%\input{./chapters/slps/eval}
+\input{./chapters/slps/eval}
 
 \section{Applications in regular spanners}\label{slps:sec:spanners}
 
-%\input{./chapters/slps/appl}
+\input{./chapters/slps/appl}
 
 \section{Constant-delay preserving complex document editing}\label{slps:sec:edits}
 
-%\input{./chapters/slps/edits}
+\input{./chapters/slps/edits}
 
 \section{Future work}\label{slps:sec:conclusions}
 
-%\input{./chapters/slps/concl}
+\input{./chapters/slps/concl}
 
 %==========================
 
@@ -305,7 +346,7 @@
 %       REFERENCES        %
 %%%%%%%%%%%%%
 
-\bibliography{../extras/biblio}
+\bibliography{./extras/biblio}
 
 \cleardoublepage
 \phantomsection \label{references}
@@ -324,14 +365,18 @@
 %      APPENDICES      %
 %%%%%%%%%%%%
 
-\appendix % It is like a chapter, so each appendix (A, B, C...) must to be considered as a section
-
-\newpage
-\section[First Appendix]{First Appendix}
-\input{./chapters/appendix1.tex}
-
-\newpage
-\section[An Interesting Short Story]{An Interesting Short Story}
-\input{./chapters/appendix2.tex}
+%\appendix % It is like a chapter, so each appendix (A, B, C...) must to be considered as a section
+%
+%\newpage
+%\section[Appendix]{Appendix}
+%\input{./chapters/appendix}
+%
+%\newpage
+%\section[First Appendix]{First Appendix}
+%\input{./chapters/appendix1.tex}
+%
+%\newpage
+%\section[An Interesting Short Story]{An Interesting Short Story}
+%\input{./chapters/appendix2.tex}
 
 \end{document}

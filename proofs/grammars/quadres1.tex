@@ -1,0 +1,361 @@
+In this proof, we will use the notion of PDAnn introduced in
+Section~\ref{gram:sec:linear}, and we will use 
+Proposition~\ref{gram:prop:grammar-pdann}, which is also stated in
+Section~\ref{gram:sec:linear}.
+
+%
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+To prove Theorem~\ref{gram:thm:profileu-iou}, we introduce a general-purpose normal form on PDAnn, where,
+intuitively, the only choices that can be made during a run are between the \emph{types}
+of transition to apply. 
+% This is similar to Lemma~1 in Chapter~\ref{ch1}.
+
+\begin{definition}
+  A PDAnn $\cP$ is \emph{deterministic-modulo-profile} if it satisfies the following conditions:
+
+  \begin{enumerate}
+    \item for each state $p$ there is at most one push transition that
+      starts on $p$, formally $\card{\{q, \gamma \in Q \times \Gamma \mid
+      (p, q, \gamma) \in \Delta\}} \leq 1$
+    \item for each state $p$ and stack symbol $\gamma$ there is at most
+      one pop transition that starts on $p,\gamma$, formally $\card{\{q
+      \in Q \mid (p, \gamma, q) \in \Delta\}} \leq 1$
+    \item for each state $p$, letter $a$, and output $\oout \in \Omega$, there is at most one read-write transition that starts on
+      $p,a,\oout$, formally, we have $\card{\{q \in Q \mid (p,(a,\oout),q) \in \Delta\}}
+      \leq 1$.
+      \item for each state $p$ and letter $a$, there is at most one read transition that starts on
+      $p,a$, formally $\card{\{q \in Q \mid (p,a,q) \in \Delta\}}
+      \leq 1$.
+  \end{enumerate}
+\end{definition}
+
+\begin{lemma}\label{gram:lem:pdtonechoice}
+ %
+        Let $\cP$ be a PDAnn. We can build an equivalent PDAnn $\cP'$ which is
+        deterministic-modulo-profile. The transformation takes exponential time,
+        i.e., time $\cO(2^{|\cP|^c})$ for some $c > 0$.
+
+        Further, on any string~$w$, there is an accepting run of~$\cP$ on~$w$ with
+        profile $\pi$ iff there is an accepting run of~$\cP'$ on~$w$ with the same profile.
+\end{lemma}
+
+\begin{proof}
+  The proof is similar to the determinization of visibly pushdown
+  automata (see Section~\ref{nested:sec:eval}, also Proposition~\ref{nested:vpawo:det}).
+
+  Given $\cP = (Q, \Sigma, \Omega, \Gamma, \Delta, q_0, F)$,
+        we build $\cP' = (Q', \Sigma, \Omega, \Gamma', \Delta', S_I, F')$ as
+        follows.
+	We build $Q' = 2^{Q\times Q}$, intuitively denoting a set of pairs of
+        states $(p, q)$ of $\cP$ such that $\cP$ can be at state $q$ at this
+        point if it was at state $p$ when the topmost stack symbol was pushed. 
+        We build $\Gamma' = 2^{Q\times\Gamma\times Q}$,
+        intuitively specifying the sets of possible stack symbols and
+        remembering the state just after the previous stack symbol was pushed
+        and the state just after that symbol was pushed.
+	We build $S_I = \{(q_0,q_0)\}$, meaning that initially we are at
+        the initial state~$q_0$ and were here when the stack was initialized.
+        We build
+        $F' = \{S\mid (q_0,q)\in S\text{ for some }q\in F \}$,
+        meaning that we accept when $\cP$ reaches a final
+        state and we were at the initial state when the stack was initialized.
+	Let $\Delta'$ be defined as follows:
+	\begin{itemize}
+          \item The (unique) push transition from a state $S \in Q'$ 
+                  makes $\cP'$ push a stack symbol $S'$ and move to a state $T$,
+                  intuitively defined as follows. For every pair $(p, p')$
+                  of~$S$ and push transition $(p', q, \gamma) \in \Delta$ in the original PDAnn,
+                  we can move to state $(q, q)$ and push on the stack the symbol
+                  $(p, \gamma, q)$. The stack symbol $S'$ is the set of all
+                  possible stack symbols that can be pushed in this way, and
+                  $T$ is the set of all possible states that can be reached in
+                  this way.
+
+                  Formally, 
+                  for every $S\in Q'$ we include $(S, S', T)$ in $\Delta'$, where:
+		\begin{align*}
+			T &= \{(p,\gamma,q)\mid (p,p')\in S \text{ and } (p',q,\gamma)\in\Delta\text{ for some }p,p',q\in Q, \gamma\in\Gamma \},\\
+			S'&= \{(q,q)\mid(p,p')\in S\text{ and }(p',q,\gamma)\in\Delta\text{ for some }p,p',q\in Q,  \gamma\in\Gamma\}
+		\end{align*}
+              \item The (unique) pop transition from a state $S \in Q'$ and topmost
+                stack symbol $T \in \Gamma'$ makes $\cP'$ move to a state $T'$
+                intuitively defined as follows. For every pair $(p', q')$ of~$S$,
+                we consider all triples $(p, \gamma, p')$ of the topmost stack
+                symbol $T$, and if the original PDAnn had a pop transition $(q',
+                \gamma, q) \in \Delta$, then we can pop the topmost stack symbol
+                and go to the state $(p, q)$. The new state $T'$ is the set of
+                all pairs $(p, q)$ that can be reached in this way.
+
+                  Formally, 
+                  for every $(S, T)\in Q'\times\Gamma'$ we include $(S, T, S')$ in $\Delta'$, where:
+                  {\small
+		\begin{align*}
+			S' &= \{(p,q)\mid(p,\gamma,p')\in T\text{ and }(p',q')\in S\text{ and }(q',\gamma,q)\in\Delta \text{ for some }p,p',q,q'\in Q,\gamma\in\Gamma\},
+		\end{align*}
+                }
+
+              \item The (unique) read-write transition from a state $S \in Q'$ on a letter
+                  $a \in \Sigma$ and output $\oout \in \Omega$ makes
+                  $\cP'$ move to a state $S'$ intuitively defined as follows: we
+                  consider all pairs $(p, p')$ in $S$ and all transitions from
+                  $p'$ with $a$ and $\oout$ in~$\cP$ to some state $q$, and
+                  move to all possible pairs $(p', q)$.
+
+                  Formally, for every $(S, a, \oout)\in Q'\times\Sigma\times\Omega$ we include $(S, (a, \oout), S')$ in $\Delta'$, where:
+		\begin{align*}
+			S' &= \{(p,q)\mid (p,p')\in S\text{ and }	(p',(a,\oout),q)\in\Delta\text{ for some }p,p',q\in Q\}.
+		\end{align*}
+	 \item The (unique) read transition from a state $S \in Q'$ on a letter
+	$a \in \Sigma$ makes
+	$\cP'$ move to a state $S'$ intuitively defined as follows: we
+	consider all pairs $(p, p')$ in $S$ and all transitions from
+	$p'$ with $a$ in~$\cP$ to some state $q$, and
+	move to all possible pairs $(p', q)$.
+	
+	Formally, for every $(S, a)\in Q'\times\Sigma$ we include $(S, a, S')$ in $\Delta'$, where:
+	\begin{align*}
+		S' &= \{(p,q)\mid (p,p')\in S\text{ and }	(p',a,q)\in\Delta\text{ for some }p,p',q\in Q\}.
+	\end{align*}
+	\end{itemize}
+
+        It is clear by definition that $\cP'$ is deterministic-modulo-profile,
+        and it is clear that the running time of the construction satisfies the
+        claimed time bound.
+
+        We now show that $\cP$ and $\cP'$ are equivalent.
+
+        Now, for the forward
+        direction, let us first assume without loss of generality that whenever
+        $\cP$ makes a push transition then the stack symbol that it pushes is
+        annotated with the state reached just after the push. Then we will show
+        that every instantaneous description that can be reached by $\cP$ can be
+        reached by $\cP'$ by induction on the run. Specifically, we show by
+        induction on the length of the run $\rho$ the following claim: if $\cP$
+        has a run $\rho$ on a string $w$ that produces $\mu$ from an initial state $q_0 \in T$ to an instantaneous
+        description $(q, i), \alpha$, with $\alpha =
+        \gamma_0 p_0, \ldots, \gamma_m p_m$ being the sequence of the stack
+        symbols and states annotating them, then $\cP'$ has a run $\rho'$ on $w$
+        from $S_I$ to an instantaneous description $(S, i), \alpha'$ with
+        $\alpha' = T_0 \ldots T_m$ such that $T_0$ contains $(q_0, \gamma_0,
+        p_0)$, $T_1$ contains $(p_0, \gamma_1, p_1)$, ..., $T_m$ contains
+        $(p_{m-1}, \gamma_m, p_m)$ and $S$ contains $(p_m, q)$; further $\rho$
+        and $\rho'$ have the same profile.
+
+        The base case of an empty run on a string is immediate: if $\cP$ has an
+        empty run from an initial state $q_0$, then it reaches the instantaneous
+        description with $(q_0, 0)$ and the empty stack, and then $\cP'$ then
+        has an empty run reaching the instantaneous description $(S, 0)$ with the
+        empty stack and $S$ indeed contains $(q_0, q_0)$. 
+
+        For the induction case, assume that $\cP$ has a non-empty run $\rho_+$ on a string $w$ that produces $\mu$.
+        First, write $\rho_+$ as a run $\rho$ followed by one single transition
+        of $\cP$. We know $\cP$ has a run $\rho$ on $w$ which produces $\mu$ from an initial
+        state $q_0$ to an instantaneous description $(q, i), \alpha$,
+        with $\alpha = \gamma_0 p_0, \ldots, \gamma_m
+        p_m$. By the induction hypothesis, we know that $\cP'$ has a run
+        $\rho'$ on $w$ from $(q_0, q_0)$ to an instantaneous description $(S,
+        i), \alpha'$ with $\alpha' = T_0 \ldots T_m$ such that $T_0$ contains
+        $(q_0, \gamma_0, p_0)$, $T_1$ contains $(p_0, \gamma_1, p_1)$, ...,
+        $T_m$ contains $(p_{m-1}, \gamma, p_m)$ and $S$ contains $(p_m, q)$; and
+        $\rho'$ and $\rho$ have the same profile. We
+        now distinguish on the type of the transition used to extend $\rho$ to
+        $\rho_+$.
+
+        If that transition is a read-write transition $(q, (a, \oout), q')$, we consider
+        the read-write transition of~$\cP'$ labeled with $(a,\oout)$ from~$T$,
+        and call $S'$ the state that $\cP'$ reaches.
+        As $(p_m, q) \in S$ and $(q, (a, \oout), q') \in \Delta$, we know that
+        $(p_m, q') \in S'$. Thus, $\cP'$ can read $(a,\oout)$ and
+        reach a suitable state $S'$ and position $i+1$ and the stacks are
+        unchanged so the claim is proven.
+        
+        If that transition is a read transition $(q, a, q')$, we follow an analogous reasoning.
+
+        If that transition is a push transition $(q, q', \gamma)$, the position
+        of $\cP$ is unchanged and the new stack is extended by $\gamma$
+        annotated with state $q'$. Consider the push transition of $\cP'$
+        from~$q$, and call $S'$ the state reached and $T = T_{m+1}$ the stack symbol that is
+        pushed. As $(p_m, q) \in S$ and $(q, q', \gamma) \in \Delta$, we know
+        that $T$ contains $(p_m, \gamma, q')$, and $S'$ contains $(q', q')$,
+        which is what we needed to show.
+
+        If that transition is a pop transition, $(q, \gamma_m, q')$, the position
+        of $\cP$ is unchanged and the topmost stack symbol is removed. Consider
+        the topmost stack symbol $T_m$ and the transition of $\cP'$ that pops
+        it from $S$, and call $S'$ the state that we reach. We know that $S$
+        contains $(p_m, q)$ and $T_m$ contains $(p_{m-1}, \gamma_m, p_m)$ and
+        $(q, \gamma_m, q') \in \Delta$, so $S'$ contains $(p_{m-1}, q')$, which
+        is what we needed to show.
+
+        Note that, in all four cases, the profile of $\rho_+$ and $\rho_+'$ is
+        the same, because this was true of $\rho$ and $\rho'$, and the type of
+        transition done to extend $\rho'$ to~$\rho_+'$ is the same as the type
+        of transition done to extend $\rho$ to~$\rho_+$.
+
+        The inductive claim is therefore shown, and thus if $\cP$ has a run $\rho$ on some string $w$ that produces $\mu$ starting at some initial state $q_0$ and
+        ending at state $q$, then $\cP'$ has a run $\rho'$
+        on $w$ which produces $\mu$ and ending at a state of the form $(q_0,
+        q)$ for $q_0$ and having same profile. Thus, if $\rho$ is accepting then $q$ is final for
+        $\cP$ and $(q_0, q)$ is final for $\cP'$ so $\rho'$ is accepting.
+        This concludes the forward implication.
+
+        We now show the backward implication, and show it again by induction,
+        again assuming that $\cP$ annotates the symbols of its stack with the
+        state reached just after pushing them. We
+        show by induction on the length of a run $\rho'$ the following claim: if
+        $\cP'$ has a run $\rho'$ on a string $w$ that produces $\mu$from its initial state to an instantaneous
+        description $(S, i), \alpha'$ with $\alpha' =
+        T_0, \ldots, T_m$ being the sequence of the stack
+        symbols, then for any choice of elements $(q_0, \gamma_0, p_0) \in T_0$,
+        $(p_0, \gamma_1, p_1) \in T_1$, ..., $(p_{m-1}, \gamma_m, p_m) \in T_m$
+        and $(p_m, q) \in S$ it holds that $\cP$ has a run $\rho$ on $w$ producing $\mu$
+        from some initial state $q_0$ to the instantaneous description $(q, i), \alpha$ with
+        $\alpha = \gamma_0 q_0, \ldots, \gamma_m q_m$ (writing next to each
+        stack symbol the state that annotates it), and $\rho'$ and $\rho$ have
+        the same profile.
+
+        The base case of an empty run on a string is again immediate: if $\cP'$ has an
+        empty run from its initial state, then it reaches the instantaneous
+        description with $(S_I, 0)$ and empty stack, and then $\cP$
+        has an empty run from any initial state $q_0$ to $q_0$ so that indeed
+        $S_I$ contains $(q_0, q_0)$.
+
+        For the induction case, assume that $\cP'$ has a non-empty run $\rho'_+$ on $w$ which produces $\mu$,
+        We write again $\rho'_+$ as a run $\rho'$ followed by one single transition
+        of $\cP'$. We know $\cP'$ has a run $\rho'$ on $w$ which produces $\mu$ from the initial
+        state $S_I$ to an instantaneous description $(S, i), \alpha'$,
+        with $\alpha = T_0 \ldots T_m$.
+        By the induction hypothesis, we know that for any choice of elements
+        $(q_0, \gamma_0, p_0) \in T_0$,
+        $(p_0, \gamma_1, p_1) \in T_1$, ..., $(p_{m-1}, \gamma_m, p_m) \in T_m$
+        and $(p_m, q) \in S$, 
+        then $\cP$ has a run $\rho$ on $w$ which produces $\mu$
+        from some initial state $q_0$ to the instantaneous description $(q, i), \alpha$ with
+        $\alpha = \gamma_0 q_0, \ldots, \gamma_m q_m$, and $\rho$ and $\rho'$
+        have the same profile.
+        We now distinguish on the type of transition used to extend $\rho'$
+        to~$\rho'_+$. 
+
+        If the last transition is a read-write transition $(S, (a, \oout), S')$ with $S'$
+        defined as in the construction, consider any choice of 
+        $(q_0, \gamma_0, p_0) \in T_0$,
+        $(p_0, \gamma_1, p_1) \in T_1$, ..., $(p_{m-1}, \gamma_m, p_m) \in T_m$
+        and $(p_m, q') \in S'$, and then there must be some state $p''$ such that
+        $(p'', (a, \oout), q) \in \Delta$ and $(p_m, p'') \in S$. Using the
+        induction hypothesis but picking $(p_m, p'') \in S$, we obtain a run
+        $\rho$ of~$\cP$ on $w$ which produces $\mu$, with the correct stack and ending at
+        position $i$ on state $p''$, which we can extend by the read transition
+        $(p'', (a, \oout), q)$ to reach state $q$ at position $i+1$ without
+        touching the stack, proving the result.
+        
+        If the last transition is a read transition $(S, a, S')$ with $S'$
+        defined as in the construction, we follow an analogous reasoning.
+
+        If the last transition is a push transition $(S, S', T)$ with $T$ defined as
+        in the construction, consider any choice of 
+        $(q_0, \gamma_0, p_0) \in T_0$,
+        $(p_0, \gamma_1, p_1) \in T_1$, ..., $(p_{m-1}, \gamma_m, p_m) \in T_m$,
+        $(p_m, \gamma_{m+1}, p_{m+1}) \in T_{m+1}$ and $(p_{m+1}, q') \in S'$. We
+        know that we must have $q' = p_{m+1}$, 
+        %
+        and that there must be
+        some state $p''$ and push transition $(p'', p_{m+1}, \gamma_{m+1})$ and
+        pair $(p_m, p'')$ in $S$. Using the induction hypothesis but picking
+        $(p_m, p'') \in S$, we obtain a run $\rho$ of~$\cP$ on $w$ which produces $\mu$ with topmost stack symbol $\gamma_m$, ending at
+        state $p''$, which we can extend with the push transition $(p'',
+        p_{m+1}, \gamma_{m+1})$ to obtain the desired stack and reach state
+        $p_{m+1} = q'$, proving the result.
+
+        If the last transition is a pop transition $(S, T, S')$ with $S'$ defined
+        as in the construction, consider any choice of 
+        $(q_0, \gamma_0, p_0) \in T_0$,
+        $(p_0, \gamma_1, p_1) \in T_1$, ..., $(p_{m-2}, \gamma_{m-1}, p_{m-1})
+        \in T_{m-1}$, and $(p_{m-1}, q) \in S'$. We know that there is a pair
+        $(p', q') \in S$ and a triple $(p_{m-1}, \gamma_m, p')$ in $T_m$ and a
+        pop transition $(q', \gamma_m, q)$ in $\Delta$. Applying the induction
+        hypothesis, we get a run $\rho$ of $\cP$ on $w$ which produces $\mu$ and with topmost stack symbol $\gamma_m$ annotated with state
+        $p'$ and ending at state $q'$. The pop transition $(q', \gamma_m, q)$
+        allows us to extend this run to reach state~$q$ and remove the topmost
+        stack symbol, while the rest of the stack is correct, proving the
+        result.
+
+        Again, we have ensured that $\rho$ is extended to $\rho_+$ with the same
+        transition as the transition used to extend $\rho'$ to~$\rho_+'$,
+        ensuring that $\rho_+$ and $\rho_+'$ have same profile.
+        This concludes the proof of the backward induction, ensuring that
+        if $\cP'$ has a run from $S_I$ to some final state $S$ reading a string $w$ and producing $\mu$, and having $(q_0, q_{\mathrm{f}})$
+        with $q_{\mathrm{f}} \in
+        F$ in $S$, then $\cP$ has a run reading $w$ which produces $\mu$ going from $q_0$ to the final state $q_{\mathrm{f}}$. This concludes the
+        backward implication and completes the proof.
+\end{proof}
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+We can now show Theorem~\ref{gram:thm:profileu-iou} via
+Proposition~\ref{gram:prop:grammar-pdann}, using also the notion of \emph{profiled
+PDAnn} defined in Section~\ref{gram:sec:linear}:
+
+  Let $\cG$ be a rigid annotated grammar. Using Proposition~\ref{gram:prop:grammar-pdann}, we
+  transform it in polynomial time to a profiled PDAnn $\cP$.
+  Using Lemma~\ref{gram:lem:pdtonechoice}, we
+  build in exponential time an equivalent PDAnn $\cP'$ satisfying the conditions of the lemma.
+
+  We know that $\cP'$ is still profiled. Indeed, if we assume by
+  contradiction that there is a string~$w$ on which $\cP'$ has two accepting runs
+  with different profiles, then by the last condition of
+  Lemma~\ref{gram:lem:pdtonechoice}, the same is true of~$\cP$, contradicting the
+  fact that $\cP$ is profiled.
+
+  Now, we claim that $\cP'$ is necessarily also unambiguous. To see why,
+  consider two accepting runs~$\rho$ and~$\rho'$ of~$\cP'$ on some string $w$. Since
+  $\cP'$ is profiled, $\rho$ and $\rho'$ must have the same
+  profile. But now, the conditions of Lemma~\ref{gram:lem:pdtonechoice} ensure that,
+  knowing the input string $w$ and profile, the runs $\rho$ and $\rho'$ are completely
+  determined. Specifically, this is an immediate
+  induction on the run. The base case is that there is only one initial state,
+  so both $\rho$ and $\rho'$ must have the same initial state. Now, assuming by
+  induction that the runs so far are identical and have the same stack, there
+  are three cases. First, if the profile tells us that both runs make a push
+  transition, the symbol pushed and state reached are determined by the last
+  states of the runs so
+  far, which are identical by inductive hypothesis. Second, if the profile tells us that both runs make
+  a read-write transition (or read transition), the state reached is determined by the input and output
+  symbols (or just the input symbol), and by the last states of the run so far, which are identical by
+  inductive hypothesis. Third, if the profile tells
+  us that both runs make a pop transition, the state reaches is determined by
+  the last state of the run so far, and the topmost symbol of the stack, which
+  are identical by inductive hypothesis. This concludes the inductive proof.
+
+  Thus, for any two accepting runs $\rho$ and $\rho'$ on the string~$w$ which produce the same output, they must identical. Thus, $\cP'$ is unambiguous.
+  We use Theorem~\ref{gram:prop:grammar-pdann} to transform $\cP'$ back into an
+  annotated grammar, which is still rigid and unambiguous, and equivalent to the
+  original rigid annotated grammar $\cG$. The overall complexity of the
+  transformation is in $\cO((2^{(|\cG|^c)^{c'}})^{c''})$ for some $c, c', c'' > 0$,
+  so it is in $\cO(2^{|\cG|^d})$ for some $d>0$ overall, and the time complexity
+  is as stated.

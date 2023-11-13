@@ -1,0 +1,41 @@
+%!TEX root = main.tex
+
+\begin{figure}[t]
+	\centering
+	
+	\begin{tikzpicture}[scale=0.85,->,>=stealth',shorten >=1pt,auto,node distance=2cm,thick,state/.style={circle,draw},color=black]
+		\node[state,draw=none,scale=0.1] (in) at (-1,10) {};
+		\node[state, accepting] (q0) at (0,10) {$q_0$};
+		\node[state] (q1) at (4.5,10) {$q_1$};
+		\node[state] (q2) at (3,8) {$q_2$};
+		\node[state] (q3) at (6,6) {$q_3$};
+		\node[state] (q4) at (3,4) {$q_4$};
+		\node[state] (q5) at (8,4) {$q_5$};
+		\node[state] (q6) at (6,2) {$q_6$};
+		\node[state] (q7) at (3,0) {$q_7$};
+		\node[state, accepting] (q8) at (0,4) {$q_8$};
+		\draw (in) to (q0);
+		\draw (q0) to[out=20,in=160] node [above] {$\opS / \gamma_0$} (q1);
+		\draw (q1) to[out=-160,in=-20] node [above] {$\clS , \gamma_0$} (q0);
+		\draw (q1) to[loop right] node [right] {$\opS / \gamma'_0$ | $\clS, \gamma'_0$} (q1);
+		\draw (q0) to node [right=5pt, pos=0.45] {$\op{a} / \gamma_a$} (q2);
+		\draw (q2) to[loop right] node [right] {$\opS / \gamma_{\textsf{desc}}$ | $\clS, \gamma_{\textsf{desc}}$} (q2);
+		\draw (q2) to node [right=5pt, pos=0.45] {$\op{b} / \gamma_b : {\sf L}$} (q3); 
+		\draw (q2) to node [left] {$\cl{a}, \gamma_a$} (q8);
+		\draw (q3) to[loop right] node [right] {$\opS / \gamma'_b$ | $\clS, \gamma'_b$} (q3);
+		\draw (q3) to node [above=1.5pt, pos=0.65, yshift=3pt] {$\cl{b}, \gamma_b$} (q4);
+		\draw (q4) to[out=15,in=165] node [above=-1pt] {$\{\op{a}, \op{b}\} / \gamma_{\textsf{sib}}$} (q5);
+		\draw (q5) to[out=-165,in=-15] node [above] {$\{\op{a}, \op{b}\}, \gamma_{\textsf{sib}}$} (q4);
+		\draw (q5) to[loop right] node [right] {$\opS / \gamma'_{\textsf{sib}}$ | $\clS, \gamma'_{\textsf{sib}}$} (q5);
+		\draw (q4) to node [above, pos=0.7, yshift=3pt] {$\op{c} / \gamma_c$} (q6);
+		\draw (q6) to[loop right] node [right] {$\opS / \gamma'_c$ | $\clS, \gamma'_c$} (q6);
+		\draw (q6) to node [above, pos=0.6, yshift=4pt] {$\cl{c} / \gamma_c$} (q7);
+		\draw (q7) to[loop below] node [below] {$\opS / \gamma_{\textsf{desc}}$ | $\clS, \gamma_{\textsf{desc}}$} (q3);
+		\draw (q7) to node [left=1pt] {$\cl{a}, \gamma_a$} (q8);
+		\draw (q8) to[loop left] node [left] {$\opS / \gamma'$ | $\clS, \gamma'$} (q8);
+	\end{tikzpicture}
+
+\caption{The \vpann that translates the XPath query $\cQ_2$.  Its input alphabet consists of the sets $\opS = \{\op{a}, \op{b}, \op{c}\}$ and $\clS = \{\cl{a}, \cl{b}, \cl{c}\}$.}
+	
+	\label{nested:fig-xpath-vpt}
+\end{figure}

@@ -1,0 +1,134 @@
+%!TEX root = ../Thesis.tex
+
+
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
+\algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
+
+
+
+\begin{algorithm*}[t]
+	\caption{Enumeration over a node $u$ from some ECS $\cD = (\infAlph, V, \ell, r, \lambda)$.}\label{slps:alg:enumeration}
+	\smallskip
+	\begin{varwidth}[t]{0.499\textwidth}
+		\begin{algorithmic}[1]
+			
+			\Procedure{{enumerate}}{$v$} \label{slps:alg1enum1}
+			\State $\uit \gets \textsc{create}(v)$
+			\While{$\uit.\textsc{next} = \bf{true}$}\label{slps:alg1enum2}
+			\State $\uit.\textsc{print}(0)$\label{slps:alg1enum3}
+			\EndWhile
+			\EndProcedure
+			
+			\State
+			
+			\LineComment{Bottom node iterator $\uit_\infAlph$} \label{slps:alg1bottom0}
+			\Procedure{{create}}{$v$}\,\Comment{Sup.\ $\lambda(v) \in \infAlph$} \label{slps:alg1bottom1}
+			\State $\bnodelabel \gets v$ \label{slps:alg1bottom2}
+			\State $\hasnext \gets {\bf true}$ \label{slps:alg1bottom3}
+			\EndProcedure	
+			
+			\State
+			
+			\Procedure{{next}}{} \label{slps:alg1bottom4}
+			\If{$\hasnext = \bf{true}$} \label{slps:alg1bottom5}
+			\State $\hasnext \gets \bf{false}$ \label{slps:alg1bottom6}
+			\State \Return $\bf{true}$ \label{slps:alg1bottom7}
+			\EndIf
+			\State \Return $\bf{false}$ \label{slps:alg1bottom8}
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{print}}{$s$} \label{slps:alg1bottom9}
+			\State ${\bf print}: (\lambda(\bnodelabel), 1+s)$ \label{slps:alg1bottom10}
+			\EndProcedure \label{slps:alg1bottom11}
+			
+			\State
+			
+			\LineComment{Product node iterator $\uit_\odot$} \label{slps:alg1prod0}
+			\Procedure{{create}}{$v$}\,\Comment{Sup.\ $\lambda(v) = \odot$}\label{slps:alg1prod1}
+			\State $u \gets v$
+			\State $\leftit \gets \textsc{create}(\ell(u))$
+			\State $\leftit.\textsc{next}$
+			\State $\rightit \gets \textsc{create}(r(u))$\label{slps:alg1prod5}
+			\EndProcedure	
+			
+			\State
+			
+			\Procedure{{next}}{} \label{slps:alg1prod6}
+			\If{$\rightit.\textsc{next} = \bf{false}$}
+			\If{$\leftit.\textsc{next} = \bf{false}$} \label{slps:alg1prod8}
+			\State \Return $\bf{false}$
+			\EndIf
+			\State $\rightit \gets \textsc{create}(r(u))$
+			\State $\rightit.\textsc{next}$ \label{slps:alg1prod11}
+			\EndIf
+			\State \Return $\bf{true}$ \label{slps:alg1prod12}
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{print}}{$s$} \label{slps:alg1prod13}
+			\State $\leftit.\textsc{print}(s)$
+			\State $\rightit.\textsc{print}(s)$ \label{slps:alg1prodlast}
+			\EndProcedure
+			\algstore{myalg}
+		\end{algorithmic}
+	\end{varwidth} \hfill
+	\begin{varwidth}[t]{0.5\textwidth}
+		\begin{algorithmic}[1]
+			\algrestore{myalg}
+			\LineComment{Union/$\int$ node iterator $\uit_{\cup/\int}$} \label{slps:alg1union0}
+			\Procedure{{create}}{$v$}\label{slps:alg1union1}
+			\State $\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ $ \Comment{Sup. $\lambda(v) \in \{\cup\}\cup\int$}
+			\State $\ustack\gets\text{\sf push}(\ustack, (v, 0)\,)$\label{slps:alg1union4}
+			\State $\ustack\gets\textsc{traverse}(\ustack)$\label{slps:alg1union5}
+			\State $\uit \gets \textsc{create}(\text{\sf top}(\ustack).u)$ \label{slps:alg1union6}
+			\EndProcedure	
+			
+			\State
+			
+			\Procedure{{next}}{}
+			\If{$\uit.\textsc{next} = \bf{false}$}\label{slps:alg1unionnext1}
+			\State $\ustack\gets\text{\sf pop}(\ustack)$ \label{slps:alg1unionnext2}
+			\If{$\text{\sf length}(\ustack) = 0$} \label{slps:alg1unionnext3}
+			\State \Return $\bf{false}$
+			\EndIf
+			\State $(u,s) \gets \text{\sf top}(\ustack)$ \label{slps:alg1unionnext5}
+			\If{$\lambda(u) \in \{\cup\} \cup \int$} 
+			\State $\ustack\gets\textsc{traverse}(\ustack)$ \label{slps:alg1unionnext6}
+			\EndIf
+			\State $\uit \gets \textsc{create}(u)$ \label{slps:alg1unionnext7}
+			\State $\uit.\textsc{next}$ \label{slps:alg1unionnext8}
+			\EndIf
+			\State \Return $\bf{true}$
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{print}}{$s$} 
+			\State $(u, s')\gets \text{\sf top}(\ustack)$ \label{slps:alg1unionprint1}
+			\State $\uit.\textsc{print}(s + s')$ \label{slps:alg1unionprint2}
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{traverse}}{$\ustack$}\label{slps:alg1traverse0}
+			\While{$\lambda(\text{\sf top}(\ustack).u) \in \{\cup\} \cup \int$}
+			\State $(u,s) \gets \text{\sf top}(\ustack)$
+			\State $\ustack \gets \text{\sf pop}(\ustack)$
+			\If{$\lambda(u)\in\int$} \label{slps:alg1traverseIfStart}
+			\State $v\gets \ell(u)$
+			\State $s'\gets s + \lambda(u)$
+			\State $\ustack\gets\text{\sf push}(\ustack, (v, \, s'))$ \label{slps:alg1traverseIfEnd}
+			\Else \label{slps:alg1traverseElseStart}
+			\State $\ustack\gets\text{\sf push}(\ustack, (r(u), s)\,)$
+			\State $\ustack\gets\text{\sf push}(\ustack, (\ell(u),s)\,)$ \label{slps:alg1traverseElseEnd}
+			\EndIf
+			\EndWhile
+			\State \Return $\ustack$ \label{slps:alg1unionlast}
+			\EndProcedure
+		\end{algorithmic}
+	\end{varwidth}
+	\smallskip
+\end{algorithm*}

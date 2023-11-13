@@ -1,0 +1,36 @@
+\begin{proof}
+	The proof of the theorem is a consequence of Theorem~\ref{nested:theo:main} and the following lemma.
+	
+	\begin{lemma}\label{nested:vpann:delta}
+		For every I/O-unambiguous \vpann $\cT$ there exists an I/O-unambiguous \vpann $\cT'$ such that $\br{\cT'}(w) = \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(	w[1, i])$ for every $w\in\wnS$. Furthermore, the size of $\cT'$ is linear in the size of $\cT$.
+	\end{lemma}
+	
+	Let $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$ be an I/O-unambiguous \vpann. We construct a \vpann
+	$
+	\cT' = (Q', \Sigma, \Gamma, \oalph, \Delta', \qinit, F')
+	$
+	such that $Q' = Q \times \{1, 2\}$, $\qinit' = \qinit \times\{1\}$, $F' = F \times\{1\}$ and $\Delta'$ is as follows: 
+	\begin{align*}
+		\Delta' =\ & \{((p,1),\op{a},\oout,(q,1),\gamma), ((p,2),\op{a},\oout,(q,1),\gamma)\mid (p,\op{a},\oout,q,\gamma)\in\Delta\}\ \cup\\ 
+		&\{((p,1),\op{a},(q,1),\gamma), ((p,2),\op{a},(q,2),\gamma)\mid (p,\op{a},q,\gamma)\in\Delta\text{ where }p\not\in F\}\ \cup\\  \displaybreak[1]
+		& \{((p,1),\op{a},(q,2),\gamma), ((p,2),\op{a},(q,2),\gamma)\mid (p,\op{a},q,\gamma)\in\Delta\text{ where } p\in F\} \ \cup \\ 
+		& \{((p,1),\cl{a},\oout,\gamma, (q,1)), ((p,2),\cl{a},\oout,\gamma, (q,1))\mid (p,\cl{a},\oout,\gamma,q)\in\Delta\}\ \cup\\
+		&\{((p,1),\cl{a},\gamma,(q,1)), ((p,2),\cl{a},\gamma,(q,2))\mid (p,\cl{a},\gamma,q)\in\Delta\text{ where }p\not\in F\}\ \cup\\ \displaybreak[1]
+		& \{((p,1),\cl{a},\gamma,(q,2)), ((p,2),\cl{a},\gamma,(q,2))\mid (p,\cl{a},\gamma,q)\in\Delta\text{ where } p\in F\} \ \cup \\
+		& \{((p,1),a,\oout,(q,1)), ((p,2),a,\oout,(q,1))\mid (p,a,\oout,q)\in\Delta\}\ \cup\\
+		&\{((p,1),a,(q,1)), ((p,2),a,(q,2))\mid (p,\op{a},q)\in\Delta\text{ where }p\not\in F\}\ \cup\\
+		& \{((p,1),a,(q,2)), ((p,2),a,(q,2))\mid (p,\op{a},q)\in\Delta\text{ where } p\in F\} \ 
+	\end{align*}
+
+	The idea behind this construction is to separate the \vpann in two halves. Each run starts in the first half (marked 1) and once it reaches a final state, it changes into the second half (marked 2). The run then stays on the second half until it sees an output symbol that extends the current output, upon which it returns to the first half.
+	It is straightforward to see that $\br{\cT'}(w) = \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$.
+	%It is clear that $\cT'$ is I/O-unambiguous since for each state $q\in Q'$, input symbol $a$ and $\oout\in\oalph\cup\{\eps\}$ there is at most one tuple in $\Delta'$ that has $q,a,\oout$ as its first three elements.
+	%\cristian{Martin: acá esta mal y la afirmación del resultado también. Cuando haces la construcción partes de un I/O unambiguous y llegas a un I/O unambiguous. Si llegaras a un I/O deterministic, algo esta mal ya que romperias cotas de construcción de automatas, asi que es imposible que sea así. El autómata queda I/O unambiguous, no porque por cada valor $\oout$ llegas a un estado, lo cual no es cierto, si no porque se sigue cumpliendo el hecho de un solo run. Corrigue esto, actualizando el Lemma 16, como también la afirmación en el Teorema 4.}
+	
+%	To show that $\br{\cT'}(w) = \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$ consider a $w\in \wnS$. First, we show the $\subseteq$ direction of the equality. Let $\mu\in\br{\cT'}(w)$ and consider an accepting run $\rho'$ of $\cT$ over $w$ with output $\mu$. We can construct an accepting run $\rho$ of $\cT$ over $w$ by starting from $\rho'$ and replacing any appearance of a state $(q, k)$ by $q$. From this it follows that $\mu \in \br{\cT}(w)$. Assume now that $\mu \in \br{\cT}(w[1, i\rangle)$ for some $i < |w|$. From the construction of $\Delta'$ it can be seen that the $i$-th and following states in $\rho'$ are of the form $(q, 2)$, as all of the following transitions in $\rho'$ have no output symbol. Therefore, $\rho'$ cannot be an accepting run, and we reach a contradiction, from which we conclude that $\mu \in \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$. 
+%	
+%	Now, we show the $\supseteq$ direction. Let $\mu$ be an output in $\mu \in \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$ and let $\rho$ be the accepting run of $\cT$ over $w$ with output $\mu$. It can be seen from the construction of $\Delta'$ that the run of $\cT'$ over $w$ is identical to $\rho$ except each state $q$ in $\rho$ appears as $(q, k)$ in $\rho'$. We will show that the last state in $\rho'$ is of the form $(q,2)$. Towards a contradiction, assume that it is not. Therefore, in $\rho'$ there is a transition where the first state is of the form $(p,1)$ and the second is of the form $(q,2)$, and furthermore, every transition following this one has $\eps$ as its output symbol. Let $i$ be the step where this happens. From the construction of $\Delta$ we see that the $i$-th state is in $F$, from which it follows that the run $\rho'_i$ built from the first $i$ steps in $\rho'$ is an accepting run of $\cT'$ over $w[1,i\rangle$ and that $\out(\rho'_i) = \mu$. We can do a similar process as a above and construct an accepting run of $\cT$ over $w[1,i\rangle$ that renders the same output $\mu$, which contradicts our assumption that $\mu\not\in\bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$. We conclude that $\br{\cT'}(w) = \br{\cT}(w) \setminus \bigcup_{i < |w|} \br{\cT}(w[1, i\rangle)$.
+	
+	To show that $\cT'$ is I/O-unambiguous, consider a $w\in \wnS$. Let $\mu \in \br{\cT'}(w)$ and consider two accepting runs $\rho_1$ and $\rho_2$ such that $\out(\rho_1) = \out(\rho_2) = \mu$. Let us build a run $\rho$ of $\cT$ over $w$ by replacing each state $(q, k)$ in $\rho_1$ by $q$. Note that starting from $\rho_2$ renders the same run because they have the same output and $\cT$ is I/O-unambiguous.  
+	This implies that $\rho_1 = ((q_1,\ell_1), \sigma_1) \xrightarrow{b_1} \cdots  \xrightarrow{b_n} ((q_{n+1}, \ell_{n+1}), \sigma_{n+1})$ and $\rho_2 = ((q_1, k_1), \sigma_1) \xrightarrow{b_1} \cdots  \xrightarrow{b_n} ((q_{n+1}, k_{n+1}), \sigma_{n+1})$ for some $q_i$, $\sigma_i$ and $b_i$. Note that $\ell_1 = k_1 = 1$, and suppose there is some $i$ for which $\ell_i = k_i$ and $\ell_{i+1} \neq k_{i+1}$. This is immediately false from the construction above since from any transition of $\Delta$ that is from state $p$, only two transitions are included in $\Delta'$: one from $(p,1)$ and one from $(p,2)$. This implies that $\rho_1 = \rho_2$ so $\cT'$ is I/O-unambiguous. 
+\end{proof}

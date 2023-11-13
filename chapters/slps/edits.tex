@@ -1,0 +1,85 @@
+%!TEX root = ../../Thesis.tex
+% !TeX spellcheck = en_US
+
+In this section, we show that the results obtained by Schmid and Schweikardt~\cite{SchmidS22} regarding enumeration over document databases and complex document editing still hold, maintaining the same time bounds in doing these edits, but allowing output-linear delay. We also include a refinement of the result for whenever the edits needed are limited to the concatenation of two documents. To be precise, we will give an overview of the following theorem.
+
+\begin{theorem}\label{slps:theo:edits}
+	Let $D = \{d_1,\ldots,d_m\}$ be a document database that is represented by an SLP~$S$ in normal form. Let $\cA_1,\ldots,\cA_k$ be unambiguous sequential variable-set automata. When given the query data structures for $S$ and $\cA_1,\ldots, \cA_k$, and a CDE-expression $\varphi$ over $D$, we can construct an extension $S'$ of $S$ and new query data structures for $S'$ and $\cA_1,\ldots,\cA_k$, and a new non-terminal $\tilde{A}$ of $S'$, such that $\doc(\tilde{A}) = \textsf{eval}(\varphi)$. 
+	\begin{itemize}
+		\item If $\varphi$ contains operations other than $\concat$, we require $S$ to be strongly balanced. Then, $S'$ is also strongly balanced, and this construction can be done $\cO(k\cdot|\varphi|\cdot\log|d^*|)$ time in data-complexity where $|d^*| = |\max_{\varphi}(D)|$.
+		\item If $\varphi$ only contains $\concat$, then this can be done in $\cO(k\cdot|\varphi|)$ time in data-complexity.
+	\end{itemize}
+	Afterwards, upon input of any $d\in\docs(S')$ (represented by a non-terminal of $S'$) and any $i\in[1, m]$, the set $\sem{\cA_i}(d)$ can be enumerated with constant-delay.
+\end{theorem}
+
+The version of this result shown in~\cite{SchmidS22} had extended VA instead of VA, and logarithmic delay instead of constant-delay.
+We dedicate the rest of this section to define the concepts we have not yet introduced in Theorem~\ref{slps:theo:edits}, and show how the techniques presented in~\cite{SchmidS22} allow us to obtain this result. 
+%From what we have seen so far, this is not obviously an improvement of Theorem 6.4 from~\cite{SchmidS22} because we have not yet presented a rigorous link between annotated automata and regular spanners. This is done in Section~\ref{sec:spanners}, where the result is also extended to support several spanners to match Schmid and Schweikardt's result.
+
+\paragraph{Normal form, balanced and rootless SLPs}
+ We define a {\it rootless SLP} as a triple $S = (N, \Sigma, R)$, where $N$ is a set of non-terminals, $\Sigma$ is the set of terminals, and $R$ is a set of rules. Rootless SLPs are defined as SLPs with the difference that there is no starting symbol, and thus $\doc(S)$ is not defined. Instead, we define $\doc(A)$ for each $A\in N$ as $\doc(A) = R^*(A)$. We say that $S$ is in {\it Chomsky normal form} (or just normal form) if every rule in $R$ has the form $A\to a$ or $A\to BC$, where $a\in \Sigma$ and $A, B, C\in N$. Also, we say that $S$ is {\it strongly balanced} if for each rule $A\to BC$, the value $\ord(B) - \ord(C)$ is either -1, 0 or 1, where $\ord(X)$ is the maximum distance from $X$ to any terminal in the derivation tree. 
+
+\paragraph{Document Databases} 
+A {\it document database} over $\Sigma$ is a finite collection $D = \{d_1, \ldots, d_m\}$ of documents over $\Sigma$. Document databases are represented by a rootless SLP as follows. For an SLP $S = (N, \Sigma, R)$, let $\docs(S) = \{\doc(A)\mid A\in N\}$ be the set of documents represented by $S$. The rootless SLP $S$ is a representation for a document database $D$ if $D\subseteq \docs(S)$.
+
+For a document database $D$, it is assumed that a rootless SLP $S$ that represents $D$ is in normal form and, for the effects of the first bullet point of Theorem~\ref{slps:theo:edits}, strongly balanced. It is also assumed that for each nonterminal $A$ for which its rule has the form $A\to BC$, the values $|\doc(A)|$, $\ord(A)$ and nonterminals $B$ and $C$ are accessible in constant time. 
+All these values can be  precomputed with a linear-time pass over $S$. We call $S$ along with constant-time access to these values {\it the basic data structure for} $S$.
+
+\paragraph{Complex Document Editing}
+As in~\cite{SchmidS22}, given a document database $D = \{d_1, \ldots, d_m\}$ our goal is to create new documents by a sequence of text-editing operations.
+Here we introduce the notion of a CDE-expression over $D$, which is defined by the following syntax:
+$$
+	\varphi := \ d_\ell, \ell\in[1, m]\ | \ \concat(\varphi, \varphi)\ | \ \extract(\varphi, i, j) \ | \
+	\delete(\varphi, i, j) \ | \ \insertop(\varphi, \varphi, k) \ | \ \copyop(\varphi, i, j, k)
+$$
+where the values $i,j$ are valid {\it positions}, and $k$ is a valid {\it gap}. % -- concepts that we will explain shortly. 
+The semantics of these operations, called {\it basic operations}, works as follows:
+$$
+\begin{array}{rclrclrclrcl}
+	\concat(d, d') &=& d\cdot d' \ \ \ &&\insertop(d, d', k) &=& d\spanc{1}{k}\cdot d'\cdot d\spanc{k}{|d|+1}&\\
+	\extract(d, i, j) &=& d\spanc{i}{j+1} \ \ \ &&\delete(d, i, j) &=& d\spanc{1}{i}\cdot d\spanc{j+1}{|d|+1}&\\
+	\copyop(d, i, j, k) &=& \insertop(d, d\spanc{i}{j+1}, k) 	
+	%	&=&d\spanc{i}{k}\cdot d\spanc{i}{j+1}&\cdot& d\spanc{k}{|d|+1} \  \ \ \ \ \ \ \ \ \ \ \ \ \ &
+\end{array}
+$$
+We write $\eval(\varphi)$ for the document obtained by evaluating $\varphi$ on $D$ according to these semantics. For an operation $\extract(\varphi, i, j)$, $\delete(\varphi, i, j)$, $\insertop(\varphi, \psi, k)$, or $\copyop(\varphi, i, j, k)$, $i,j$ are valid positions if $i, j\in [1, |\eval(\varphi)|]$, and $k$ is a valid gap if $k\in [1, |\eval(\varphi)| + 1]$.
+We define $|\varphi|$ as the number of basic operations in $\varphi$.
+For adding these new documents in the database we will use the notion of extending a rootless SLP. A rootless SLP $S' = (N', \Sigma, R')$ is called an extension of $S$ if $S'$ is in normal form, $N\subseteq N'$, and $R'(A) = R(A)$ for every $A\in N$. In this context, we call $N'\setminus N$ the {\it set of new non-terminals}.
+We define the {\it maximum intermediate document size} $|\max_{\varphi}(D)|$ induced by a CDE-expression $\varphi$ on a document database $D$ as the maximum size of $\eval(\psi)$ for any sub-expression $\psi$ of $\varphi$ (i.e., any substring $\psi$ of $\varphi$ that matches the CDE syntax).
+
+%At this point we have covered all definitions needed in the statement of Theorem~\ref{theo:edits}. We need one more tool from~\cite{SchmidS22} which will be what we need to prove this theorem.
+
+Having defined most of the concepts mentioned in Theorem~\ref{slps:theo:edits}, we can re-state the following Theorem from~\cite{SchmidS22}, which will be instrumental in the final proof.
+
+\begin{theorem}[(Theorem 4.3 in \cite{SchmidS22})]\label{slps:theo:cedits}
+	Let $D$ be a document database represented by a strongly balanced rootless SLP $S$ in normal form. When given the basic data structure for $S$ and a CDE-expression $\varphi$ over $D$, we can construct a strongly balanced extension $S'$ of $S$, along with its basic data structure, and a non-terminal $\tilde{A}$ of $S'$ such that $\doc(\tilde{A}) = \eval(\varphi)$.
+	This construction takes time $\cO\big(|\varphi|\cdot \log(|\max_{\varphi}(D)|)\big)$.  In particular, the number of new non-terminals $|N'\setminus N|$ is in $\cO\big(|\varphi|\cdot \log( |\max_{\varphi}(D)|)\big)$.
+\end{theorem}
+
+%To give an idea of the strategy for the proof, we will start from a {\it query data structure} built over some rootless SLP $S$ and an \rtname $\cA$, extend $S$ into another SLP $S'$, and then extend this query data structure so it is defined over $S'$ and $\cA$. The time this takes depends only on the number of new non-terminals in $S'$ and on $\cA$.
+
+For the second bullet point in Theorem~\ref{slps:theo:edits}, we use the following observation, which comes from the fact that applying $\concat$ to an SLP amounts to adding a single production.
+
+\begin{observation}\label{slps:obs:concat}
+	Let $D$ be a document database represented by a rootless SLP $S$ in normal form. Given the basic data structure for $S$ and a CDE-expression $\varphi$ over $D$ which only mentions $\concat$, we can construct an extension $S'$ of $S$, along with its basic data structure, and a nonterminal $\tilde{A}$ of $S'$ such that $\doc(\tilde{A}) = \eval(\varphi)$. This construction takes time $\cO(|\varphi|)$. In particular, the number of new non-terminals $|N'\setminus N|$ is~in~$\cO(|\varphi|)$.
+\end{observation}
+
+\paragraph{The query data structure}
+The structure we will use is the one produced in Theorem~\ref{slps:theo-algo-succ}. This structure is built by an algorithm that receives an SLP $S$, an unambiguous \crt $\cA$, and produces a succinct \dsabbr $\cD$ indexed by the matrices $M_A$, for each non-terminal $A$ in~$S$. These matrices store nodes $v = M_A[p,q]$ such that $\sem{\cD}(v)$ contains all partial annotations from a path of $\cA$ which starts $p$, ends in $q$, and reads the string $\doc(A)$. 
+Note that, although the algorithm receives a ``rooted'' SLP, it can be adapted quite easily to rootless SLPs by adding a node $v_A$ for each non-terminal $A$ in $S$, built as $v_A = \union_{q\in F}(M_A[q_0, q])$ (the same construction that was done for $S_0$ in the algorithm).
+
+We define {\it the query data structure for $S$ and $\cA$} as the mentioned succinct \dsabbr along with constant-time access to every index $M_A[p,q]$ for states $p$ and $q$ and non-terminal~$A$. Note that for each $A$ it holds that $\sem{\cD}(v_A) = \sem{\cA}(\doc(A))$. In particular, if $S$ represents a document database $D$, then for each $d\in D$ there is a $v$ in $\cD$ for which $\sem{\cD}(v) = \sem{\cA}(d)$. Recall that for every node $v\in \cD$, the set $\sem{\cD}(v)$ can be enumerated with output-linear delay.
+
+\begin{lemma}\label{slps:lem:ecsext}
+	Let $S$ be an SLP in normal form and an extension $S'$ of $S$ with new non-terminals $\tilde{N} = N' \setminus N$. Also, let $\cA$ be an unambiguous \crt and assume we are given the query data structure for $S$ and $\cA$, and the basic data structure for $S'$. We can construct the query data structure for $S'$ and $\cA$ in $\cO(|\cA|^3\cdot|\tilde{N}|)$ time.
+\end{lemma}
+\begin{proof}
+	Let $\cD$ be the succinct \dsabbr associated to the query data structure for $S$ and $\cA$ and let $\tilde{R} = R' \setminus R$ be the set of new rules in $S'$. Consider the DAG that is induced by this set. We can go over these new rules $\tilde{A}\to BC$ in a bottom-up fashion, starting from the ones where $B,C\in N$, and define the nodes $M_{\tilde{A}}[p,q] = (M_{B}\otimes \shiftop(M_C,|\doc(B)|))[p,q]$ for each $p,q\in Q$. Then, we build the nodes $v_{\tilde{A}}$ for each new non-terminal $\tilde{A}$ as defined. The new nodes are created by application of the \dsabbr operations $\add$, $\union$, $\prod$ and $\shiftop$ which create the succinct \dsabbr $\cD'$ that defines the query data structure for $S'$ and $\cA$. The procedure takes $\cO(|Q|^3\cdot|\tilde{N}|)$ time.
+\end{proof}
+
+We finally have all the machinery to prove Theorem~\ref{slps:theo:edits}, extending the results in~\cite{SchmidS22} for sequential VA and with output-linear delay.
+
+\paragraph{Proof of Theorem~\ref{slps:theo:edits}} Let us first reduce the variable-set automata $\cA_1, \ldots \cA_k$ to \crt{}s $\cA_1',\ldots,\cA_k'$ using the construction of Proposition~\ref{slps:prop:va-reduc}. Note, however, that this reduction requires the input document to be modified as well. This can be solved by adding a non-terminal $A_{\texttt{\#}}$ for each $A\in N$, and a rule $A_{\texttt{\#}}\to AH$, where $H$ is a new non-terminal with the rule $H\to\texttt{\#}$. Then, in the query data structure for $S$ and $\cA'$, the nodes $v_A$ are defined over the matrices $M_{A_{\texttt{\#}}}$ instead. That way, when the user chooses a document $d\in \docs(S)$ and a variable set automata $\cA_i$, she can be given the set $\sem{\cA'_i}(d\texttt{\#})$ as output. Note that this has no influence in the time bounds given for the edit so far, except for a factor that is linear~in~$|\tilde{N}|$.
+
+We can see now that the result follows from Theorem~\ref{slps:theo:cedits}, Observation~\ref{slps:obs:concat}, and Lemma~\ref{slps:lem:ecsext}. The fact that for each $d\in \docs(S')$ the set $\sem{\cA}(d)$ can be enumerated with output-linear delay follows from the definition of the query data structure for $S'$ and $\cA$. \qed
+%-- one must simply use the node $v_A$ for the non-terminal $A$ that satisfies $\str(A) = d$, and note that, by virtue of Theorem~\ref{theo:data-structure-eps}, the set $\sem{\cD}(v_A) = \sem{\cA}(d)$ can be enumerated as mentioned.

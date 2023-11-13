@@ -1,0 +1,231 @@
+%
+%
+
+%
+
+\paragraph{Strings and annotations} Let $\Sigma$ be a finite alphabet.
+We write $\Sigma^*$ for the set of strings
+over $\Sigma$. The \emph{length} of a string $w = w_1 \cdots w_n \in
+\Sigma^*$ is $|w| \colonequals n$. The string of length 0 is written
+$\epsilon$. We write $u \cdot v$ or $uv$ for the \emph{concatenation} of $u, v \in \Sigma^*$.
+
+Let $\Omega$ be a finite set of annotations. An
+\emph{annotated string} is a string $\hat{w} \in  (\Sigma \cup \Sigma \times \Omega)^*$. 
+We denote strings by~$w$ and annotated strings by~$\hat{w}$ when this avoids confusion. 
+Intuitively, if $\hat{w} = \hat{w}_1 \cdots \hat{w}_n$, then $\hat{w}_i = (a, \oout) \in \Sigma \times \Omega$ means that the letter $a$ at position~$i$ is annotated with $\oout$ (called an \emph{annotated letter}) and $\hat{w}_i \in \Sigma$ means that there is no annotation at position~$i$. 
+Given an annotated string $\hat{w} = \hat{w}_1 \cdots \hat{w}_n$, we denote by
+$\str(\hat{w}) = \str(\hat{w}_1) \cdot
+\cdots \cdot \str(\hat{w}_n)$ the \emph{unannotated string} of~$\hat{w}$, i.e., $\str((a,
+\oout)) \colonequals a$ and $\str(a) \colonequals a$, and we denote by
+$\ann(\hat{w}) = \ann(\hat{w}_1, 1) \cdot \cdots \cdot \ann( \hat{w}_n, n)$
+the \emph{annotations} of~$\hat{w}$, i.e.,
+$\ann((a, \oout), i) \colonequals (\oout, i)$ and $\ann(a, i) \colonequals
+\epsilon$.
+%
+Note that $\card{\str(\hat{w})} = \card{w}$, but the length
+$\card{\ann(\hat{w})}$ of $\ann(\hat{w})$ can be
+much less than~$\card{w}$.
+%
+%
+%
+
+%
+%
+%
+%
+%
+%
+
+%
+%
+
+\paragraph{Annotated grammars} 
+A \emph{context-free grammar} (CFG) over~$\Sigma$ is a tuple $G = (V, \Sigma, P,
+S)$, where $V$ is a set of \emph{nonterminals}, $\Sigma$ is the alphabet (whose
+letters are called \emph{terminals}),
+$S \in V$ is the \emph{start symbol}, and $P$ is a finite set of \emph{rules} of the form $X \to \alpha$
+where $X \in V$ and $\alpha \in (V \cup \Sigma)^*$. We assume that $V$ and
+$\Sigma$ are disjoint. In this chapter, we extend this definition to an
+\emph{annotated (context-free) grammar} $\cG = (V, \Sigma, \Omega, P, S)$, which
+is simply the CFG $(V, \Sigma \cup \Sigma \times \Omega, P, S)$.
+%
+%
+%
+%
+%
+%
+We use $G$ to denote a CFG and $\cG$ to denote an annotated grammar.
+The \emph{terminals} of~$\cG$ are letters $a \in \Sigma$ and annotated letters $(a, \oout) \in \Sigma \times \Omega$. 
+
+%
+%
+We recall the semantics of a CFG $G = (V, \Sigma, P, S)$.
+Given a string $u \in \Sigma^*$, two strings $\gamma, \delta \in (V \cup
+\Sigma)^*$, and $X \in V$, we say that $u X \delta$ \emph{produces} $u \gamma
+\delta$, denoted by $u X \delta \der{G}u \gamma \delta$, if $P$ contains the rule
+$X \rightarrow \gamma$. We then say that $\alpha \in (V \cup \Sigma)^*$
+\emph{derives} $\beta \in (V \cup \Sigma)^*$, denoted by $\alpha \ders{\cG}
+\beta$ or just $\alpha \ders{} \beta$, if there is a sequence of strings $\alpha_1, \ldots, \alpha_m$ 
+with $m\geq 1$
+such that $\alpha = \alpha_1 \der{} \alpha_2 \der{} \ldots \der{} \alpha_m =
+\beta$. We say that $G$ \emph{derives} $\alpha \in (V \cup \Sigma)^*$ if $S
+\ders{} \alpha$, and define the \emph{language} $L(G)$ of~$G$ as the set of
+strings $\{w \in \Sigma^* \mid S \ders{} w\}$. Note that our derivations
+are leftmost derivations, which is standard for the unambiguity notions that we
+introduce afterwards.
+The \emph{language of an annotated grammar} $\cG$ is that of the underlying CFG on the
+alphabet of terminals $\Sigma \cup \Sigma \times \Omega$. In particular,
+$L(\cG)$ is a set of annotated strings.
+
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+The purpose of annotated grammars is to consider all possible
+annotations of an input unannotated string $w \in \Sigma^*$. 
+%
+%
+%
+%
+%
+Specifically, the \emph{semantics} of an annotated grammar~$\cG$ is the
+function $\sem{\cG}$ mapping each string $w \in \Sigma^*$ to the following
+(possibly empty) set of annotations:
+$  \sem{\cG}(w) \ := \ \{\ann(\hat{w}) \mid \hat{w} \in
+L(\cG) \wedge \str(\hat{w}) = w\}$.
+
+An \emph{output} of evaluating $\cG$ over $w$ is just an element $\mu \in
+\sem{\cG}(w)$.
+Note that, in the case when $\Omega = \emptyset$, for all $w \in \Sigma^*$ we have $\sem{\cG}(w) =
+\emptyset$ if $w \notin L(\cG)$ and $\sem{\cG}(w) = \{\epsilon\}$ if $w \in
+L(\cG)$. So, annotated grammars subsume CFGs. In Section~\ref{gram:sec:spanners}, we show that they also subsume the extraction grammars of~\cite{Peterfreund21}, which implies that annotated grammars are more expressive than regular spanners~\cite{FlorenzanoRUVV18,amarilli2020constant}, or even visibly
+pushdown transducers from Chapter~\ref{ch1}.
+
+%
+%
+%
+%
+%
+
+
+%
+
+Towards ensuring tractability, we call a CFG $G$ \emph{unambiguous} if for every
+$w \in L(G)$ there is a unique derivation of $w$ by~$G$. We call an annotated
+grammar
+$\cG$ {\em unambiguous} if the underlying CFG over $\Sigma
+\cup \Sigma\times\Omega$ is unambiguous.
+%
+Intuitively, this means that each output $\mu \in \sem{\cG}(w)$ can be produced
+in only one way.
+%
+%
+%
+%
+%
+Remember that there are CFGs $G$ with no unambiguous CFG $G'$ 
+\emph{equivalent} to $G$ (i.e., such that $L(G') = L(G)$), and it is undecidable to check
+whether an input CFG is unambiguous, or has an equivalent unambiguous CFG. The same
+is immediately true for annotated grammars.
+%
+%
+%
+%
+%
+
+
+
+
+
+
+
+
+\paragraph{Problem statement} 
+The goal of this chapter is to study how to efficiently enumerate the
+annotations of an annotated grammar:
+%
+%
+%
+%
+%
+%
+%
+%
+\smallskip
+
+\begin{center}
+	\framebox{
+		\begin{tabular}{rl}
+                  %
+			%
+			\textbf{Input:} & An annotated grammar $\cG$
+                        %
+                        and a string $s\in \Sigma^*$ \\
+			\textbf{Output:} & Enumerate the outputs of $\sem{\cG}(s)$
+		\end{tabular}
+	}
+\end{center}
+\smallskip
+We work in the standard computational model of Random Access Machines (RAM)
+with logarithmic word size and
+uniform cost measure, having addition and subtraction as basic
+operations~\cite{AhoHU74}. The size of~$\cG$ is measured as the sum of rule lengths.
+%
+%
+
+As the set of outputs $\sem{\cG}(w)$ can be large, we
+work in the framework of \emph{enumeration algorithms}.
+Such algorithms consist of two \emph{phases}.
+%
+First, in the \emph{preprocessing phase},
+the algorithm receives the input annotated grammar $\cG$ and string~$w$, and produces some
+\emph{index} structure $D$.
+The \emph{preprocessing time} is the worst-case running time of this
+preprocessing phase, measured as a function of the input, i.e., in terms of~$w$
+and~$\cG$ when studying \emph{combined complexity}, and in terms of~$w$ only
+when studying \emph{data complexity}.
+
+Second, in the \emph{enumeration phase}, the algorithm can use $\cG$, $w$, and~$D$,
+and must produce all outputs of $\sem{\cG}(w)$
+one after the other and without
+repetitions. The \emph{delay} of this phase is the worst-case time to
+produce any of the outputs, i.e., for $N$ the number of outputs,
+if we call $\mathsf{time}_0$ the moment the preprocessing ends, 
+$\mathsf{time}_i$ the moment the algorithm finishes producing the $i$-th output
+with $1 \leq i \leq N$, and 
+$\mathsf{time}_{N+1}$ the moment when the algorithm terminates,
+then the delay is the maximum of the values $(\mathsf{time}_i - \mathsf{time}_{i-1})$ for any 
+$0 < i \leq N+1$.
+We aim for \emph{output-linear} delay~\cite{FlorenzanoRUVV20} (also called linear delay~\cite{Courcelle09}, or constant delay~\cite{Segoufin13}
+for constant-sized outputs), where the delay is
+linear in the size of each produced output, and is independent from the input
+(i.e., from~$w$ and~$\cG$).
+The \emph{memory usage} of the algorithm is the maximum memory
+used across both phases, including the size of~$D$.
+
+The ultimate goal of this chapter is to find enumeration algorithms to enumerate
+the outputs of annotated grammars
+with linear preprocessing and
+output-linear delay.  However, as we will see, this goal
+is not always realistic, so we will initially settle for a higher
+processing time, i.e., quadratic or cubic, before presenting classes with linear
+preprocessing in data complexity.  We present our first results
+towards this goal in this next section.
+

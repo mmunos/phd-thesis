@@ -1,0 +1,129 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+\usepackage{xspace}
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{MnSymbol}
+\usepackage{mathtools}
+\usepackage{tikz}
+\usepackage{textcomp}
+\usepackage{stmaryrd}
+\usepackage{varwidth}
+\usepackage{graphicx}
+
+\newtheorem{lemma}{Lemma}
+
+%--------------------------- MACROS --------------------
+
+\newcommand{\cL}{\mathcal{L}}
+
+\newcommand{\cT}{\mathcal{T}\!}
+
+\newcommand{\oalph}{\Omega}
+
+\newcommand{\qinit}{I}
+\newcommand{\eps}{\varepsilon}
+
+\newcommand{\out}{\textsf{out}}
+\newcommand{\trans}[1]{\overset{#1}{\longrightarrow}}
+
+\newcommand{\sem}[1]{{\lsem{}{#1}\rsem}}
+
+\newcommand{\rt}{regular transducer\xspace}
+\newcommand{\rts}{regular transducers\xspace}
+\newcommand{\rtname}{regular transducer\xspace}
+\newcommand{\rtnames}{regular transducers\xspace}
+
+\newcommand{\enumvpt}{\textsc{EnumVPT}}
+
+\DeclareMathOperator{\oout}{%
+	\ooalign{\raisebox{0ex}{$o$}\cr\hidewidth\raisebox{.5ex}{\scalebox{.5}{$\ \,  \boldsymbol{\smallsmile}$}}\hidewidth}}%
+
+\DeclareMathOperator{\ooutscr}{\scriptsize{\ooalign{\raisebox{0ex}{$o$}\cr\hidewidth\raisebox{.45ex}{\scalebox{.5}{$\ \,  \boldsymbol{\smallsmile}$}}\hidewidth}}}
+
+
+%----------------------------------------------------------
+
+
+
+\title{Constant-Delay Enumeration over SLP Compressed Documents}
+\author{Mart\'in Mu\~noz}
+\date{April 2021}
+
+\begin{document}
+	
+	\maketitle
+	
+	\section{Regular Transducers}
+	
+	In this section, we present the definition of \rtname, which is an extension of regular automata to produce outputs. We use \rtnames as our computational model to represent queries with output. 
+	
+	A \emph{\rtname} is a tuple $\cT = (Q, \Sigma, \oalph, \Delta, \qinit, F)$ where $Q$ is a state set, $\Sigma$ is an input alphabet, $\oalph$ is an output alphabet, $\qinit \subseteq Q$ and $F \subseteq Q$ and $\Delta \subseteq Q \times \Sigma \times (\oalph \cup \{\eps\}) \times Q$ is the transition relation.
+	
+	As usual for transducers, a symbol $s \in \Sigma$ is an input symbol that the machine reads and $\oout \in \oalph \cup \{\eps\}$ is a symbol that the machine prints in an output tape. Furthermore, $\eps$ represents that no symbol is printed for that transition.
+	A run $\rho$ of $\cT$ over a well-nested word $w = s_1s_2\cdots s_n \in\Sigma^*$ and output sequence $\mu = \oout_1\!\oout_2\cdots\oout_n \in (\oalph \cup \{\eps\})^*$ is a sequence of the form
+	$
+	%\rho = (q_1, \sigma_1) \xrightarrow{s_1/\!\ooutscr_1} (q_2, \sigma_2) \xrightarrow{s_2/\!\ooutscr_2} \ldots  \xrightarrow{s_n/\!\ooutscr_n} (q_{n+1}, \sigma_{n+1})
+	\rho = (q_1, \sigma_1) \xrightarrow{s_1/\!\ooutscr_1} \ldots  \xrightarrow{s_n/\!\ooutscr_n} (q_{n+1}, \sigma_{n+1})
+	$
+	where $q_i \in Q$, $\sigma_i\in \Gamma^{*}$, $q_1 \in I$, $\sigma_1 = \eps$ and for every $i\in[1,n]$ the following holds:
+	
+	We call a pair $(q_i, \sigma_i)$ a configuration of $\rho$. 
+	%If such a run exists, we say that $\cT$ accepts $(w, \mu)$. 
+	Finally, the output of an accepting run $\rho$ is defined as:
+	$
+	%\out(\rho) =  \out(\oout_1,1)\cdot \out(\oout_2,2) \cdot \ldots \cdot \out(\oout_n, n)
+	\out(\rho) =  \out(\oout_1,1)\cdot \ldots \cdot \out(\oout_n, n)
+	$
+	where $\out(\oout, i) = \eps$ when $\oout = \eps$ and $(\oout, i)$ otherwise. Note that in $\mu = \oout_1 \cdots \oout_n$ we use $\eps$ as a symbol, and in $\out(\rho)$ we use $\eps$ as the empty string. Given a \rtname $\cT$ and a $w \in\Sigma^*$, we define the set $\sem{\cT}(w)$ of all outputs of $\cT$ over $w$ as:
+	%$$
+	%\sem{\cT}(w) \ = \ \{ \out(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cT$ over $w$}\}.
+	%$$
+	$
+	\sem{\cT}(w) = \{ \out(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cT$ over $w$}\}.
+	$
+	
+	
+	We say that a \rt $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$ is \emph{input/output deterministic} (I/O-deterministic for short) if $|\qinit| = 1$ and $\Delta$ is a partial function of the form $\Delta: (Q \times \Sigma \times (\oalph \cup \{\eps\}) \to Q$.
+	%for each triple $(p, a, \oout) \in Q \times \opS \times \oalph$,  there is at most one tuple $(q, \mathtt{x}) \in Q \times \Gamma$ such that $(p, a, \oout, q, \mathtt{x})\in\Delta$, 
+	%for each tuple $(p, a, \oout, \mathtt{x})\in Q \times \clS \times \oalph \times \Gamma$ there is at most one $q\in Q$ such that $(p, a, \oout, \mathtt{x}, q)\in\Delta$, 
+	%and for each triple  $(p, a, \oout) \in Q \times \noS \times \oalph$ there is at most one $q\in Q$ such that $(p, a, \oout, q) \in \Delta$. 
+	On the other hand, we say that $\cT$ is \emph{input/output unambiguous} (I/O-unambiguous for short) if for every $w\in \Sigma^*$ and every $\mu \in \sem{\cT}(w)$ there is exactly one accepting run $\rho$ of $\cT$ over $w$ such that $\mu = \out(\rho)$. 
+	Notice that an I/O-deterministic \rt is also I/O-unambiguous. The definition of I/O-deterministic is in line with the notion of I/O-deterministic variable automata of~\cite{FlorenzanoRUVV20} and I/O-unambiguous is a generalization of this idea that is enough for the purpose of our enumeration algorithm. Actually, one can easily show that for every \rt $\cT$ there exists an equivalent I/O-deterministic \rt and, therefore, an equivalent I/O-unambiguous \rt. 
+	\begin{lemma}\label{vpawo:det}
+		For every \rtname $\cT$ there exists an I/O-deterministic \rtname $\cT'$ such that $\sem{\cT}(w) = \sem{\cT'}(w)$ for every $w\in\Sigma^*$.
+	\end{lemma}
+	
+	We are interested on the following enumeration problem for \rts. Let $\mathcal{C}$ be a class of \rt (e.g. I/O-deterministic \rt). 
+	
+	\begin{center}
+		\framebox{
+			\begin{tabular}{rl}
+				\textbf{Problem:} & $\enumvpt[\mathcal{C}]$\\
+				\textbf{Input:} & a \rt $\cT \in \mathcal{C}$ and $w\in \Sigma^*$ \\
+				\textbf{Output:} & Enumerate $\sem{\cT}(w)$
+			\end{tabular}
+		}
+	\end{center}
+	
+	\section{SLP Compression}
+	
+	A context-free grammar is a tuple $G = (N,\Sigma,R,S_0)$, where $N$ is the set of non-terminals, $\Sigma$ is the terminal alphabet, $S_0\in N$ is the start symbol and $R\subseteq N \times(N \cup\Sigma)^{+}$ is the set of rules (as a convention, we write rules $(A,w) \in R$ also in the form $A\to w$). A context-free grammar $S = (N,\Sigma,R,S_0)$ is a straight-line
+program (SLP) if $R$ is a total function $N\to(N \cup\Sigma)^{+}$ and the relation $\{(A,B)\mid (A,w) \in R, |w|_B \geq 1\}$ is acyclic. In this case, for every $A \in N$, let $D_S(A)$ be the unique $w \in (N \cup\Sigma)^{+}$ such that $(A,w) \in R$, and let $D_S(a) = a$ for every $a \in \Sigma$ we also call $A \to D_S(A)$ {\em the rule for} $A$. For an SLP $S = (N,\Sigma,R,S_0)$, we extend $D_S$ to a morphism $(N \cup\Sigma)^{+}\to(N \cup\Sigma)^{+}$ by setting $D_S(\alpha_1 \cdots \alpha_n) = D_S(\alpha_1) \cdots D_S(\alpha_n)$, for $\alpha_i \in (N \cup\Sigma)$, $1 \leq i \leq n$. Furthermore, for every $\alpha \in (N \cup\Sigma)^{+}$, we set $D^1_S(\alpha) = D_S(\alpha)$, $D^k_S(\alpha) =
+D_S(D^{k-1}_S (\alpha))$, for every $k \geq 2$, and $\mathfrak{D}_S(\alpha) = D^{|N|}_S (\alpha)$ is the derivative of $\alpha$. By definition, $\mathfrak{D}_S(\alpha) \in \Sigma^+$ for every $\alpha \in (N \cup\Sigma)^{+}$.
+	
+	\begin{lemma}
+		Given an SLP $S$, we can compute all the numbers $| \mathfrak{D} |$ for all non-terminals $A$ in $S$ in time ${\cal O}(|S|)$.		
+	\end{lemma}
+
+\begin{lemma}
+	Let $S$ be a SLP for a document $d$ and let $M$ be a regular automaton with state set $Q$. We can check whether $d\in L(M)$ in time ${\cal O}(|S| \cdot |Q|^3)$.
+\end{lemma}
+	
+	\newpage
+	\bibliographystyle{abbrv}
+	\bibliography{biblio}
+	
+\end{document}

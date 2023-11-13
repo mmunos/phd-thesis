@@ -1,0 +1,266 @@
+%
+%
+
+%
+%
+
+We have presented our enumeration results for annotated grammars and
+pushdown annotators. We conclude the chapter by applying them to the
+standard context of \emph{document spanners}~\cite{FaginKRV15} and to the
+\emph{extraction grammars} recently introduced in~\cite{Peterfreund21}.
+
+\paragraph{Mappings, spanners, extraction grammars}
+This chapter studies strings~$s \in \Sigma^*$ with letters
+\emph{annotated} by an annotation from a finite set, but document spanners work
+with \emph{mappings} selecting so-called \emph{spans} of~$s$. Formally, 
+%
+a \emph{span} of~$s$ is a pair 
+%
+$\spanc{i}{j}$ with $1 \leq i \leq j \leq |s|+1$ describing a
+possibly empty factor of~$s$.
+For a finite set of \emph{variables} $\var$,
+%
+a \emph{document spanner} (or just \emph{spanner}) is a
+function that maps every string $s \in \Sigma^*$ to a set of \emph{mappings},
+where a mapping (intuitively denoting an extraction result)
+assigns each variable of~$\var$ to a span of~$s$.
+
+%\newcommand{\splain}{\textsf{plain}}
+
+\begin{definition}[Ref-words]
+  \label{gram:def:refwords}
+For the set of variables $\var$ we define the \emph{variable operations} of $\var$ by
+$\captures_\var = \bigcup_{x \in \var} \{ {\vdash_x}, {\dashv_x} \}$.
+A \emph{ref-word} is a string over $\Sigma \cup \captures_\var$, and we let
+  $\splain: (\Sigma \cup \captures_\var)^* \rightarrow \Sigma^*$ be the morphism
+  over ref-words that removes variable operations
+A ref-word is {\em valid} if each variable in $\var$ is opened exactly once and then closed exactly once.
+A valid ref-word $r$ then defines a mapping~$\eta_r$ over $\splain(r)$ in the following way:
+for each variable $x \in \var$, there is a unique factorization $r = r_x^p \cdot \vdash_x \, \cdot \, r_x \, \cdot\, \dashv_x \cdot r_x^s$,
+and we set 
+$\eta^r(x) \colonequals \spanc{i}{j}$ for $i \colonequals |\splain(r_x^p)|+1$ and $j \colonequals i + |\splain(r_x)|$. 
+\end{definition}
+
+Peterfreund~\cite{Peterfreund21} specifies spanners via \emph{extraction
+grammars}. An \emph{extraction grammar} is a tuple
+$\cH = (V, \Sigma, \var, P, \allowbreak S)$ where 
+$V$ is a finite set of \emph{nonterminals},
+$\Sigma$ is the alphabet,
+$\var$ is a set of variables, 
+$P$ is a finite set of production rules of the form $A \to \alpha$ with $A \in
+V$ and $\alpha \in (V \cup \Sigma \cup \captures_\var)^*$, and $S \in V$ is the
+\emph{start symbol}.
+We assume that $V$, $\Sigma$, and $\var$ are pairwise disjoint.
+Note the difference with annotated grammars: the annotations must correspond to
+variable operations (in order to capture spans), and they are represented as separate terminals
+instead of annotating existing terminals, which we believe makes the design of
+enumeration algorithms less convenient.
+
+The semantics of extraction grammars is similar to that for annotated grammars.
+It is defined through \emph{derivations}. Specifically, the rules $P$ define the
+\emph{(left) derivation relation} $\der{\cH} \ \subseteq \, (V \cup \Sigma \cup \captures_\var)^* \times (V \cup \Sigma \cup  \captures_\var)^*$ such that $u A \beta \der{\cH} u \alpha \beta$ iff $u \in (\Sigma \cup \captures_\var)^*$, $A \in V$, $\alpha, \beta \in (V \cup \Sigma \cup \captures_\var)^*$, and $A \rightarrow \alpha \in P$. We denote by $\der{\cH}^*$ the reflexive and transitive closure of $\der{\cH}$. 
+Then the \emph{language} defined by $\cH$ is the set of ref-words $L(\cH) = \{w \in (\Sigma \cup \captures_\var)^* \mid S \der{\cH}^* w\}$.
+This language defines a \emph{spanner} $\sem{\cH}$ as follows: for every document $d \in \Sigma^*$,
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+  \[
+\sem{\cH}(d) \ = \ \{ \, \eta^r \ \mid \ r \in L(\cH), \text{ $r$ is valid}, \text{ and } \splain(r) = d\, \}.
+\]
+Note that ref-words that are not valid are ignored.
+An extraction grammar $\cH$ is called \emph{functional} if every $r \in L(\cH)$ is valid, and it is called \emph{unambiguous} if for every $r \in L(\cH)$ there exists exactly one derivation of~$r$ from~$S$. 
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+%
+
+Thus, extraction grammars are like annotated grammars but with variable
+operations that
+describe span endpoints
+(whereas our annotations are arbitrary), and that are expressed as separate
+variable operation characters (not annotations of existing letters).
+%
+
+We can now formally define the \emph{equivalence} between an extraction grammar
+and an annotated grammar. To do so, we first explain how we can translate
+mappings to annotations:
+
+\begin{definition}[Output associated to a mapping]
+  \label{gram:def:outputset}
+Given a set $\var$ of variables, the corresponding set of annotations $\Omega_\var$ will be the powerset of $\captures_\var$.
+Now, given a mapping~$\eta$ on a document~$d$ and variables~$\var$ to an annotation, we 
+%
+%
+let $\cI = \bigcup_{x \in \var} \{i, j \mid \eta(x) = \spanc{i}{j}\}$ be the
+set of indices which appear in some span of $\eta$.
+Further, for each $k \in \cI$, let $S_k = \{\vdash_x \mid \exists j. \, \eta(x) = \spanc{k}{j}\} \cup \{\dashv_x \, \mid \exists i. \, \eta(x) = \spanc{i}{k}\}$. We now define the output $\outf(\eta) = (i_1,S_{i_1})\ldots(i_m,S_{i_m})$ where $\cI = \{i_1,\ldots,i_m\}$ and  $i_1 < \cdots < i_m$, namely, we group the captures for each position as a set and use this set as the annotation.
+Note that the largest index that appears in the annotation can be $|d|+1$ because of the range of spans.
+\end{definition}
+
+% We can now define \emph{equivalence} between extraction grammars and annotation
+% grammars:
+
+% \begin{definition}[Equivalent annotated grammar]
+%   \label{gram:def:equivalentannotated}
+  
+% \end{definition}
+
+
+\paragraph{Comparing both formalisms}
+Given an extraction grammar $\cH$ on alphabet $\Sigma$ and with variables
+$\var$, we say that it 
+has an \emph{equivalent annotated grammar} $\cG$ if $\cG$ is over the 
+set of annotations $\Omega_\var$ and over the
+alphabet $\Sigma \cup \{\#\}$
+for $\#$ a fresh symbol, and
+if for every document $d \in \Sigma^*$ and every mapping $\eta$ of~$d$ over~$\var$, we have
+$\eta \in \sem{\cH}(d)$ iff $\outf(\eta) \in \sem{\cG}(d\cdot \#)$.
+%
+The $\#$-symbol at the end is used because of the difference in the indexing of spans (from $1$ to $|d|+1$) and annotations (from 1 to~$d$).
+%
+
+We show that every extraction grammar has an equivalent annotation grammar
+in this sense, and the translation further preserves unambiguity:
+
+%
+
+\begin{proposition}\label{gram:prop:extrac-grammars-general}
+  Given any extraction grammar $\cH$ with $k$ variables, we can build an
+  equivalent annotated grammar $\cG$ in time $\cO(9^{3k}\cdot|\cH|^2)$. Moreover, if $\cH$ is unambiguous then so is $\cG$.
+\end{proposition}
+\begin{proof}
+  \input{./proofs/grammars/extract2annotated.tex}
+\end{proof}
+
+Hence, our formalism of annotated grammars captures that of extraction grammars.
+%
+Unfortunately, the translation is exponential, 
+intuitively because $\Omega$ must cover all possible sets of variable operations.
+We note that, in exchange for this, annotated grammars
+are strictly more \emph{expressive}: each output can annotate an arbitrary
+number of positions in the string (e.g., every other character), unlike
+extraction grammars whose mappings have a fixed number of variables.
+
+We complete Proposition~\ref{gram:prop:extrac-grammars-general} to give more
+intuition about the conciseness of extraction grammars vs annotated grammars,
+and the difference in expressiveness.
+
+We first give a simple example to show that, with our notion of equivalence,
+we may indeed need an exponential number of symbols in the annotation set, implying that extraction grammars are in some cases exponentially more concise:
+
+%
+\begin{example}
+Consider the following functional extraction grammar $\cH$ with $n$ variables $x_1, \ldots, x_n$ and alphabet $\{a\}$:
+  \[
+\begin{array}{rrcl}
+	\cH: & A_1 & \rightarrow &  \vdash_{x_1} \dashv_{x_1} A_2 \ \ \mid \ \ \vdash_{x_1} A_2 \dashv_{x_1} \\
+	&  A_2 & \rightarrow &  \vdash_{x_2} \dashv_{x_2} A_3 \ \ \mid \ \ \vdash_{x_2} A_3 \dashv_{x_2} \\
+	&  & \vdots & \\
+	&  A_{n} & \rightarrow &  \vdash_{x_n} \dashv_{x_n} a \ \ \mid  \ \ \vdash_{x_n} a \dashv_{x_n} \\
+\end{array}
+\]
+For the document $a$, this extraction grammar will output all possible combinations depending on whether $\dashv_{x_i}$ is at the beginning or end of $a$ for each $i \leq n$. Thus, an equivalent annotated grammar will need to consider all possible subsets of $\{ {\dashv_x} \mid x\in \var\}$ as possible annotations of the character~$a$, which will require an exponential number of rules.
+  %
+  %
+\end{example}
+
+We then illustrate why annotated grammars are in fact \emph{strictly} more
+expressive: in addition to capturing all extraction grammars
+(Proposition~\ref{gram:prop:extrac-grammars-general}),
+annotated grammars can express functions that do not correspond to an annotation grammar.
+
+%
+\begin{example}
+  Consider a singleton annotation set $\Omega = \{\oout\}$, a singleton alphabet $\Sigma = \{a\}$, and the annotated grammar with start symbol $S$ and production $S \rightarrow a (a, \oout) S | a | \epsilon$. For each string of $\Sigma^*$, it produces one output where every other character is annotated. This cannot be expressed by an extraction grammar, as such a grammar fixes a finite set $\var$ of variables independently from the input document, and each variable is mapped to only one span.
+\end{example}
+
+
+\paragraph{Enumeration for extraction grammars}
+As extraction grammars can be rewritten to annotated grammars in an unambiguity-preserving way (Proposition~\ref{gram:prop:extrac-grammars-general}), we can derive from
+Theorem~\ref{gram:thm:cubic} an enumeration result for unambiguous extraction grammars with cubic preprocessing time in data complexity.
+
+\begin{theorem}
+  Given an unambiguous extraction grammar $\cH$ with $k$ variables and a string $s$, we can
+  enumerate the mappings of~$\sem{\cH}(s)$ with preprocessing time 
+  $\cO(9^{3k} \cdot |\cH|^2 \cdot |s|^3)$ (hence, cubic in~$|s|$), and with output-linear delay
+  (independent from~$s$, $k$, or~$\cH$).
+	%
+\end{theorem}
+
+%
+%
+
+In data complexity, this improves over the result of~\cite{Peterfreund21}
+%
+%
+%
+for unambiguous extraction grammars, whose preprocessing time is
+$\cO(9^{2k} \cdot |\cH|^2 \cdot |s|^5)$, i.e.,
+%
+%
+our data complexity is cubic instead of quintic.
+%
+%
+%
+%
+We leave to future work a study of enumeration results for
+restricted classes of extraction grammars via %
+Theorems~\ref{gram:thm:cubic} and~\ref{gram:thm:quadratic}.
+%
+

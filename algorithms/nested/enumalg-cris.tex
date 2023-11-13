@@ -1,0 +1,123 @@
+%!TEX root = ../../Thesis.tex
+
+
+\algdef{SE}[DOWHILE]{Do}{doWhile}{\algorithmicdo}[1]{\algorithmicwhile\ #1}%
+\algnewcommand{\LineComment}[1]{\State \(\triangleright\) #1}
+
+
+
+\begin{algorithm*}[t]
+	\caption{Enumeration over a node $u$ from some ECS $\cD = (\infAlph, V, \ell, r, \lambda)$.}\label{nested:alg:enumeration}
+	\smallskip
+	\begin{varwidth}[t]{0.50\textwidth}
+		\begin{algorithmic}[1]
+			\LineComment{Bottom node iterator $\uit_\infAlph$} \label{nested:alg1bottom1}
+			\Procedure{{create}}{$v$}\ \ \ \ \Comment{Assume $\lambda(v) \in \infAlph$} \label{nested:alg1bottom2}
+			\State $\bnodelabel \gets v$ \label{nested:alg1bottom3}
+			\State $\hasnext \gets {\bf true}$ \label{nested:alg1bottom4}
+			\EndProcedure	
+			
+			\State
+			
+			\Procedure{{next}}{}
+			\If{$\hasnext = \bf{true}$}
+			\State $\hasnext \gets \bf{false}$
+			\State \Return $\bf{true}$
+			\EndIf
+			\State \Return $\bf{false}$
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{print}}{}
+			\State ${\bf print}(\lambda(\bnodelabel))$
+			\EndProcedure
+			
+			\State
+			
+			\LineComment{Product node iterator $\uit_\odot$}
+			\Procedure{{create}}{$v$}\ \ \ \ \Comment{Assume $\lambda(v) = \odot$}
+			\State $u \gets v$
+			\State $\leftit \gets \textsc{create}(\ell(u))$
+			\State $\leftit.\textsc{next}$
+			\State $\rightit \gets \textsc{create}(r(u))$
+			\EndProcedure	
+			
+			\State
+			
+			\Procedure{{next}}{}
+			\If{$\rightit.\textsc{next} = \bf{false}$}
+			\If{$\leftit.\textsc{next} = \bf{false}$}
+			\State \Return $\bf{false}$
+			\EndIf
+			\State $\rightit \gets \textsc{create}(r(u))$
+			\State $\rightit.\textsc{next}$
+			\EndIf
+			\State \Return $\bf{true}$
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{print}}{}
+			\State $\leftit.\textsc{print}$
+			\State $\rightit.\textsc{print}$
+			\EndProcedure
+			\algstore{myalg}
+		\end{algorithmic}
+	\end{varwidth} \hfill
+	\begin{varwidth}[t]{0.50\textwidth}
+		\begin{algorithmic}[1]
+			\algrestore{myalg}
+			\LineComment{Union node iterator $\uit_\cup$}
+			\Procedure{{create}}{$v$}\ \ \ \ \Comment{Assume $\lambda(v) = \cup$}
+			\State $\ustack\gets\text{\sf push}(\ustack, v)$
+			\State $\ustack\gets\textsc{traverse}(\ustack)$
+			\State $\uit \gets \textsc{create}(\text{\sf top}(\ustack))$
+			\EndProcedure	
+			
+			\State
+			
+			\Procedure{{next}}{}
+			\If{$\uit.\textsc{next} = \bf{false}$}
+			\State $\ustack\gets\text{\sf pop}(\ustack)$
+			\If{$\text{\sf length}(\ustack) = 0$}
+			\State \Return $\bf{false}$
+			\ElsIf{$\lambda(\text{\sf top}(\ustack)) = \cup$}
+			\State $\ustack\gets\textsc{traverse}(\ustack)$
+			\EndIf
+			\State $\uit \gets \textsc{create}(\text{\sf top}(\ustack))$
+			\State $\uit.\textsc{next}$
+			\EndIf
+			\State \Return $\bf{true}$
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{print}}{}
+			\State $\uit.\textsc{print}$
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{traverse}}{$\ustack$}
+			\While{$\lambda(\text{\sf top}(\ustack)) = \cup$}
+			\State $u \gets \text{\sf top}(\ustack)$
+			\State $\ustack \gets \text{\sf pop}(\ustack)$
+			\State $\ustack\gets\text{\sf push}(\ustack, r(u))$
+			\State $\ustack\gets\text{\sf push}(\ustack, \ell(u))$
+			\EndWhile
+			\State \Return $\ustack$
+			\EndProcedure
+			
+			\State
+			
+			\Procedure{{enumerate}}{$v$}
+			\State $\uit \gets \textsc{create}(v)$
+			\While{$\uit.\textsc{next} = \bf{true}$}
+				\State $\uit.\textsc{print}$
+			\EndWhile
+			\EndProcedure
+		\end{algorithmic}
+	\end{varwidth}
+	\smallskip
+\end{algorithm*}
