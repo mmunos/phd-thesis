@@ -1,0 +1,46 @@
+All of the main results in this thesis are given in the framework of \emph{enumeration algorithms}.
+Such algorithms consist of two \emph{phases}.
+%
+First, in the \emph{preprocessing phase},
+the algorithm receives the input $\cI = (Q, w)$ where $Q$ is a query and $w$ is a string, and produces some
+\emph{index} structure $D$.
+The \emph{preprocessing time} is the worst-case running time of this
+preprocessing phase, measured as a function of the input $\cI$.
+We say that such an algorithm has \emph{$f$-preprocessing time} if there exists a constant $c$ such that, for every input $\cI$, the time for the preprocessing phase of $\cI$ is bounded by $c \cdot f(|\cI|)$.   
+
+As $\cI$ is made of two components $Q$ and $w$, we also sometimes measure the preprocessing time in terms of~$w$ only. This is referred to as the \emph{data complexity} of the problem. On the other hand, when a problem is measured in terms of both $w$ and $Q$ this is referred to as its \emph{combined complexity}.
+
+
+For the purposes of this definition, we will overload $Q$ to denote both the structure that defines the query, and the function that maps $w$ to a desired set of outputs $Q(w)$. In the following chapters, these concepts are separated by notation, for example, if the input query is represented by a structure $S$, the associated function is denoted as $\sem{S}$. Furthermore, we assume that each element $y\in Q(w)$ is a string $y\in \inpAlph^*$  for some set of output symbols $\inpAlph$. 
+
+Second, in the \emph{enumeration phase}, the algorithm can use $Q$, $w$ and $D$ to produce the elements of the output set $Q(w)$ one after the other and without
+repetitions.
+During this phase the algorithm:
+(1) writes $\# \outw_1 \# \outw_2\#\cdots\#\outw_m\#$ to the output registers where \# is a distinct separator symbol not mentioned in any output, and $\outw_1,\outw_2,\ldots,\outw_m$ is an enumeration (without repetitions) of the set $Q(w)$,
+(2) it writes the first \# as soon as the enumeration phase starts, and 
+(3) it stops immediately after writing the last \#.
+
+For the enumeration phase, we measure the \emph{delay between two outputs} as follows. For an input $\inpw\in\inpAlph^*$, let $\# \outw_1 \# \outw_2\#\cdots\#\outw_m\#$ be the output of the algorithm during any call to the enumeration phase. Furthermore, let $\outtime_i(\inpw)$ be the time in the enumeration phase when the algorithm writes the $i$-th $\#$ when running on $\inpw$ for $i \leq m+1$. 
+Define $\outdelay_i(\inpw) = \outtime_{i+1}(\inpw) - \outtime_{i}(\inpw)$ for $i \leq m$. 
+Then we say that the algorithm has {\em output-linear delay}~\cite{FlorenzanoRUVV20}\footnote{output-linear delay has also been called linear delay in the literature~\cite{Courcelle09}}, if there exists a constant $k$ such that for every $\inpw\in\inpAlph^*$ and $i \leq m$ it holds that $\outdelay_i(\inpw) \leq k \cdot |y_i|$. In other words, the number of instructions executed by the enumeration algorithm between the time that the $i$-th and the $(i+1)$-th \# are written is linear on the size of $y_i$.
+Note that, in particular, an output-linear delay implies that the enumeration phase ends in constant time if there is no output for enumerating. 
+
+The \emph{memory usage} of the algorithm is the maximum memory
+used across both phases, including the size of~$D$.
+
+
+%$Q$, $w$, and~$D$,
+%and must produce all outputs of $Q(w)$
+%The \emph{delay} of this phase is the worst-case time to
+%produce any of the outputs, i.e., for $N$ the number of outputs,
+%if we call $\mathsf{time}_0$ the moment the preprocessing ends, 
+%$\mathsf{time}_i$ the moment the algorithm finishes producing the $i$-th output
+%with $1 \leq i \leq N$, and 
+%$\mathsf{time}_{N+1}$ the moment when the algorithm terminates,
+%then the delay is the maximum of the values $(\mathsf{time}_i - \mathsf{time}_{i-1})$ for any 
+%$0 < i \leq N+1$.
+
+
+
+
+

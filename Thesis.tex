@@ -75,8 +75,8 @@
 \mdate{Month Day, Year}         % date manuscript changed
 \version{1}                                     % manuscript version #
 
-\title[Enumeration for recursive queries and data]
-   {\bf Enumeration for recursive queries and data}       
+\title[Output-linear enumeration for extensions of MSO]
+   {\bf Output-linear enumeration for extensions of MSO}       
 \author[Martín Muñoz]{Martín Muñoz}
 
 \address{Escuela de Ingenier\'ia\\
@@ -99,7 +99,7 @@
 \date                                 {September 2023}
 \copyrightname             {Martín Muñoz}
 \copyrightyear               {MMXXIII}
-\dedication                      {To my family}
+\dedication                      {To whoever thinks this is for them}
 
 %%%%%%%%%%%%%%%%%%%%
 %       PRELIMINARIES                              %
@@ -199,21 +199,23 @@
 
 \chapter[PRELIMINARIES]{Preliminaries}
 
-%\input{./chapters/prelims-intro}
-%
-%\section{Finite State Automata and Regular Expressions}
-%
-%\input{./chapters/prel-regular}
-%
-%\section{Visibly Pushdown Automata}
-%
-%\input{./chapters/prel-nested}
-%
-%\section{Context-free Grammars and Pushdown Automata}
-%
-%\input{./chapters/prel-grammars}
+\input{./chapters/prelims-intro}
 
-%\section{Enumeration Algorithms}
+\section{Strings and Finite State Automata}
+
+\input{./chapters/prel-regular}
+
+\section{Document Spanners}\label{prelims:sec:spanners}
+
+\input{./chapters/prel-spanners}
+
+\section{Enumeration Algorithms}\label{prelims:sec:enum}
+
+\input{./chapters/prel-enum}
+
+\section{Model of Computation}
+
+\input{./chapters/prel-comp}
 
 %==========================
 

@@ -1,67 +1,67 @@
-We will show a linear-time reduction to enumeration for an unambiguous VPT (see Chapter~\ref{ch1}).
-We will state the necessary preliminaries to use the result presented there. We will also adapt the models slightly to fit our results better while also keeping the results trivially equivalent.
+We will show a linear-time reduction to enumeration for an unambiguous VPAnn (see Chapter~\ref{ch1}).
+%We will state the necessary preliminaries to use the result presented there. We will also adapt the models slightly to fit our results better while also keeping the results trivially equivalent.
 
 %
 %
 
-A structured alphabet is a triple $(\opS, \clS, \noS)$ consisting of three disjoint sets $\opS$, $\clS$, and $\noS$ that contain {\it open}, {\it close}, and {\it neutral} symbols respectively.
+% A structured alphabet is a triple $(\opS, \clS, \noS)$ consisting of three disjoint sets $\opS$, $\clS$, and $\noS$ that contain {\it open}, {\it close}, and {\it neutral} symbols respectively.
 %
 %
-The set of {\em well-nested strings}
-over $\Sigma$, denoted as $\wnS$, is defined as the closure of the following rules: 
-$\noS \cup \{\eps\} \subseteq \wnS$,
-if $w_1, w_2 \in \wnS\setminus\{\eps\}$ then $w_1 \cdot w_2 \in \wnS$, and if $w \in \wnS$ and $a \in \opS$ and $b \in \clS$ then $a\cdot w\cdot b \in \wnS$. 
+%The set of {\em well-nested strings}
+%over $\Sigma$, denoted as $\wnS$, is defined as the closure of the following rules: 
+%$\noS \cup \{\eps\} \subseteq \wnS$,
+%if $w_1, w_2 \in \wnS\setminus\{\eps\}$ then $w_1 \cdot w_2 \in \wnS$, and if $w \in \wnS$ and $a \in \opS$ and $b \in \clS$ then $a\cdot w\cdot b \in \wnS$. 
 %
 %
 
-A \emph{Visibly Pushdown Transducer} (VPT) is a tuple $\cT = (Q, \hat{\Sigma}, \Gamma, \Omega, \Delta, I, F)$ where $Q$ is a state set, $\hat{\Sigma}$ is a structured alphabet, $\Gamma$ is set of a stack symbols, $\Omega$ is the output alphabet, $I$ is the set of initial states, $F$ is the set of final states, and 
-$
+%A \emph{Visibly Pushdown Transducer} (VPAnn) is a tuple $\cT = (Q, \hat{\Sigma}, \Gamma, \Omega, \Delta, I, F)$ where $Q$ is a state set, $\hat{\Sigma}$ is a structured alphabet, $\Gamma$ is set of a stack symbols, $\Omega$ is the output alphabet, $I$ is the set of initial states, $F$ is the set of final states, and 
+%$
 %
 %
 %
 %
 %
 %
-\Delta \subseteq  
-(Q \times (\opS \cup \opS \times \Omega) \times Q \times \Gamma)  \cup 
-(Q \times (\clS \cup \clS \times \Omega) \times \Gamma \times Q)  \cup 
-(Q \times (\noS \cup \noS \times \Omega) \times Q)
-$
-is the transition relation.
-A run $\rho$ of $\cT$ over a well-nested string $w = a_1 a_2\cdots a_n \in\wnSann$ %
-is a sequence of the form
-$
+%\Delta \subseteq  
+%(Q \times (\opS \cup \opS \times \Omega) \times Q \times \Gamma)  \cup 
+%(Q \times (\clS \cup \clS \times \Omega) \times \Gamma \times Q)  \cup 
+%(Q \times (\noS \cup \noS \times \Omega) \times Q)
+%$
+%is the transition relation.
+%A run $\rho$ of $\cT$ over a well-nested string $w = a_1 a_2\cdots a_n \in\wnSann$ %
+%is a sequence of the form
+%$
+%%
+%\rho = (q_1, \sigma_1) \xrightarrow{s_1} \ldots  \xrightarrow{s_n} (q_{n+1}, \sigma_{n+1})
+%$
+%where $q_i \in Q$, $\sigma_i\in \Gamma^{*}$, $q_1 \in I$, $\sigma_1 = \eps$, each $s_i$ is either equal to $a_i$, or to $a_i/\!\oout_i$ for some $\oout_i\in\Omega$, and for every $i\in[1,n]$ the following holds:
+%\begin{enumerate}
+%  \item If $s_{i} = a\in \opS$, then $(q_i, a,q_{i+1},\gamma) \in \Delta$, and if $s_i = a/\!\oout$, for $a\in \opS$, then $(q_i, (a,\oout),q_{i+1},\gamma) \in \Delta$, for some $\gamma\in\Gamma$ with $\sigma_{i+1} = \gamma\sigma_i$,
+%  \item If $s_{i} = a\in\clS$, then $(q_i, a, \gamma, q_{i+1}) \in \Delta$, and if $s_i = a/\!\oout$, for $a\in \clS$, then $(q_i, (a, \oout), \gamma, q_{i+1}) \in \Delta$, for some $\gamma\in\Gamma$ with $\sigma_i = \gamma\sigma_{i+1}$, and
+%  \item If $s_i = a\in\noS$, then $(p_i, a,q_{i+1})\in \Delta$, and if $s_i = a/\!\oout$ for $a\in\noS$, then $(p_i, (a,\oout),q_{i+1})\in \Delta$ with $\sigma_i = \sigma_{i+1}$. We say that the run is accepting if $q_{n+1}\in F$.
+%\end{enumerate}
+%Given a VPAnn $\cT$ and a $w \in\wnS$, we define the set $\sem{\cT}(w)$ of all outputs of $\cT$ over $w$ as:
+%$
+%\sem{\cT}(w) \ = \ \{ \ann(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cT$ over $w$}\}.
+%$
+%where $\ann$ for runs in VPAnn is defined analogously to PDAnn. That is, if $\rho = (q_1, \sigma_1) \xrightarrow{s_1} \ldots  \xrightarrow{s_n} (q_{n+1}, \sigma_{n+1})$, then $\ann(\rho) = \omega_1\ldots\omega_n$ where $\omega_i = (\oout, i)$ if $s_i = a/\!\oout$ and $\omega_i = \eps$ otherwise.
 %
-\rho = (q_1, \sigma_1) \xrightarrow{s_1} \ldots  \xrightarrow{s_n} (q_{n+1}, \sigma_{n+1})
-$
-where $q_i \in Q$, $\sigma_i\in \Gamma^{*}$, $q_1 \in I$, $\sigma_1 = \eps$, each $s_i$ is either equal to $a_i$, or to $a_i/\!\oout_i$ for some $\oout_i\in\Omega$, and for every $i\in[1,n]$ the following holds:
-\begin{enumerate}
-  \item If $s_{i} = a\in \opS$, then $(q_i, a,q_{i+1},\gamma) \in \Delta$, and if $s_i = a/\!\oout$, for $a\in \opS$, then $(q_i, (a,\oout),q_{i+1},\gamma) \in \Delta$, for some $\gamma\in\Gamma$ with $\sigma_{i+1} = \gamma\sigma_i$,
-  \item If $s_{i} = a\in\clS$, then $(q_i, a, \gamma, q_{i+1}) \in \Delta$, and if $s_i = a/\!\oout$, for $a\in \clS$, then $(q_i, (a, \oout), \gamma, q_{i+1}) \in \Delta$, for some $\gamma\in\Gamma$ with $\sigma_i = \gamma\sigma_{i+1}$, and
-  \item If $s_i = a\in\noS$, then $(p_i, a,q_{i+1})\in \Delta$, and if $s_i = a/\!\oout$ for $a\in\noS$, then $(p_i, (a,\oout),q_{i+1})\in \Delta$ with $\sigma_i = \sigma_{i+1}$. We say that the run is accepting if $q_{n+1}\in F$.
-\end{enumerate}
-Given a VPT $\cT$ and a $w \in\wnS$, we define the set $\sem{\cT}(w)$ of all outputs of $\cT$ over $w$ as:
-$
-\sem{\cT}(w) \ = \ \{ \ann(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cT$ over $w$}\}.
-$
-where $\ann$ for runs in VPT is defined analogously to PDAnn. That is, if $\rho = (q_1, \sigma_1) \xrightarrow{s_1} \ldots  \xrightarrow{s_n} (q_{n+1}, \sigma_{n+1})$, then $\ann(\rho) = \omega_1\ldots\omega_n$ where $\omega_i = (\oout, i)$ if $s_i = a/\!\oout$ and $\omega_i = \eps$ otherwise.
-
-We say that $\cT$ is \emph{unambiguous} if for every $w$ and $\mu$ there is at most one accepting run $\rho$ of $\cT$ which produces $\mu$. In Chapter~\ref{ch1} these VPT are called input-output unambiguous.
+%We say that $\cT$ is \emph{unambiguous} if for every $w$ and $\mu$ there is at most one accepting run $\rho$ of $\cT$ which produces $\mu$. In Chapter~\ref{ch1} these VPAnn are called input-output unambiguous.
 
 The theorem we use can be stated as follows:
 
 \begin{theorem}{(Theorem~\ref{nested:theo:main})}\label{gram:eval:prep}
-	There is an algorithm that receives an unambiguous VPT $\cT = (Q, \hat{\Sigma}, \Gamma, \Omega, \Delta, q_0, F)$ and an input string $w$, and enumerates the set $\sem{\cT}(w)$ with output-linear delay after a preprocessing phase that takes $\cO(|Q|^2 \cdot \vert\Delta\vert \cdot |w|)$ time.
+	There is an algorithm that receives an unambiguous VPAnn $\cT = (Q, \hat{\Sigma}, \Gamma, \Omega, \Delta, q_0, F)$ and an input string $w$, and enumerates the set $\sem{\cT}(w)$ with output-linear delay after a preprocessing phase that takes $\cO(|Q|^2 \cdot \vert\Delta\vert \cdot |w|)$ time.
 \end{theorem}
 
-The rest of the proof will consist on showing a linear-time reduction from the problem of enumerating the set $\sem{\cP}_{\pi}(w)$ for an unambiguous PDAnn $\cP$ and input string $w$ to the problem of enumerating the set $\sem{\cT}(w')$ for an unambiguous VPT $\cT$, and input string $w'$.
+The rest of the proof will consist on showing a linear-time reduction from the problem of enumerating the set $\sem{\cP}_{\pi}(w)$ for an unambiguous PDAnn $\cP$ and input string $w$ to the problem of enumerating the set $\sem{\cT}(w')$ for an unambiguous VPAnn $\cT$, and input string $w'$.
 
 Let $\cP = (Q, \Sigma, \Omega, \Gamma, \Delta, q_0, F)$ and let $w\in \Sigma^*$ be an input string.
 Consider the structured alphabet $\hat{\Sigma} = (\{\texttt{<}\}, \{\texttt{>}\}, \Sigma)$ for some $\texttt{<}, \texttt{>}\not\in\Sigma$. Assume $\pi = \pi_1, \ldots, \pi_m$.
 We construct a well-nested string $w' = b_1\cdots b_{m-1}$ where $b_i = 
 \texttt{<}$ if $\pi_i > \pi_{i+1}$, $b_i = \texttt{<}$ if $\pi_i < \pi_{i+1}$, and $b_i  = w_j$ otherwise, where $i$ is the $j$-th index in which $\pi_i = \pi_{i+1}$.
 We also build a table $\mathsf{Ind}$ such that $\mathsf{Ind}(i) = j$ for each of the indices in the third case.
-We build a VPT $\cT = (Q, \hat{\Sigma}, \Gamma, \Omega, \Delta', I, F)$ where $I = \{q_0\}$ and we get $\Delta'$ by replacing every push transition $(p, q, \gamma)\in \Delta$ by $(p, \texttt{<}, q, \gamma)$ and every pop transition $(p,\gamma,q)\in\Delta$ by $(p, \texttt{>}, q, \gamma)$. Note that read and read-write transitions are untouched.
+We build a VPAnn $\cT = (Q, \hat{\Sigma}, \Gamma, \Omega, \Delta', I, F)$ where $I = \{q_0\}$ and we get $\Delta'$ by replacing every push transition $(p, q, \gamma)\in \Delta$ by $(p, \texttt{<}, q, \gamma)$ and every pop transition $(p,\gamma,q)\in\Delta$ by $(p, \texttt{>}, q, \gamma)$. Note that read and read-write transitions are untouched.
 
 Let $w$ be an input string, and let $\mu$ be an output. Consider the output $\mu'$ which is obtained by shifting the indices in $\mu$ to those that correspond in $w'$. We argue that for each run $\rho$ of $\cP$ over $w$ with profile $\pi$ which produces $\mu$, there is exactly one run $\rho'$ of $\cT$ over $w'$ which produces $\mu'$, and vice versa. We see this by a straightforward induction argument on the size of the run. This immediately implies that for each output $\mu\in\sem{\cT}(w)$ there exists exactly one output $\mu'\in\sem{\cP}_{\pi}(w)$, which has its indices shifted as we mentioned.
 The algorithm then consists on simulating the procedure from Theorem~\ref{gram:eval:prep} over $\cT$ and $w'$, and before producing an output $\mu$, we replace the indices to the correct ones following the table  $\mathsf{Ind}$. The time bounds are unchanged since the table $\mathsf{Ind}$ has linear size in $m$, and replacing the index on some output $\mu$ can be done linearly on $|\mu|$. We conclude that there is algorithm that enumerates the set $\sem{\cP}_{\pi}(w)$ with output-linear delay after a preprocessing that takes $\cO(|Q|^2\cdot \vert\Delta\vert\cdot |\pi|)$ time.

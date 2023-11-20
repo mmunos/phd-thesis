@@ -12,9 +12,9 @@ From now on, we can assume that we will only work with $\eps$-safe nodes as the 
 Assume $v_1$ and $v_2$ are $\eps$-safe. 
 Since both $v_1$ and $v_2$ may fall in one of three cases above, we define $\prod(\D,v_1,v_2) \to (\D',v')$ by separating into nine cases, of which the first six are straightforward: 
 \begin{itemize}
-	\item If $\eps\not\in\L_{\D}(v_1)$ and $\eps\not\in\L_{\D}(v_2)$,  we use the construction given for a regular \dsabbr.
-	\item If $\eps\not\in\L_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
-	\item If $\lambda(v_1) = \eps$ and $\eps\not\in\L_{\D}(v_2)$, we define $v' = v_2$, and $\D' = \D$.
+	\item If $\eps\not\in\cL_{\D}(v_1)$ and $\eps\not\in\cL_{\D}(v_2)$,  we use the construction given for a regular \dsabbr.
+	\item If $\eps\not\in\cL_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
+	\item If $\lambda(v_1) = \eps$ and $\eps\not\in\cL_{\D}(v_2)$, we define $v' = v_2$, and $\D' = \D$.
 	\item If $\lambda(v_1) = \eps$ and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
 	\item If $\lambda(v_1) = \eps$ and $v_2$ is in case (3), we define $v' = v_2$, and $\D' = \D$.
 	\item If $v_1$ is in case (3) and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
@@ -25,8 +25,8 @@ Since both $v_1$ and $v_2$ may fall in one of three cases above, we define $\pro
 The other three cases are more involved and they are presented graphically in Figure~\ref{nested:fig-prod-multi-gadget}. 
 Formally, they are defined as follows:
 \begin{itemize}
-	\item[(a)] If $\eps\not\in\L_{\D}(v_1)$ and $v_2$ is in case (3), then $V' = V\cup\{v',v''\}$, $\ell'(v') = v''$, $r'(v') = v_1$, $\ell(v'') = v_1$,  $r(v'') = r(v_2)$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
-	\item[(b)] If $v_1$ is in case (3) and $\eps\not\in\L_{\D}(v_1)$, then $V' = V\cup\{v',v''\}$,  $\ell'(v') = v''$, $r'(v') = v_2$, $\ell(v'') = r(v_1)$,  $r(v'') = v_2$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
+	\item[(a)] If $\eps\not\in\cL_{\D}(v_1)$ and $v_2$ is in case (3), then $V' = V\cup\{v',v''\}$, $\ell'(v') = v''$, $r'(v') = v_1$, $\ell(v'') = v_1$,  $r(v'') = r(v_2)$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
+	\item[(b)] If $v_1$ is in case (3) and $\eps\not\in\cL_{\D}(v_1)$, then $V' = V\cup\{v',v''\}$,  $\ell'(v') = v''$, $r'(v') = v_2$, $\ell(v'') = r(v_1)$,  $r(v'') = v_2$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
 	\item[(c)] If both $v_1$ and $v_2$ are in case (3), we do a slightly more delicate construction. 
 	First, we define a $\cD''$ with $V'' = V\cup\{v^{3},v^{4}\}$, $\ell''(v^3) = v^4$, $r''(v^3) = r(v_2)$, $\ell''(v^4) = r(v_1)$, $r''(v^4) = r(v_2)$, $\lambda''(v^3) = \cup$, $\lambda''(v^4) = \odot$.
 	Now, let $(\cD^3, v^2) \gets \union(\cD'', r(v_1), v_3)$.
@@ -35,22 +35,22 @@ Formally, they are defined as follows:
 Note that the $\union$ operation in case (c) does not recurse since $r(v_1)$ is safe. In particular, it does not reach any $\eps$-leaf.
 
 For the $\union$-operation, assume $v_1$ and $v_2$ are $\eps$-safe and
-%Further, assume that $\L_{\D}(v_1) \setminus \{\eps\}$ and $\L_{\D}(v_2)\setminus \{\eps\}$ are disjoint. 
+%Further, assume that $\cL_{\D}(v_1) \setminus \{\eps\}$ and $\cL_{\D}(v_2)\setminus \{\eps\}$ are disjoint. 
 define $\union(\D,v_1, v_2) \to (\D',v')$ as:
 \begin{itemize}
-	\item If $\eps\not\in\L_{\D}(v_1)$ and $\eps\not\in\L_{\D}(v_2)$, we use the construction given for a regular \dsabbr.
-	\item If $\eps\not\in\L_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $V' = V \cup\{v'\}$ and $\lambda'(v') = \cup$. We connect $\ell'(v') = v_2$ and $r'(v') = v_1$.
-	\item If $\eps\not\in\L_{\D}(v_1)$ and $v_2$ is in case (3), let $(\D'',v'') = \union(\D,v_1,r(v_2))$ as defined for a regular~\dsabbr. We define $V' = V'' \cup\{v'\}$, and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$.
-	\item If $\lambda(v_1) = \eps$ and $\eps\not\in\L_{\D}(v_2)$, we define $V' = V \cup\{v'\}$ and $\lambda'(v') = \cup$. We connect $\ell'(v') = v_1$ and $r'(v') = v_2$.
+	\item If $\eps\not\in\cL_{\D}(v_1)$ and $\eps\not\in\cL_{\D}(v_2)$, we use the construction given for a regular \dsabbr.
+	\item If $\eps\not\in\cL_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $V' = V \cup\{v'\}$ and $\lambda'(v') = \cup$. We connect $\ell'(v') = v_2$ and $r'(v') = v_1$.
+	\item If $\eps\not\in\cL_{\D}(v_1)$ and $v_2$ is in case (3), let $(\D'',v'') = \union(\D,v_1,r(v_2))$ as defined for a regular~\dsabbr. We define $V' = V'' \cup\{v'\}$, and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$.
+	\item If $\lambda(v_1) = \eps$ and $\eps\not\in\cL_{\D}(v_2)$, we define $V' = V \cup\{v'\}$ and $\lambda'(v') = \cup$. We connect $\ell'(v') = v_1$ and $r'(v') = v_2$.
 	\item If $\lambda(v_1) = \eps$ and $\lambda(v_2) = \eps$, we define $\D' = \D$ and $v' = v_1$.
 	\item If $\lambda(v_1) = \eps$ and $v_2$ is in case (3), we define $\D' = \D$ and $v' = v_2$.
-	\item (*) If $v_1$ is in case (3) and $\eps\not\in\L_{\D}(v_2)$, let $(\D'',v'') = \union(\D,r(v_1),v_2)$ as defined for a regular \dsabbr.  We define $V' = V'' \cup\{v'\}$ and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$. 
+	\item (*) If $v_1$ is in case (3) and $\eps\not\in\cL_{\D}(v_2)$, let $(\D'',v'') = \union(\D,r(v_1),v_2)$ as defined for a regular \dsabbr.  We define $V' = V'' \cup\{v'\}$ and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$. 
 	\item If $v_1$ is in case (3) and $\lambda(v_2) = \eps$, we define $\D' = \D$ and $v' = v_1$.
 	\item If both $v_1$ and $v_2$ are in case (3), let $(\D',v') = \union(\D,v_1,r(v_2))$ by using the construction of the case marked with (*).
 \end{itemize}
 %Whenever $\D''$ is mentioned it is assumed to be equal to $(\Sigma, V'', I'', \ell'', r'', \lambda'')$.
 It is straightforward to check that each operation behaves as expected. 
-%That is, if $\add(\D,a)\to(\D',v')$, then $\L_{\D}(v') = \{a\}$, if $\prod(\D,v_1,v_2)\to(\D',v')$, then $\L_{\D}(v') = \L_{\D}(v_1)\cdot\L_{\D}(v_2)$, and if $\union(\D,v_1,v_2)\to(\D',v')$, then $\L_{\D}(v_1)\cup\L_{\D}(v_2)$. 
+%That is, if $\add(\D,a)\to(\D',v')$, then $\cL_{\D}(v') = \{a\}$, if $\prod(\D,v_1,v_2)\to(\D',v')$, then $\cL_{\D}(v') = \cL_{\D}(v_1)\cdot\cL_{\D}(v_2)$, and if $\union(\D,v_1,v_2)\to(\D',v')$, then $\cL_{\D}(v_1)\cup\cL_{\D}(v_2)$. 
 Moreover, if both $v_1$ and $v_2$ are $\eps$-safe, then the resulting node $v'$ is $\eps$-safe as well for each operation.
 
 We finish this proof by noticing that each operation falls into a fixed number of cases that can be checked exhaustively, and each construction has a fixed size, so they take constant time. 
@@ -84,12 +84,12 @@ Furthermore, each operation is fully persistent as expected.
 %	For $\add(\D,a)\to(\D',v')$ we define $V' := V \cup \{v'\}$, $I' := I$, and $\lambda'(v') = a$.
 %	
 %	Assume $v_1$ and $v_2$ are $\eps$-safe. 
-%	Further, assume that for every word in $w\in\L_{\D}(v_1)\cdot\L_{\D}(v_2)$ there exist only two non-empty words $w_1$ and $w_2$ such that $w_1\in\L_{\D}(v_1)$, $w_2\in\L_{\D}(v_2)$ and $w = w_1w_2$.
+%	Further, assume that for every word in $w\in\cL_{\D}(v_1)\cdot\cL_{\D}(v_2)$ there exist only two non-empty words $w_1$ and $w_2$ such that $w_1\in\cL_{\D}(v_1)$, $w_2\in\cL_{\D}(v_2)$ and $w = w_1w_2$.
 %	Since both $v_1$ and $v_2$ may fall in one of three cases, we define $\prod(\D,v_1,v_2) \to (\D',v')$ by separating into nine cases, of which the first six are straightforward: 
 %	\begin{itemize}
-%		\item If $\eps\not\in\L_{\D}(v_1)$ and $\eps\not\in\L_{\D}(v_2)$,  we use the construction given for a regular \dsabbr.
-%		\item If $\eps\not\in\L_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
-%		\item If $\lambda(v_1) = \eps$ and $\eps\not\in\L_{\D}(v_2)$, we define $v' = v_2$, and $\D' = \D$.
+%		\item If $\eps\not\in\cL_{\D}(v_1)$ and $\eps\not\in\cL_{\D}(v_2)$,  we use the construction given for a regular \dsabbr.
+%		\item If $\eps\not\in\cL_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
+%		\item If $\lambda(v_1) = \eps$ and $\eps\not\in\cL_{\D}(v_2)$, we define $v' = v_2$, and $\D' = \D$.
 %		\item If $\lambda(v_1) = \eps$ and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
 %		\item If $\lambda(v_1) = \eps$ and $v_2$ is in Case 3, we define $v' = v_2$, and $\D' = \D$.
 %		\item If $v_1$ is in Case 3 and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
@@ -101,8 +101,8 @@ Furthermore, each operation is fully persistent as expected.
 %	Formally, they are defined as follows:
 %	
 %	\begin{itemize}
-%		\item[(a)] If $\eps\not\in\L_{\D}(v_1)$ and $v_2$ is in Case 3, then $V' = V\cup\{v',v''\}$, $I' = I\cup\{v',v''\}$, $\ell'(v') = v_1$, $r'(v') = v''$, $\ell(v'') = v_1$,  $r(v'') = r(v_2)$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
-%		\item[(b)] If $v_1$ is in Case 3 and $\eps\not\in\L_{\D}(v_1)$, then $V' = V\cup\{v',v''\}$, $I' = I\cup\{v',v''\}$, $\ell'(v') = v''$, $r'(v') = v_2$, $\ell(v'') = r(v_1)$,  $r(v'') = v_2$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
+%		\item[(a)] If $\eps\not\in\cL_{\D}(v_1)$ and $v_2$ is in Case 3, then $V' = V\cup\{v',v''\}$, $I' = I\cup\{v',v''\}$, $\ell'(v') = v_1$, $r'(v') = v''$, $\ell(v'') = v_1$,  $r(v'') = r(v_2)$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
+%		\item[(b)] If $v_1$ is in Case 3 and $\eps\not\in\cL_{\D}(v_1)$, then $V' = V\cup\{v',v''\}$, $I' = I\cup\{v',v''\}$, $\ell'(v') = v''$, $r'(v') = v_2$, $\ell(v'') = r(v_1)$,  $r(v'') = v_2$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
 %		\item[(c)] If both $v_1$ and $v_2$ are in Case 3, we do a slightly more delicate construction. 
 %		First, we define a $\cD''$ with $V'' = V\cup\{v^{3},v^{4}\}$, $I'' = I\cup\{v^{3},v^{4}\}$, $\ell''(v^3) = v^4$, $r''(v^3) = r(v_2)$, $\ell''(v^4) = r(v_1)$, $r''(v^4) = r(v_2)$, $\lambda''(v^3) = \cup$, $\lambda''(v^4) = \odot$.
 %		Now, let $(\cD^3, v^2) \gets \union(\cD'', r(v_1), v_3)$.
@@ -111,16 +111,16 @@ Furthermore, each operation is fully persistent as expected.
 %	Note that the $\union$ operation in case (c) does not recurse since $r(v_1)$ is safe. In particular, it does not reach any $\eps$-leaf.
 %	
 %	Assume $v_1$ and $v_2$ are $\eps$-safe nodes. 
-%	Further, assume that $\L_{\D}(v_1) \setminus \{\eps\}$ and $\L_{\D}(v_2)\setminus \{\eps\}$ are disjoint. 
+%	Further, assume that $\cL_{\D}(v_1) \setminus \{\eps\}$ and $\cL_{\D}(v_2)\setminus \{\eps\}$ are disjoint. 
 %	We define $\union(\D,v_1, v_2) \to (\D',v')$ as follows:
 %	\begin{itemize}
-%		\item If $\eps\not\in\L_{\D}(v_1)$ and $\eps\not\in\L_{\D}(v_2)$, we use the construction given for a regular \dsabbr.
-%		\item If $\eps\not\in\L_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $V' = V \cup\{v'\}$, $I' = I\cup\{v'\}$ and $\lambda(v') = \cup$. We connect $\ell(v') = v_2$ and $r(v') = v_1$.
-%		\item If $\eps\not\in\L_{\D}(v_1)$ and $v_2$ is in Case 3, let $(\D'',v'') = \union(\D,v_1,r(v_2))$ as defined for a regular \dsabbr. We define $V' = V'' \cup\{v'\}$, $I' = I''\cup\{v'\}$ and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$.
-%		\item If $\lambda(v_1) = \eps$ and $\eps\not\in\L_{\D}(v_2)$, we define $V' = V \cup\{v'\}$, $I' = I\cup\{v'\}$ and $\lambda(v') = \cup$. We connect $\ell(v') = v_1$ and $r(v') = v_2$.
+%		\item If $\eps\not\in\cL_{\D}(v_1)$ and $\eps\not\in\cL_{\D}(v_2)$, we use the construction given for a regular \dsabbr.
+%		\item If $\eps\not\in\cL_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $V' = V \cup\{v'\}$, $I' = I\cup\{v'\}$ and $\lambda(v') = \cup$. We connect $\ell(v') = v_2$ and $r(v') = v_1$.
+%		\item If $\eps\not\in\cL_{\D}(v_1)$ and $v_2$ is in Case 3, let $(\D'',v'') = \union(\D,v_1,r(v_2))$ as defined for a regular \dsabbr. We define $V' = V'' \cup\{v'\}$, $I' = I''\cup\{v'\}$ and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$.
+%		\item If $\lambda(v_1) = \eps$ and $\eps\not\in\cL_{\D}(v_2)$, we define $V' = V \cup\{v'\}$, $I' = I\cup\{v'\}$ and $\lambda(v') = \cup$. We connect $\ell(v') = v_1$ and $r(v') = v_2$.
 %		\item If $\lambda(v_1) = \eps$ and $\lambda(v_2) = \eps$, we define $\D' = \D$ and $v' = v_1$.
 %		\item If $\lambda(v_1) = \eps$ and $v_2$ is in Case 3, we define $\D' = \D$ and $v' = v_2$.
-%		\item If $v_1$ is in Case 3 and $\eps\not\in\L_{\D}(v_2)$, let $(\D'',v'') = \union(\D,r(v_1),v_2)$ as defined for a regular \dsabbr.  We define $V' = V'' \cup\{v'\}$, $I' = I''\cup\{v'\}$ and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$. (*)
+%		\item If $v_1$ is in Case 3 and $\eps\not\in\cL_{\D}(v_2)$, let $(\D'',v'') = \union(\D,r(v_1),v_2)$ as defined for a regular \dsabbr.  We define $V' = V'' \cup\{v'\}$, $I' = I''\cup\{v'\}$ and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$. (*)
 %		\item If $v_1$ is in Case 3 and $\lambda(v_2) = \eps$, we define $\D' = \D$ and $v' = v_1$.
 %		\item If both $v_1$ and $v_2$ are in Case 3, let $(\D',v') = \union(\D,r(v_1),v_2)$ by using the construction of case (*).
 %	\end{itemize}
@@ -128,7 +128,7 @@ Furthermore, each operation is fully persistent as expected.
 %	Whenever $\D''$ is mentioned it is assumed to be equal to $(\Sigma, V'', I'', \ell'', r'', \lambda'')$.
 %	
 %	It is straightforward to check that each operation behaves as expected. 
-%	That is, if $\add(\D,a)\to(\D',v')$, then $\L_{\D}(v') = \{a\}$, if $\prod(\D,v_1,v_2)\to(\D',v')$, then $\L_{\D}(v') = \L_{\D}(v_1)\cdot\L_{\D}(v_2)$, and if $\union(\D,v_1,v_2)\to(\D',v')$, then $\L_{\D}(v_1)\cup\L_{\D}(v_2)$. 
+%	That is, if $\add(\D,a)\to(\D',v')$, then $\cL_{\D}(v') = \{a\}$, if $\prod(\D,v_1,v_2)\to(\D',v')$, then $\cL_{\D}(v') = \cL_{\D}(v_1)\cdot\cL_{\D}(v_2)$, and if $\union(\D,v_1,v_2)\to(\D',v')$, then $\cL_{\D}(v_1)\cup\cL_{\D}(v_2)$. 
 %	Moreover, if both $v_1$ and $v_2$ are $\eps$-safe, then the resulting node $v'$ is $\eps$-safe as well for each operation.
 %	
 %	Note that each operation falls into a fixed number of cases which can be checked exhaustively, and each construction has a fixed size, so they take constant time. 

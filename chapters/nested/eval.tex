@@ -93,8 +93,8 @@ In other words, the configuration $(\aS_k, \tau_k)$ of $\cA^\dets$ forms a succi
 \smallskip
 
 \paragraph{The streaming evaluation algorithm} In Algorithm~\ref{nested:alg:preprocessing}, we present the update phase for solving the streaming version of $\enumvpann$. The main procedure is {\sc UpdatePhase}, that receives an I/O-unambiguous \vpann $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$ and a stream~$\Stream$, reads the next ($k$-th) symbol and computes the set of outputs $\br{\cT}(\Stream[1,k])$.
-More specifically, it constructs an \dsepsabbr~$\cD$ and a vertex $v_{\text{out}}$ such that $\L_{\cD}(v_{\text{out}}) = \sem{\cT}(\Stream[1,k])$ if $\Stream[1,k]$ is well-nested, and $\emptyset$ otherwise.
-After the {\sc UpdatePhase} procedure is done, we can enumerate $\L_{\cD}(v_{\text{out}})$ with output-linear delay by calling the enumeration phase, that is, by applying Theorem~\ref{nested:theo:data-structure-eps}. An example execution and the resulting data structure are shown in Figure~\ref{nested:fig-alg-ex}.
+More specifically, it constructs an \dsepsabbr~$\cD$ and a vertex $v_{\text{out}}$ such that $\cL_{\cD}(v_{\text{out}}) = \sem{\cT}(\Stream[1,k])$ if $\Stream[1,k]$ is well-nested, and $\emptyset$ otherwise.
+After the {\sc UpdatePhase} procedure is done, we can enumerate $\cL_{\cD}(v_{\text{out}})$ with output-linear delay by calling the enumeration phase, that is, by applying Theorem~\ref{nested:theo:data-structure-eps}. An example execution and the resulting data structure are shown in Figure~\ref{nested:fig-alg-ex}.
 
 Towards this goal, in Algorithm~\ref{nested:alg:preprocessing} we make use of the following data structures. First, we use an \dsepsabbr $\cD = (\oalph, V, \ell, r, \lambda)$, nodes $v \in V$, and the operations $\add$, $\union$, and $\prod$ over $\cD$ and $v$ (see Section~\ref{nested:sec:ds}). For the sake of simplification, we overload the notation of these operators slightly so that if $v = \emptyset$, then $\union(\cD,v,v') = \union(\cD,v',v) = (\cD,v')$. 
 We use a constant-time-access map (which we will call hash table) $\aS$ which indexes nodes $v$ in $\cD$ by pairs of states $(p,q) \in Q\times Q$. We denote the elements of $\aS$ as ``$(p,q) : v$'' where $(p,q)$ is the index and $v$ is the content. Furthermore, we write $\aS_{p,q}$ to access the node $v$. We also use a stack $\aT$ that stores hash tables: each element is a hash table that indexes vertices $v$ in $\cD$ by triples $(p, \gamma, q) \in Q \times \Gamma \times Q$. 
@@ -107,7 +107,7 @@ Since we use the RAM model (see Section~\ref{nested:sec:prelim}), every operatio
 Algorithm~\ref{nested:alg:preprocessing} builds the \dsepsabbr $\cD$ incrementally, reading the stream $\Stream$ one letter at a time by calling $\yield{\Stream}$ and keeping a counter $k$ for the position of the current letter. 
 For every $k \in [1,n+1]$, {\sc UpdatePhase} builds the $k$-th iteration of table $\aS$ and stack $\aT$, which we note as $\aS^k$ and $\aT^k$, respectively. 
 Before {\sc UpdatePhase} is called for the first time, it runs {\sc Intialize} (lines \ref{nested:line1}-\ref{nested:line4}) to set the initial values of $k$, $\cD$, $\aS$, and $\aT$.
-We consider the initial $\aS$ and $\aT$ as the $1$-st iteration, defined as $\aS^1 = \{(q,q): v_\eps \mid q \in I\}$ and $\aT^1 = \emptyset$ (i.e. the empty stack) where $v_\eps$ is a node in $\cD$ such that $\L_{\cD}(v_\eps) = \{\eps\}$ (lines \ref{nested:line3}-\ref{nested:line4}).
+We consider the initial $\aS$ and $\aT$ as the $1$-st iteration, defined as $\aS^1 = \{(q,q): v_\eps \mid q \in I\}$ and $\aT^1 = \emptyset$ (i.e. the empty stack) where $v_\eps$ is a node in $\cD$ such that $\cL_{\cD}(v_\eps) = \{\eps\}$ (lines \ref{nested:line3}-\ref{nested:line4}).
 
 In the $k$-th iteration, depending on whether the current letter is an open symbol or a close symbol, the {\sc OpenStep} or {\sc CloseStep} procedures are called, updating $\aS^{k-1}$ and $\aT^{k-1}$ to $\aS^{k}$ and $\aT^{k}$, respectively.  
 More specifically, {\sc UpdatePhase} adds nodes to $\cD$ such that the nodes in $\aS^k$ represent the runs over $w\spanc{j}{k}$ where $\clevel(k)=\spanc{j}{k}$, and the nodes in the topmost table in $\aT^k$ represent the runs over $w\spanc{i}{j-1}$ where $\llevel(k) = \spanc{i}{j-1}$. 
@@ -118,7 +118,7 @@ Here, the intuition gained in the determinization of VPA is helpful. Indeed, tab
 
 %In the sequel, we will using this connection between Algorithm~\ref{alg:preprocessing} and $\cA^\dets$ continually.
 
-Before formalizing the previous ideas, we will describe in more detail what the procedures {\sc OpenStep} and {\sc CloseStep} exactly do. Recall that the operation $\add(\D, a)$ simply creates a node in $\D$ labeled as $a$; the operation $\prod(\cD,v_1,v_2)$ returns a pair $(\cD',v')$ such that $\L_{\cD'}(v') = \L_{\cD}(v_1) \cdot \L_{\cD}(v_2)$; and the operation $\union(\cD,v_3,v_4)$ returns a pair $(\cD',v')$ such that $\L_{\cD'}(v') = \L_{\cD}(v_3)\cup \L_{\cD}(v_4)$. To improve the presentation of the algorithm, we include a simple procedure called \textsc{IfProd}~(lines \ref{nested:line19}-\ref{nested:line25}). Basically, this procedure receives a node $v$, an element $b$ which can be either an input symbol $a$, or a pair $(a, \oout)$ for some output symbol $\oout$, and a position $k$, and computes $(\cD', v')$ such that $\L_{\cD'}(v') = \L_{\cD}(v) \cdot \{(\oout, k)\}$ if $b = (a, \oout)$, and $\L_{\cD'}(v') = \L_{\cD}(v)$ otherwise.
+Before formalizing the previous ideas, we will describe in more detail what the procedures {\sc OpenStep} and {\sc CloseStep} exactly do. Recall that the operation $\add(\D, a)$ simply creates a node in $\D$ labeled as $a$; the operation $\prod(\cD,v_1,v_2)$ returns a pair $(\cD',v')$ such that $\cL_{\cD'}(v') = \cL_{\cD}(v_1) \cdot \cL_{\cD}(v_2)$; and the operation $\union(\cD,v_3,v_4)$ returns a pair $(\cD',v')$ such that $\cL_{\cD'}(v') = \cL_{\cD}(v_3)\cup \cL_{\cD}(v_4)$. To improve the presentation of the algorithm, we include a simple procedure called \textsc{IfProd}~(lines \ref{nested:line19}-\ref{nested:line25}). Basically, this procedure receives a node $v$, an element $b$ which can be either an input symbol $a$, or a pair $(a, \oout)$ for some output symbol $\oout$, and a position $k$, and computes $(\cD', v')$ such that $\cL_{\cD'}(v') = \cL_{\cD}(v) \cdot \{(\oout, k)\}$ if $b = (a, \oout)$, and $\cL_{\cD'}(v') = \cL_{\cD}(v)$ otherwise.
 
 
 In {\sc OpenStep}, $\aS^k$ is created (i.e. $S'$), and an empty table is pushed onto $\aT^{k-1}$ to form~$\aT^k$~(line~\ref{nested:line27}). 
@@ -239,13 +239,13 @@ We also extend the function $\out$ to receive a subrun $\rho\spanc{i}{j}$ in the
 $
 \out(\rho\spanc{i}{j}) \ = \  \out(\oout_{i},{i}) \cdot \ldots \cdot \out(\oout_{j-1}, j-1)
 $.
-Finally, define $\Runs(\cT,w)$ as the set of all runs of $\cT$ over $w$. %For a given \dsepsabbr $\cD$, we say that a subrun $\rho\spanc{i}{j}$ is represented in a node $v\in\cD$ if $\out(\rho\spanc{i}{j})\in\L_{D}(v)$.
+Finally, define $\Runs(\cT,w)$ as the set of all runs of $\cT$ over $w$. %For a given \dsepsabbr $\cD$, we say that a subrun $\rho\spanc{i}{j}$ is represented in a node $v\in\cD$ if $\out(\rho\spanc{i}{j})\in\cL_{D}(v)$.
 
 \begin{lemma}\label{nested:vpt:steps}
 	Let $\cT$ be a \vpann and $w = a_1\cdots a_n$ be a well-nested word. While running the procedure {\sc UpdatePhase} of Algorithm~\ref{nested:alg:preprocessing}, for every $k\in[1,n+1]$, every pair of states $p,q$ and stack symbol $\gamma$ the following hold:
 	\begin{enumerate}
-		\item $\L_{\D}(\aS^k_{p,q})$ has exactly all sequences $\out(\rho\spanc{j}{k})$ such that $\rho\in\Runs(\cT,w\spanc{1}{k})$, $\clevel(k) = \spanc{j}{k}$, and $\rho\spanc{j}{k}$ starts on $p$ and ends on $q$.
-		\item If $\llevel(k)$ is defined,  then $\L_{\D}(\aT^k_{p,\gamma,q})$ has exactly all sequences $\out(\rho\spanc{i}{j})$ such that $\rho\in\Runs(\cT,w\spanc{1}{j})$, $\llevel(k) = \spanc{i}{j-1}$, and $\rho\spanc{i}{j}$ starts on $p$, ends on $q$, and the last symbol pushed onto the stack was $\gamma$.
+		\item $\cL_{\D}(\aS^k_{p,q})$ has exactly all sequences $\out(\rho\spanc{j}{k})$ such that $\rho\in\Runs(\cT,w\spanc{1}{k})$, $\clevel(k) = \spanc{j}{k}$, and $\rho\spanc{j}{k}$ starts on $p$ and ends on $q$.
+		\item If $\llevel(k)$ is defined,  then $\cL_{\D}(\aT^k_{p,\gamma,q})$ has exactly all sequences $\out(\rho\spanc{i}{j})$ such that $\rho\in\Runs(\cT,w\spanc{1}{j})$, $\llevel(k) = \spanc{i}{j-1}$, and $\rho\spanc{i}{j}$ starts on $p$, ends on $q$, and the last symbol pushed onto the stack was $\gamma$.
 	\end{enumerate}
 \end{lemma}
 
@@ -260,7 +260,7 @@ in $\aS^{k+1}$ that represent accepting runs (as is done in lines \ref{nested:li
 %\footnote{By the definition of enumeration algorithm with one pass preprocessing, the preprocessing phase should end right after the \texttt{EOF} is read. However, one can assume that lines 11-13 are executed at the end of each iteration, without affecting the asymptotic performance of the algorithm.}
 
 \begin{theorem}\label{nested:eval:prep}
-	Given a \vpann $\cT$ and a stream $\Stream$, {\sc UpdatePhase}$(\cT, \Stream)$ fulfils the conditions of a streaming evaluation algorithm and, after reading the $k$-th symbol, produces a pair $(\cD,v_{\operatorname{out}})$ such that $\L_{\cD}(v_{\operatorname{out}}) = \sem{\cT}(\Stream[1,k])$.
+	Given a \vpann $\cT$ and a stream $\Stream$, {\sc UpdatePhase}$(\cT, \Stream)$ fulfils the conditions of a streaming evaluation algorithm and, after reading the $k$-th symbol, produces a pair $(\cD,v_{\operatorname{out}})$ such that $\cL_{\cD}(v_{\operatorname{out}}) = \sem{\cT}(\Stream[1,k])$.
 \end{theorem}
 
 At this point, we address the fact that $\cD$ needs to be duplicate-free in order to enumerate all the outputs from $(\cD,v_{\text{out}})$ without repetitions.

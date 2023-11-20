@@ -1,12 +1,12 @@
 % !TeX spellcheck = en_US
-%!TEX root = ../main/main.tex
+%!TEX root = ../../Thesis.tex
 
 
 %\noindent\textbf{Enumeration with one-pass preprocessing and output-linear delay.} As it is common in the enumeration algorithms literature~\cite{Bagan06,Courcelle09,Segoufin13}, for our computational model we use Random Access Machines (RAM) with uniform cost measure, and addition and subtraction as basic operations~\cite{AhoHU74}. We assume that a RAM has read-only input registers where the machine places the input, read-write work registers where it does the computation, and write-only output registers where it gives the output (i.e., the enumeration of the results).
 
 Our first task in this chapter is to define a notion of a \emph{streaming enumeration problem}: to evaluate a query over a stream and to enumerate the outputs with bounded delay whenever it is such. Toward this goal, we want to restrict the resources used (i.e., time and space) and impose strong guarantees on the delay. As our gold standard, we consider the notion of \emph{output-linear delay} defined in~\cite{FlorenzanoRUVV20}. This notion is a refinement of the definition of constant-delay~\cite{Segoufin13} or linear-delay~\cite{Courcelle09} enumeration that better fits our purpose. Altogether, our plan for this section is to define a streaming enumeration problem and then provide a notion of efficiency that a solution for this problem should satisfy. 
 
-We adopt the setting of \emph{relations}~\cite{jerrum1986random,ArenasCJR19} to formalize a streaming enumeration problem. First, we need to define what is an enumeration problem outside the stream setting. 
+We adopt the setting of \emph{relations}~\cite{jerrum1986random,ArenasCJR19} to formalize a streaming enumeration problem. First, we need to define what is an enumeration problem outside the stream setting, and we will use a subtler definition than the one described in the preliminaries. 
 Let $\inpAlph$  be an alphabet. An \emph{enumeration problem} is a relation $R\subseteq (\inpAlph^{*} \times \inpAlph^*) \times\inpAlph^{*}$. For each pair $((q, x), y) \in R$ we view $(q, x)$ as the input of the problem and $y$ as a possible output for $(q, x)$. 
 Furthermore, we call $q$ the \emph{query} and $x$ the \emph{data}.
 This separation allows for a fine-grained analysis of the query complexity and data complexity of the problem. 
@@ -38,12 +38,10 @@ We now turn to our efficiency notion for solving a streaming enumeration problem
 	(2) it writes the first \# as soon as the enumeration phase starts, and 
 	(3) it stops immediately after writing the last \#.
 \end{itemize}
+
 The purpose of separating $\enumE$’s operation into an update and enumeration phase is to make an output-sensitive analysis of $\enumE$’s complexity. Moreover, from a user perspective, this separation allows running the enumeration phase without interrupting the update phase. That is, the user could execute the enumeration phase in a separate machine, and its running time only depends on how many outputs she wants to enumerate.  
 
-For the enumeration phase, we measure the \emph{delay between two outputs} as follows. For an input $\inpw\in\inpAlph^*$, let $\# \outw_1 \# \outw_2\#\cdots\#\outw_m\#$ be the output of the algorithm during any call to the enumeration phase. Furthermore, let $\outtime_i(\inpw)$ be the time in the enumeration phase when the algorithm writes the $i$-th $\#$ when running on $\inpw$ for $i \leq m+1$. 
-Define $\outdelay_i(\inpw) = \outtime_{i+1}(\inpw) - \outtime_{i}(\inpw)$ for $i \leq m$. 
-Then we say that $\enumE$ has {\em output-linear delay} if there exists a constant $k$ such that for every $\inpw\in\inpAlph^*$ and $i \leq m$ it holds that $\outdelay_i(\inpw) \leq k \cdot |y_i|$. In other words, the number of instructions executed by $\enumE$ between the time that the $i$-th and the $(i+1)$-th \# are written is linear on the size of $y_i$.
-Note that, in particular, an output-linear delay implies that the enumeration phase ends in constant time if there is no output for enumerating. 
+We omit the time analysis of the enumeration phase and the definition of delay as it was included in Section~\ref{prelims:sec:enum}.
 
 As the last ingredient, we define how to measure the \emph{memory space} of a streaming evaluation. Note that after the $n$-th call a streaming evaluation algorithm with $f$-update-time will necessarily use at most $\cO(n\cdot f(|q|))$ bits of space. As a refinement of this bound, we say that this algorithm \emph{uses $g$-space} over a query $q$ and stream $\Stream$ if the number of bits used by it after the $n$-th call is in $\cO(g(|q|, \Stream[1, n]))$.
 

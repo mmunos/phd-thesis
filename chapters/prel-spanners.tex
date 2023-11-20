@@ -1,0 +1,17 @@
+Consider a document $d = a_1\ldots a_n$ over an input alphabet $\Sigma$. A {\it span} of $d$ is a pair $\spanc{i}{j}$ with $1 \leq i \leq j \leq n+1$. Intuitively, a span represents a substring of $d$ by identifying the starting and ending positions. We define the substring $\spanc{i}{j}$ by $d\spanc{i}{j} = a_i \ldots a_{j-1}$. We denote by $\spanset(d)$ the set of all possible spans of $d$.
+
+Consider also a set of variables $\varset$ such that $\Sigma \cap \varset = \emptyset$. Let $X \subseteq \varset$ be a finite set of variables. An \emph{$(X, d)$-mapping} (or just a \emph{mapping}) $\smap\colon X \rightarrow \spanset(d)$ assigns variables in $X$ to spans of $d$. An \emph{$(X, d)$-relation} is a finite set of $(X, d)$-mappings. Then a \emph{document spanner} $P$ (or just spanner) is a function associated with a finite set $X$ of variables that map documents $d$ into $(X, d)$-relations.  
+
+For $X \subseteq \varset$, let $\varcaptures{X} = \{\varop{x}, \varcl{x}\mid x\in X\}$ be the set of captures of $X$ where, intuitively, $\varop{x}$ denotes the opening of $x$, and $\varcl{x}$ its closing. 
+
+In some chapters we will use ref-words as an intermediate step between the structure that defines a spanner (such as a grammar or an automaton) and the mappings themselves.
+Formally, a ref-word is just a string $r\in (\Sigma \cup \varcaptures{X})^*$. A ref-word $r = a_1 \ldots a_n \in (\Sigma \cup \varcaptures{X})^*$ is called {\it valid} for $X$ if, for every $x \in X$, there exists exactly one position $i$ with $a_i = \varop{x}$ and exactly one position $j$ with $a_j = \ \varcl{x}$, such that $i < j$. 
+In other words, a valid ref-word defines a correct match of opening and closing captures. Moreover, each $x \in X$ induces a unique factorization of $r$ of the form $r = r_x^p \cdot \varop{x} \, \cdot \, r_x \, \cdot\, \varcl{x} \cdot r_x^s$. 
+This factorization defines an $(X,d)$-mapping as follows. 
+Let $\splain: (\Sigma \cup \varcaptures{X})^* \rightarrow \Sigma^*$ be the morphism that removes the captures from ref-words, namely, $\splain(a) = a$ when $a \in \Sigma$ and $\splain(c) = \eps$ when $c \in \varcaptures{X}$.
+We extend $\splain$ to operate over strings in the obvious way.
+Furthermore, let $r$ be a valid ref-word for $X$, $d$ be a document, and assume that $\splain(r) = d$.
+Then we define the $(X,d)$-mapping $\smap^r$ such that $\smap^r(x) = \spanc{i}{j}$ iff $r = r_x^p \cdot \varop{x} \, \cdot \, r_x \, \cdot\, \varcl{x} \cdot r_x^s$, $i = |\splain(r_x^p)|+1$, and $j = i + |\splain(r_x)|$. 
+
+As an example, consider the document $d = {\tt h\,e\,l\,l\,o\,g\,o\,o\,d\,b\,y\,e}$. 
+If we let $X = \{x, y\}$, then a valid ref-word for $X$ would be $r = {\tt h\,e\,l\,l\,o}\varop{x}\varop{y}{\tt g\,o\,o\,d}\varcl{x}{\tt b\,y\,e}\varcl{y}$. Note that $\splain(r) = d$, and thus the $(X,d)$-mapping $\mu^r$ is properly defined as $\mu^r(x) = \spanc{6}{10}$ and $\mu^r(y) = \spanc{6}{13}$.

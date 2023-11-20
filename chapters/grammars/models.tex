@@ -183,42 +183,12 @@ annotations of an annotated grammar:
 	}
 \end{center}
 \smallskip
-We work in the standard computational model of Random Access Machines (RAM)
+As it was stated, we work in the standard computational model of Random Access Machines (RAM)
 with logarithmic word size and
 uniform cost measure, having addition and subtraction as basic
 operations~\cite{AhoHU74}. The size of~$\cG$ is measured as the sum of rule lengths.
 %
 %
-
-As the set of outputs $\sem{\cG}(w)$ can be large, we
-work in the framework of \emph{enumeration algorithms}.
-Such algorithms consist of two \emph{phases}.
-%
-First, in the \emph{preprocessing phase},
-the algorithm receives the input annotated grammar $\cG$ and string~$w$, and produces some
-\emph{index} structure $D$.
-The \emph{preprocessing time} is the worst-case running time of this
-preprocessing phase, measured as a function of the input, i.e., in terms of~$w$
-and~$\cG$ when studying \emph{combined complexity}, and in terms of~$w$ only
-when studying \emph{data complexity}.
-
-Second, in the \emph{enumeration phase}, the algorithm can use $\cG$, $w$, and~$D$,
-and must produce all outputs of $\sem{\cG}(w)$
-one after the other and without
-repetitions. The \emph{delay} of this phase is the worst-case time to
-produce any of the outputs, i.e., for $N$ the number of outputs,
-if we call $\mathsf{time}_0$ the moment the preprocessing ends, 
-$\mathsf{time}_i$ the moment the algorithm finishes producing the $i$-th output
-with $1 \leq i \leq N$, and 
-$\mathsf{time}_{N+1}$ the moment when the algorithm terminates,
-then the delay is the maximum of the values $(\mathsf{time}_i - \mathsf{time}_{i-1})$ for any 
-$0 < i \leq N+1$.
-We aim for \emph{output-linear} delay~\cite{FlorenzanoRUVV20} (also called linear delay~\cite{Courcelle09}, or constant delay~\cite{Segoufin13}
-for constant-sized outputs), where the delay is
-linear in the size of each produced output, and is independent from the input
-(i.e., from~$w$ and~$\cG$).
-The \emph{memory usage} of the algorithm is the maximum memory
-used across both phases, including the size of~$D$.
 
 The ultimate goal of this chapter is to find enumeration algorithms to enumerate
 the outputs of annotated grammars

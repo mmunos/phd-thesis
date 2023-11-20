@@ -1,13 +1,11 @@
 % !TeX spellcheck = en_US
-%!TEX root = ../main/main.tex
+%!TEX root = ../../Thesis.tex
 
-We start by recalling the definitions of well-nested words and visibly pushdown automata. Further, we recall some basic definitions that will be useful throughout the chapter. 
+We start by stating the definitions of well-nested words and visibly pushdown automata. Further, we state some basic definitions that will be useful throughout the chapter. 
 
-\paragraph{Well-nested words and streams} As usual, we call a finite set $\Sigma$ an alphabet and we denote by $\Sigma^*$ all finite words with symbols in~$\Sigma$.  We denote by $\epsilon$ the empty word of length $0$.
-
-We will work over a {\em structured alphabet} $\Sigma = (\opS, \clS, \noS)$ comprised of three disjoint sets $\opS$, $\clS$, and $\noS$ that contain {\it open}, {\it close}, and {\it neutral} symbols respectively\footnote{In \cite{AlurM04,FiliotRRST18} these sets are named \emph{call}, \emph{return}, and \emph{local}, respectively.}. 
+\paragraph{Well-nested words and streams} Besides the usual definitions for strings, we will work over a {\em structured alphabet} $\Sigma = (\opS, \clS, \noS)$ comprised of three disjoint sets $\opS$, $\clS$, and $\noS$ that contain {\it open}, {\it close}, and {\it neutral} symbols respectively\footnote{In \cite{AlurM04,FiliotRRST18} these sets are named \emph{call}, \emph{return}, and \emph{local}, respectively.}. 
 Furthermore, we will denote symbols in $\opS$, $\clS$ or $\noS$ by $\op{a}$, $\cl{a}$, and~$a$, respectively.
-Instead, we will use $s$ to denote any symbol in $\opS$, $\clS$, or $\noS$.
+On the other hand, we will use $s$ to denote any symbol in $\opS$, $\clS$, or $\noS$.
 The set of {\em well-nested words}
 %\footnote{In~\cite{AlurM04}, Alur et al. consider a slightly more general set of nested words, where there could be close symbols at the beginning of the word that are not open and open symbols at the end that are never close. We can extend our setting to support this generalization at the cost of considering these border cases. For the sake of simplicity, we restrict our work to nested words without major loss of generality.} 
 over $\Sigma$, denoted as $\wnS$, is defined as the smallest set satisfying the following rules: 
@@ -25,7 +23,7 @@ $$
 \Delta \ \subseteq \ (Q\times\opS\times Q\times\Gamma) \,\cup \, (Q\times\clS\times\Gamma\times Q) \, \cup \, (Q\times\noS\times Q)
 $$ 
 is the transition relation.
-A transition $(q,\op{a},q',\gamma)$ is a {\em push-transition} where on reading $\op{a}\in\opS$, $\gamma$ is pushed onto the stack and the current state switches from $q$ to $q'$. Conversely, $(q,\cl{a},\gamma,q')$ is a {\em pop-transition} where on reading $\cl{a}\in\clS$ from the input and $\gamma$ from the top of the stack, the current state changes from $q$ to $q'$, and the symbol $\gamma$ is popped. Lastly, we say that $(q,a,q')$ is a {\em neutral transition} if $a\in\noS$, where there is no stack operation.
+A transition $(q,\op{a},q',\gamma)$ is a {\em push-transition} where on reading $\op{a}\in\opS$, the symbol $\gamma$ is pushed onto the stack and the current state switches from $q$ to $q'$. Conversely, $(q,\cl{a},\gamma,q')$ is a {\em pop-transition} where on reading $\cl{a}\in\clS$ from the input and $\gamma$ from the top of the stack, the current state changes from $q$ to $q'$, and the symbol $\gamma$ is popped. Lastly, we say that $(q,a,q')$ is a {\em neutral transition} if $a\in\noS$, where there is no stack operation.
 
 A \emph{stack} is a finite sequence $\sigma$ over $\Gamma$ where the top of the stack is the first symbol on~$\sigma$. For a well-nested word $w = s_1 \cdots s_n$ in $\wnS$, a \emph{run} of $\cA$ on $w$ is a sequence:
 $$
@@ -35,12 +33,10 @@ where each $q_j \in Q$ and $\sigma_j\in\Gamma^{*}$ for every $j\in[1,n]$, $q_1\i
 (1) if $s_{i}\in\opS$, then there is $\gamma\in\Gamma$ such that $(q_i,s_{i},q_{i+1},\gamma) \in \Delta$ and $\sigma_{i+1} = \gamma\sigma_i$, 
 (2) if $s_{i}\in\clS$, then there is $\gamma\in\Gamma$ such that $(q_i,s_{i},\gamma,q_{i+1}) \in \Delta$ and $\sigma_{i} = \gamma\sigma_{i+1}$, and
 (3) if $s_{i}\in\noS$, then $(q_i,s_{i},q_{i+1}) \in \Delta$ and $\sigma_{i+1} = \sigma_i$.
-A run $\rho$ is \emph{accepting} if $q_{n+1}\in F$. A well-nested word $w\in\wnS$ is \emph{accepted by} a \vpa $\cA$ if there is an accepting run of $\cA$ on $w$. The \emph{language} $\cL(\cA)$ is the set of well-nested words accepted by $\cA$. Note that if $\rho$ is an accepting run of $\cA$ on a well-nested word $w$, then $\sigma_{n+1} = \eps$. A set of well-nested words $\L \subseteq \wnS$ is called a \emph{visibly pushdown language} if there exists a \vpa $\cA$ such that $\L = \cL(\cA)$.
+A run $\rho$ is \emph{accepting} if $q_{n+1}\in F$. A well-nested word $w\in\wnS$ is \emph{accepted by} a \vpa $\cA$ if there is an accepting run of $\cA$ on $w$. The \emph{language} $\cL(\cA)$ is the set of well-nested words accepted by $\cA$. Note that if $\rho$ is an accepting run of $\cA$ on a well-nested word $w$, then $\sigma_{n+1} = \eps$. A set of well-nested words $\cL \subseteq \wnS$ is called a \emph{visibly pushdown language} if there exists a \vpa $\cA$ such that $\cL = \cL(\cA)$.
 
 A \vpa $\cA = (Q, \Sigma, \Gamma, \delta, \qinit, F)$ is said to be \emph{deterministic} if $|\qinit| =1$ and $\delta$ is a function subset of the set $(Q\,\times\opS \to Q\times \Gamma) \cup
 (Q\times\clS\times\Gamma \to Q)\cup
 (Q\times\noS \to Q)$. We also say that $\cA$ is \emph{unambiguous} if, for every $w \in \cL(\cA)$, there exists exactly one accepting run of $\cA$ on $w$. In~\cite{AlurM04}, it is shown that for every \vpa there exists an equivalent deterministic \vpa of at most exponential size. 
-
-\paragraph{Model of computation} As it is common in the enumeration algorithms literature~\cite{Bagan06,Courcelle09,Segoufin13}, for our algorithms we assume the computational model of \emph{Random Access Machines} (RAM) with uniform cost measure, and addition and subtraction as basic operations~\cite{AhoHU74}. We assume that a RAM has read-only input registers where the machine places the input, read-write work registers where it does the computation and write-only output registers where it gives the output (i.e., the enumeration of the results).
 
 \paragraph{Streams} A {\em stream} $\Stream = s_1 s_2 \cdots$ is an infinite sequence where $s_i\in \opS \cup \clS \cup \noS$. Given a stream $\Stream = s_1 s_2 \ldots$ and positions $i,j\in\nat \setminus \{0\}$ such that $i \leq j$, the word $\Stream[i,j]$ is the sequence $s_i s_{i+1} \cdots s_j$. We also use this notation to refer to contiguous subsequences of infinite sequences that are not composed of symbols in $\Sigma$. For a stream $\Stream$, we will always assume that for each $i \in \nat \setminus \{0\}$, the word $\Stream[1,i]$ is a prefix of some nested word (i.e., it can be completed to form a nested word). For our streaming algorithms, we also consider the method $\yield{\Stream}$ which can be called to access each element of $\Stream$ sequentially.

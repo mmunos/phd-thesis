@@ -1,0 +1,18 @@
+\paragraph{Strings and documents} 
+Given a finite alphabet $\Sigma$, a \emph{string} $w$ over $\Sigma$ (or just a string) is a sequence $w = a_1 a_2 \ldots a_n\in\Sigma^*$. Given strings $w_1$ and $w_2$, we write $w_1 \cdot w_2$ (or just $w_1w_2$) for the concatenation of $w_1$ and $w_2$. We denote by $|w| = n$ the length of the string $w = a_1 \ldots a_n$ and by $\epsilon$ the string of length $0$. 
+We use $\Sigma^*$ to denote the set of all strings, and~$\Sigma^+$ for all strings with one or more symbols.
+Due to differences in the literature, in some chapters we will refer to strings as \emph{documents} with the same indications, except we will prefer $d$ instead of $w$ to denote a generic document.
+
+\paragraph{Regular automata} 
+A \emph{regular automata} is a tuple $\cA = (Q, \Sigma, \Delta, \qinit, F)$ where $Q$ is a finite set of \emph{states}, $\Sigma$ is an input alphabet, $\qinit \subseteq Q$ and $F \subseteq Q$ are the initial and final set of states, respectively, and $\Delta \subseteq Q\times \Sigma \times Q$ is the transition relation.
+
+A run $\rho$ of $\cA$ over a string $s = a_1a_2\ldots a_n \in\Sigma^*$ is a sequence of the form:
+$$
+\rho \ := \ q_1 \xrightarrow{a_1} q_2 \xrightarrow{a_2} \ldots \xrightarrow{a_{n+1}} q_{n+1}
+$$
+such that $q_1\in\qinit$ and, for each $i\in \{1,\ldots, n\}$, it holds that $(q_i,a_i,q_{i+1})\in\Delta$.
+We say that $\rho$ is accepting if $q_{n+1}\in F$.
+We define the language of $\cA$ as $L(\cA) = \{s\mid \text{there is an accepting run of $\cA$ over $s$}\}$.
+
+We say that $\cA$ is \emph{deterministic} if for each pair $(p,a)\in Q\times\Sigma$ there exists exactly one $q\in Q$ such that $(p,a,q)\in\Delta$.\footnote{In some of the literature, deterministic is defined as automata for which there exist \emph{at most one} $q$ per $(p,a)$. We restrict ourselves to the definition in the paragraph.}
+We say that $\cA$ is \emph{unambiguous} if for each $s\in L(\cA)$ there exists exactly one accepting run of $\cA$ over $s$.
