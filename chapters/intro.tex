@@ -1,46 +1,69 @@
-Arguably the most fundamental problem in database research is query
-evaluation: given as input a query and data, we must find the results of the query over the data.
-Database theory research has studied the complexity of such problems for 
-decades.
-However, in some contexts, for instance over large datasets, the usual
-complexity measures are not well-suited to this study.
-Indeed, the number of query results might be so large that it is unreasonable in
-practice to produce all of them.
-Further, in theoretical terms, the complexity of an algorithm may be dominated by the cost of writing
-the full output, hiding the actual complexity of the
-computation.
-For this reason, a significant line of research on query evaluation has adopted the perspective of \emph{enumeration algorithms}.
-Instead of explicitly producing all results, the task is to \emph{enumerate} them, in any order and without repetition.
-The cost of the algorithm is then measured across two dimensions: the
-\emph{preprocessing time}, which is the time needed to read the input and
-prepare an enumeration data structure; and the \emph{delay}, the worst-case time
-elapsed between any two solutions while enumerating using the data structure.
+The term {\it Big Data} probably originated in the mid-1990s, back when the Internet was utilized by some tens of millions of users. Even then, as the usage of the term suggests, there was a distinct necessity of processing tremendous amounts of data efficiently. Now in 2023, there are over five billion users around the world, and the importance of this task, as well as the sheer amount of data online, have grown accordingly.
 
-This study of enumeration algorithms has managed in some cases to achieve a
-\emph{constant-delay} guarantee. In this case, once the algorithm has
-preprocessed its input, the delay between any two outputs is \emph{constant},
-i.e., it is independent from the input. Of course, the challenge is to achieve
-this strong guarantee after a preprocessing phase that runs in a limited amount
-of time -- in particular, one that does not explicitly materialize all solutions.
-%
-Starting with the work of Durand and Grandjean~\cite{durand2007first}, researchers have designed
-constant-delay algorithms for several query evaluation problems, e.g., the evaluation of some queries over relational databases~\cite{bagan2007acyclic,kara2020trade}, query evaluation over dynamic data~\cite{berkholz2017answering,idris2017dynamic}, query evaluation over graph data~\cite{hartig2018semantics,kroll2016complexity}, among others~\cite{Segoufin13}. 
+When faced by an environment where the size and complexity of the data one wants to process is large, and where there are several types of queries through which one would want to process this data, it makes sense to study these computational tasks through the lens of database theory. 
 
-One area where enumeration algorithms have been especially successful is the problem of \emph{information extraction}, studied through the lens of \emph{document spanners}~\cite{FaginKRV15}. In this data management task, the data is a textual document (i.e., a string), and the query is a declarative specification of information to extract from the text, formalized as a \emph{spanner}. The spanner describes \emph{mappings}, which are possible choices of how to map variables to substrings of the document (called spans). The enumeration problem is then to enumerate all mappings of a spanner on an input document, i.e., to enumerate efficiently all possible results for the information extraction task.
-%
-The work by Florenzano et al.~\cite{FlorenzanoRUVV18} showed that the task could be solved with preprocessing linear in the document and polynomial in a finite deterministic automaton describing the spanner, improving on a theoretical result by Bagan~\cite{bagan2006mso}; and 
-this was extended in~\cite{amarilli2019constant} to spanners described using nondeterministic automata or regular expressions.
+In database theory, query and data are treated separately. Algorithms and their analysis is often done by treating query and data as two separate dimensions. This is helpful for several reasons: first, it generalizes the scenario in which a single query is applied to several instances of data, or when a single instance of data is processed by different queries. Second, there exists the notion of query language. By this, one abstracts the specifications of a query in terms of syntax and semantics -- this is analogous to a natural language: the former details the rules one has to follow to write the query itself, and the latter says what the query is expected to produce. Third, this separation allows for algorithms and analysis to be studied through different points of view. We refer specifically to the notions of data complexity, query complexity and combined complexity. This variety gives several yardsticks in which one can measure a certain query algorithm or characterize a certain query-oriented task.
 
-However, while regular spanners are natural, they do not capture all
-possible information extraction tasks. More
-expressiveness is needed for extraction over structured data (e.g., XML,
-or JSON documents), over the source code of programs, or possibly over
-natural language texts. 
+% Each query language can be studied in terms of expressive power and computational complexity, and when one wants find the best query language that satisfies certain requirements, both of these points are antithetical. The task is to...
+
+Besides separating query and data, we consider a second dimension of fineness when choosing our tasks and designing algorithms for them. The issue here is that in many cases, not only the input size can be huge, the output set could be prohibitively large as well. The way we deal with this is by separating the algorithm in two phases. One in which the input is processed and the result is a data structure that succinctly represents the set of outputs. And then, a second in which these outputs are retrieved one by one while keeping the data structure mostly intact.
+This way of looking at the task is what defines what is an Enumeration Algorithm.
+%The advantage of this paradigm, instead of a typical Evaluation Algorithm, comes by the concept of the {\it delay} between outputs. 
+
+The starting point for the queries we will be studying is Monadic Second Order over strings (MSO). There are several existing enumeration algorithms for MSO and its extensions
+
+...
+
+...
 
 In this thesis, we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
 These are: (1.) Automata over streams of nested documents, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
-Each of these formalisms is either strictly more expressive than regular spanners, or deals with instances of data presented a certain restriction.
+Each of these formalisms is either strictly more expressive than plain MSO, or deals with instances of data presented a certain restriction.
 
-It is worthy of note that these tasks are largely inspired by Document Spanners, but the results are all developed for queries that define languages of valid {\it annotations} of the input data. Namely, the enumeration task receives a data instance $d$ and an annotation query $Q$ which defines a set $Q(d)$ that contains the desired annotations of $d$. The way our results can be used for document spanners is by reducing such an instance into the adequate annotation queries model, then performing our algorithm, and converting the outputs into the desired mappings.
+It is worthy of note that these tasks are largely inspired by Document Spanners, but the results are all developed for queries that define languages of valid {\it annotations} of the input data, i.e. unary relations over the input elements. Namely, the enumeration task receives a data instance $d$ and an annotation query $Q$ which defines a set $Q(d)$ that contains the desired annotations of $d$. The way our results can be used for document spanners is by reducing such an instance into the adequate annotation queries model, then performing our algorithm, and converting the outputs into the desired mappings.
 
 
+
+
+%Enumeration algorithms are a refinement of evaluation algorithms in general. An evaluation problem describes the task of receiving an input and producing an output that satisfies some requirements. A typical evaluation algorithm would deal with this task by optimizing the time transcurred between receiving the input and producing the output. This is not helpful for a wide array of evaluation tasks that are of interest when processing large amounts of data. (ejemplo con numeros)
+
+
+
+%Arguably the most fundamental problem in database research is query
+%evaluation: given as input a query and data, we must find the results of the query over the data.
+%Database theory research has studied the complexity of such problems for 
+%decades.
+%However, in some contexts, for instance over large datasets, the usual
+%complexity measures are not well-suited to this study.
+%Indeed, the number of query results might be so large that it is unreasonable in
+%practice to produce all of them.
+%Further, in theoretical terms, the complexity of an algorithm may be dominated by the cost of writing
+%the full output, hiding the actual complexity of the
+%computation.
+%For this reason, a significant line of research on query evaluation has adopted the perspective of \emph{enumeration algorithms}.
+%Instead of explicitly producing all results, the task is to \emph{enumerate} them, in any order and without repetition.
+%The cost of the algorithm is then measured across two dimensions: the
+%\emph{preprocessing time}, which is the time needed to read the input and
+%prepare an enumeration data structure; and the \emph{delay}, the worst-case time
+%elapsed between any two solutions while enumerating using the data structure.
+%
+%This study of enumeration algorithms has managed in some cases to achieve a
+%\emph{constant-delay} guarantee. In this case, once the algorithm has
+%preprocessed its input, the delay between any two outputs is \emph{constant},
+%i.e., it is independent from the input. Of course, the challenge is to achieve
+%this strong guarantee after a preprocessing phase that runs in a limited amount
+%of time -- in particular, one that does not explicitly materialize all solutions.
+%%
+%Starting with the work of Durand and Grandjean~\cite{durand2007first}, researchers have designed
+%constant-delay algorithms for several query evaluation problems, e.g., the evaluation of some queries over relational databases~\cite{bagan2007acyclic,kara2020trade}, query evaluation over dynamic data~\cite{berkholz2017answering,idris2017dynamic}, query evaluation over graph data~\cite{hartig2018semantics,kroll2016complexity}, among others~\cite{Segoufin13}. 
+%
+%One area where enumeration algorithms have been especially successful is the problem of \emph{information extraction}, studied through the lens of \emph{document spanners}~\cite{FaginKRV15}. In this data management task, the data is a textual document (i.e., a string), and the query is a declarative specification of information to extract from the text, formalized as a \emph{spanner}. The spanner describes \emph{mappings}, which are possible choices of how to map variables to substrings of the document (called spans). The enumeration problem is then to enumerate all mappings of a spanner on an input document, i.e., to enumerate efficiently all possible results for the information extraction task.
+%%
+%The work by Florenzano et al.~\cite{FlorenzanoRUVV18} showed that the task could be solved with preprocessing linear in the document and polynomial in a finite deterministic automaton describing the spanner, improving on a theoretical result by Bagan~\cite{bagan2006mso}; and 
+%this was extended in~\cite{amarilli2019constant} to spanners described using nondeterministic automata or regular expressions.
+%
+%However, while regular spanners are natural, they do not capture all
+%possible information extraction tasks. More
+%expressiveness is needed for extraction over structured data (e.g., XML,
+%or JSON documents), over the source code of programs, or possibly over
+%natural language texts. 
