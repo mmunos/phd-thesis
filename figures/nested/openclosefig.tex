@@ -1,4 +1,4 @@
-%!TEX root = main.tex
+%!TEX root = ../../Thesis.tex
 
 \begin{figure}[t]
 	\centering
@@ -26,6 +26,7 @@
 		\draw[-,decorate,decoration={brace, amplitude=5}] (3.5,1.3) -- node[below=1mm] {\scalebox{0.7}{$\clevel(k)$}} (2.5,1.3) ;
 		
 		\draw[-,dashed] (4.2,0) -- (4.2,3);
+		\node[color=white] (offset) at (0,-0.1) {.};
 
 	\end{tikzpicture} \ \
 \begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.2pt},squarednode/.style={rectangle,inner sep=3pt}]
@@ -40,6 +41,7 @@
 	\tikzset{decoration={snake,amplitude=.4mm,segment length=2mm,
 			post length=0mm,pre length=0mm}}
 	\draw[-,decorate] (1) to (2);
+	\node[color=white] (offset) at (0,-0.15) {.};
 \end{tikzpicture} \!\!\!\!\!\!
 \begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,draw,inner sep=1.2pt},squarednode/.style={rectangle,inner sep=3pt}]
 	\node [squarednode] (title) at (0.2,2.5) {{\em Close}:};
@@ -56,6 +58,7 @@
 	\tikzset{}
 	\draw[-,decorate,decoration={snake,amplitude=.4mm,segment length=2mm,post length=0mm,pre length=0mm}] (1) to (2);
 	\draw[-,decorate,decoration={snake,amplitude=.4mm,segment length=2mm,post length=0mm,pre length=0mm}] (3) to (4);
+	\node[color=white] (offset) at (0,-0.2) {.};
 \end{tikzpicture}
 	\caption{Left: An example run of some \vpa $\cA$ at step $k$. Right: Illustration of two nondeterministic runs for some \vpa $\cA$, as considered in the determinization process.}
 	\label{nested:fig:delta-schema}

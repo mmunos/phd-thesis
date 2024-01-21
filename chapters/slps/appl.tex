@@ -6,7 +6,7 @@ These reductions imply constant-delay enumeration for the spanner~tasks.
 %For the former we show a reduction that achieves output-linear delay in the second half of this section. For this result, we will need to introduce an extension of annotated automata that allows output symbols to be represented succinctly.
 
 \paragraph{Variable-set automata} 
-A {\it variable-set automaton} (VA for short) is a tuple $\cA = (Q, \Sigma, \cX, \Delta, \qinit, F)$ where $Q$ is a set of states, $\qinit,F\subseteq Q$, and $\Delta$ consists of {\it read transitions} $(p,a,q)\in Q\times\Sigma\times Q$ and {\it variable transitions} $(p, \varop{x}, q)$ or $(p,\varcl{x},q)$ where $p, q\in Q$ and $x\in \cX$.
+A {\it variable-set automaton} (VA for short) is a tuple given by $\cA = (Q, \Sigma, \cX, \Delta, \qinit, F)$ where $Q$ is a set of states, $\qinit,F\subseteq Q$, and $\Delta$ consists of {\it read transitions} $(p,a,q)\in Q\times\Sigma\times Q$ and {\it variable transitions} $(p, \varop{x}, q)$ or $(p,\varcl{x},q)$ where $p, q\in Q$ and $x\in \cX$.
 The symbols $\varop{x}$ and $\varcl{x}$ are referred to as {\it variable markers} of $x$, where $\varop{x}$ is {\it opening} and $\varcl{x}$ is {\it closing}. Given a document $d = a_1\ldots a_n \in \Sigma^*$ a configuration of $\cA$ is a pair $(q,i)$ where $q\in Q$ and $i\in [1, n+1]$. 
 A run $\rho$ of $\cA$ over $d$ is a sequence:
 \[

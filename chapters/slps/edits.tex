@@ -28,21 +28,21 @@ All these values can be  precomputed with a linear-time pass over $S$. We call $
 \paragraph{Complex Document Editing}
 As in~\cite{SchmidS22}, given a document database $D = \{d_1, \ldots, d_m\}$ our goal is to create new documents by a sequence of text-editing operations.
 Here we introduce the notion of a CDE-expression over $D$, which is defined by the following syntax:
-$$
+\begin{multline*}
 	\varphi := \ d_\ell, \ell\in[1, m]\ | \ \concat(\varphi, \varphi)\ | \ \extract(\varphi, i, j) \ | \
-	\delete(\varphi, i, j) \ | \ \insertop(\varphi, \varphi, k) \ | \ \copyop(\varphi, i, j, k)
-$$
+	\delete(\varphi, i, j) \ | \\ \insertop(\varphi, \varphi, k) \ | \ \copyop(\varphi, i, j, k)
+\end{multline*}
 where the values $i,j$ are valid {\it positions}, and $k$ is a valid {\it gap}. % -- concepts that we will explain shortly. 
 The semantics of these operations, called {\it basic operations}, works as follows:
 $$
 \begin{array}{rclrclrclrcl}
-	\concat(d, d') &=& d\cdot d' \ \ \ &&\insertop(d, d', k) &=& d\spanc{1}{k}\cdot d'\cdot d\spanc{k}{|d|+1}&\\
-	\extract(d, i, j) &=& d\spanc{i}{j+1} \ \ \ &&\delete(d, i, j) &=& d\spanc{1}{i}\cdot d\spanc{j+1}{|d|+1}&\\
-	\copyop(d, i, j, k) &=& \insertop(d, d\spanc{i}{j+1}, k) 	
+	\concat(d, d') \!\!&=&\!\! d\!\cdot \!d' \ &&\insertop(d, d', k) \!\!\!&=&\!\!\! d\spanc{1}{k}\!\cdot\! d'\!\cdot\! d\spanc{k}{|d|+1}&\\
+	\extract(d, i, j) \!\!&=&\!\! d\spanc{i}{j+1} \ &&\delete(d, i, j) \!\!\!&=&\!\!\! d\spanc{1}{i}\!\cdot\! d\spanc{j+1}{|d|+1}&\\
+	\copyop(d, i, j, k) \!\!&=&\!\! \insertop(d, d\spanc{i}{j+1}, k) 	
 	%	&=&d\spanc{i}{k}\cdot d\spanc{i}{j+1}&\cdot& d\spanc{k}{|d|+1} \  \ \ \ \ \ \ \ \ \ \ \ \ \ &
 \end{array}
 $$
-We write $\eval(\varphi)$ for the document obtained by evaluating $\varphi$ on $D$ according to these semantics. For an operation $\extract(\varphi, i, j)$, $\delete(\varphi, i, j)$, $\insertop(\varphi, \psi, k)$, or $\copyop(\varphi, i, j, k)$, $i,j$ are valid positions if $i, j\in [1, |\eval(\varphi)|]$, and $k$ is a valid gap if $k\in [1, |\eval(\varphi)| + 1]$.
+We write $\eval(\varphi)$ for the document obtained by evaluating $\varphi$ on $D$ according to these semantics. For an operation $\extract(\varphi, i, j)$, $\delete(\varphi, i, j)$, $\insertop(\varphi, \psi, k)$, or \linebreak $\copyop(\varphi, i, j, k)$, $i,j$ are valid positions if $i, j\in [1, |\eval(\varphi)|]$, and $k$ is a valid gap if $k\in [1, |\eval(\varphi)| + 1]$.
 We define $|\varphi|$ as the number of basic operations in $\varphi$.
 For adding these new documents in the database we will use the notion of extending a rootless SLP. A rootless SLP $S' = (N', \Sigma, R')$ is called an extension of $S$ if $S'$ is in normal form, $N\subseteq N'$, and $R'(A) = R(A)$ for every $A\in N$. In this context, we call $N'\setminus N$ the {\it set of new non-terminals}.
 We define the {\it maximum intermediate document size} $|\max_{\varphi}(D)|$ induced by a CDE-expression $\varphi$ on a document database $D$ as the maximum size of $\eval(\psi)$ for any sub-expression $\psi$ of $\varphi$ (i.e., any substring $\psi$ of $\varphi$ that matches the CDE syntax).
@@ -77,9 +77,9 @@ We define {\it the query data structure for $S$ and $\cA$} as the mentioned succ
 	Let $\cD$ be the succinct \dsabbr associated to the query data structure for $S$ and $\cA$ and let $\tilde{R} = R' \setminus R$ be the set of new rules in $S'$. Consider the DAG that is induced by this set. We can go over these new rules $\tilde{A}\to BC$ in a bottom-up fashion, starting from the ones where $B,C\in N$, and define the nodes $M_{\tilde{A}}[p,q] = (M_{B}\otimes \shiftop(M_C,|\doc(B)|))[p,q]$ for each $p,q\in Q$. Then, we build the nodes $v_{\tilde{A}}$ for each new non-terminal $\tilde{A}$ as defined. The new nodes are created by application of the \dsabbr operations $\add$, $\union$, $\prod$ and $\shiftop$ which create the succinct \dsabbr $\cD'$ that defines the query data structure for $S'$ and $\cA$. The procedure takes $\cO(|Q|^3\cdot|\tilde{N}|)$ time.
 \end{proof}
 
-We finally have all the machinery to prove Theorem~\ref{slps:theo:edits}, extending the results in~\cite{SchmidS22} for sequential VA and with output-linear delay.
+We finally have all the machinery to prove Theorem~\ref{slps:theo:edits}, extending the results shown in~\cite{SchmidS22} for sequential VA and with output-linear delay.
 
 \paragraph{Proof of Theorem~\ref{slps:theo:edits}} Let us first reduce the variable-set automata $\cA_1, \ldots \cA_k$ to \crt{}s $\cA_1',\ldots,\cA_k'$ using the construction of Proposition~\ref{slps:prop:va-reduc}. Note, however, that this reduction requires the input document to be modified as well. This can be solved by adding a non-terminal $A_{\texttt{\#}}$ for each $A\in N$, and a rule $A_{\texttt{\#}}\to AH$, where $H$ is a new non-terminal with the rule $H\to\texttt{\#}$. Then, in the query data structure for $S$ and $\cA'$, the nodes $v_A$ are defined over the matrices $M_{A_{\texttt{\#}}}$ instead. That way, when the user chooses a document $d\in \docs(S)$ and a variable set automata $\cA_i$, she can be given the set $\sem{\cA'_i}(d\texttt{\#})$ as output. Note that this has no influence in the time bounds given for the edit so far, except for a factor that is linear~in~$|\tilde{N}|$.
 
-We can see now that the result follows from Theorem~\ref{slps:theo:cedits}, Observation~\ref{slps:obs:concat}, and Lemma~\ref{slps:lem:ecsext}. The fact that for each $d\in \docs(S')$ the set $\sem{\cA}(d)$ can be enumerated with output-linear delay follows from the definition of the query data structure for $S'$ and $\cA$. \qed
+We can see now that the result follows due to Theorem~\ref{slps:theo:cedits}, Observation~\ref{slps:obs:concat}, and Lemma~\ref{slps:lem:ecsext}. The fact that for each $d\in \docs(S')$ the set $\sem{\cA}(d)$ can be enumerated with output-linear delay follows from the definition of the query data structure for $S'$ and $\cA$. \qed
 %-- one must simply use the node $v_A$ for the non-terminal $A$ that satisfies $\str(A) = d$, and note that, by virtue of Theorem~\ref{theo:data-structure-eps}, the set $\sem{\cD}(v_A) = \sem{\cA}(d)$ can be enumerated as mentioned.

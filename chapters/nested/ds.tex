@@ -21,7 +21,7 @@ where $L_1 \cdot L_2 = \{w_1\cdot w_2 \mid w_1\in L_1\text{ and }w_2\in L_2\}$.
 
 Since the size of the set $\sem{\D}(v)$ can be exponential with respect to $|\D|$, we say that $\D$ is a \emph{compact} representation of $\sem{\D}(v)$ for any $v \in V$.
 Although $\sem{\D}(v)$ is very large, the goal is to enumerate all of its elements efficiently. Specifically, we consider the following problem:
-\vspace{.1cm}
+%\vspace{.1cm}
 \begin{center}
 	\framebox{
 		\begin{tabular}{rl}
@@ -102,7 +102,7 @@ Finally, $\D'$ is 2-bounded whenever $\D$ is $2$-bounded. This is straightforwar
 
 \begin{figure}[t]
 	\centering
-	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,inner sep=1pt},squarednode/.style={rectangle,inner sep=2pt}, scale=1]
+	\begin{tikzpicture}[->,>=stealth',roundnode/.style={circle,inner sep=1pt},squarednode/.style={rectangle,inner sep=2pt}, scale=1.1]
 	\node[squarednode] (0) at (0, 0) {$\ell(v_3)$};
 	\node[squarednode] (1) at (2, 0) {$r(v_3)$};
 	\node[roundnode] (2) at (1, 0.65) {$v_3$};
@@ -122,6 +122,8 @@ Finally, $\D'$ is 2-bounded whenever $\D$ is $2$-bounded. This is straightforwar
 	\draw[dashed] (7) to[out=-135,in=90] (3);
 	\draw (8) to[out=-45,in=135] (7);
 	\draw[dashed] (8) to[out=-135,in=90] (0);
+	
+	\node[color=white] (offset) at (0,-0.35) {.};
 	\end{tikzpicture}
 	\caption{Gadget for $\union(\D,v_3,v_4)$. Nodes $v',u_1,u_2,v_3$ and $v_4$ are labeled as $\cup$. Dashed and solid lines denote the mappings in $\ell'$ and $r'$ respectively.}
 	\label{nested:fig-union-def}
