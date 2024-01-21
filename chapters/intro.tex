@@ -1,28 +1,43 @@
-The term {\it Big Data} probably originated in the mid-1990s, back when the Internet was utilized by some tens of millions of users. Even then, as the usage of the term suggests, there was a distinct necessity of processing tremendous amounts of data efficiently. Now in 2023, there are over five billion users around the world, and the importance of this task, as well as the sheer amount of data online, have grown accordingly.
+%1) Big data, efficient evaluation, linear time over the data. 
+%
+%2) Query evaluation, query languages Q, model this as Q(D). Evaluation in |D|.
+%
+%3) Q(D) is only one part of the story, also we need to talk about results. You want to evaluate and enumerate the output hopefully in time f(Q,D) + |O|.
+%
+%4) Talk about constant delay as a more efficient notion of enumeration guarantee.
+%
+%5) Let's instatiate this idea in a more concrete query language, specifically, in this work a good starting point is to talk about query lanuguages based on MSO. Hablar sobre MSO, XML, JSON, bases de datos de grafos, etc.
+%
+%6) Spanners como un ejemplo especial y importante para este trabajo. 
+%
+%7) (parráfo corto) Concluir que en todos estos casos, al final, la consulta se puede expresar como un automata (en algún modelo) y los datos como un string. 
+%
+%8) Evaluación eficient con enumeración de automatas ya se ha estudiado harto y teniendo grandes resultados. Por ejemplo, Bagan, Antoine, Spanners, CEP. 
+%
+%9) Todos los resultados anteriores no consideran algún nivel de recursión en los automatas como visibly, grammars. Es sabido que visibly y gramaticas también tienen buenas propiedades algoritmicas, pero esto es solo para el caso booleano. Creemos que podemos estos resultados a automatas o datos donde hay cierto nivel de recursión.
 
-When faced by an environment where the size and complexity of the data one wants to process is large, and where there are several types of queries through which one would want to process this data, it makes sense to study these computational tasks through the lens of database theory. 
+The term {\it Big Data} is believed to have been originated in the mid-1990s, back when the Internet was utilized by some tens of millions of users. Even then, as the usage of the term suggests, there was a distinct necessity of processing tremendous amounts of data efficiently. In 2023, this number grew to over five billion users, and the sheer amount of data online has grown accordingly. It is increasingly more common that data processing tasks feature files of gigabytes or terabytes of size. These require sharply efficient solutions, to the point of making any solution that takes more than linear time useless in practice.
 
-In database theory, query and data are treated separately. Algorithms and their analysis is often done by treating query and data as two separate dimensions. This is helpful for several reasons: first, it generalizes the scenario in which a single query is applied to several instances of data, or when a single instance of data is processed by different queries. Second, there exists the notion of query language. By this, one abstracts the specifications of a query in terms of syntax and semantics -- this is analogous to a natural language: the former details the rules one has to follow to write the query itself, and the latter says what the query is expected to produce. Third, this separation allows for algorithms and analysis to be studied through different points of view. We refer specifically to the notions of data complexity, query complexity and combined complexity. This variety gives several yardsticks in which one can measure a certain query algorithm or characterize a certain query-oriented task.
+In database theory, it is common to talk about {\it query evaluation} as the most elementary task which extracts relevant information from data. It can be formally defined by an instance $(Q, D)$ in which $Q$ is the query and $D$ is the data. Each query $Q$ also defines a function which maps $D$ into the desired set of outputs $Q(D)$.
+With this formalization, one can talk about linear-time solutions as those which take $O(|D|)$ time. 
+Furthermore, it is also useful to frame results around {\it query languages}, which define classes of queries by their syntax and semantics.
 
-% Each query language can be studied in terms of expressive power and computational complexity, and when one wants find the best query language that satisfies certain requirements, both of these points are antithetical. The task is to...
+When measuring the execution time of a evaluation algorithm, the classic notion is to start a hypothetical timer the moment the algorithm begins, and then stop it when the last output is printed. This is a reasonable model whenever the overall output size is small. However, for problems in which one can expect a large amount of outputs, which occur quite naturally in many query languages, it makes sense to treat the output printing phase separately. Naturally, the best execution time one can hope for the output phase is linear in the size of the entire output set, so the overall complexity that we will set as our goal is given by $f(Q,D) + |\text{Output}|$, for some function $f$.
 
-Besides separating query and data, we consider a second dimension of fineness when choosing our tasks and designing algorithms for them. The issue here is that in many cases, not only the input size can be huge, the output set could be prohibitively large as well. The way we deal with this is by separating the algorithm in two phases. One in which the input is processed and the result is a data structure that succinctly represents the set of outputs. And then, a second in which these outputs are retrieved one by one while keeping the data structure mostly intact.
-This way of looking at the task is what defines what is an Enumeration Algorithm.
-%The advantage of this paradigm, instead of a typical Evaluation Algorithm, comes by the concept of the {\it delay} between outputs. 
+In the realm of {\it enumeration algorithms}, there is an even finer complexity yardstick: We say that an algorithm has {\it output-linear delay} if the time that takes to print each output is linear in the size of said output. In the literature it is much more common to see {\it constant delay}, which in the sort of problems that we deal with implies that each output has constant size.
 
-The starting point for the queries we will be studying is Monadic Second Order over strings (MSO). There are several existing enumeration algorithms for MSO and its extensions
+Now we can discuss the query space that we will work with in this thesis. All of our results are given for some sort of extension or improvement on Monadic Second Order over strings or trees. This query language is equivalent to regular automata, and subsumes standard queries over JSON and XML documents when it is queried over trees. Further, it can be applied to relational and graph query databases, and other sorts of common query tasks.
 
-...
+As an important example of a query language that is closely related to MSO we find Document Spanners. In its more fundamental definition, a Document Spanner is a function that maps a document to an output set that contains tuples of {\it spans}, which are pairs of positions in the document. They can easily model tasks of converting plain or semi-structured text into a relational database. Inside these, we find {\it Regular Spanners}, which can be directly expressed by an MSO extraction query, and were the basis of an early landmark in the literature of output-linear delay enumeration in Database Theory~\cite{FlorenzanoRUVV20}. It is not a stretch to say that this Thesis contains several extensions of this very result.
 
-...
+All the query tasks built around Document Spanners can be expressed by some extension of regular automata (the query), and a string (the data). A great part of the enumeration results for Document Spanners in the literature are described using the automata model, and this Thesis follows the same rationale to some extent.
 
-In this thesis, we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
+Inside and outside Document Spanners, efficient enumeration for queries modeled via Automata has found great success. One of the earliest results in this realm was given in~\cite{bagan2006mso}, which was to enumerate all valid assignments for a given MSO formula. The papers~\cite{FlorenzanoRUVV20} and~\cite{amarilli2019constant}  give a parallel results which improves the delay to linear in the {\it support} of this assignment -- albeit restricted to Regular Spanners. The work in~\cite{Niewerth18} had a log-delay result for MSO queries over trees, which was later improved to output-linear delay~\cite{amarilli2020constant}. Output-linear delay enumeration for Complex Event Processing queries has also been realized by compiling them into a suitable automaton~\cite{GrezRU19,GrezR20,BucchiGQRV22}.
+
+All of the aforementioned results deal in query languages that lack any strong form of recursion, namely, with the level of context-free grammars. The algorithmic properties of context-free grammars and pushdown automata have been widely studied, but any efficiently implementable queries have been limited to binary evaluation. The only enumeration result for CFG-modeled queries that we know of~\cite{peterfreund2019complexity} goes in the direction that we desire, although with a gap between the complexity of its binary counterpart. Our goal is to meet the enumeration results for automata and the binary decision algorithms for context-free grammars in the middle, and improve on any known results along the way.
+
+To this end, In this thesis we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
 These are: (1.) Automata over streams of nested documents, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
-Each of these formalisms is either strictly more expressive than plain MSO, or deals with instances of data presented a certain restriction.
-
-It is worthy of note that these tasks are largely inspired by Document Spanners, but the results are all developed for queries that define languages of valid {\it annotations} of the input data, i.e. unary relations over the input elements. Namely, the enumeration task receives a data instance $d$ and an annotation query $Q$ which defines a set $Q(d)$ that contains the desired annotations of $d$. The way our results can be used for document spanners is by reducing such an instance into the adequate annotation queries model, then performing our algorithm, and converting the outputs into the desired mappings.
-
-
 
 
 %Enumeration algorithms are a refinement of evaluation algorithms in general. An evaluation problem describes the task of receiving an input and producing an output that satisfies some requirements. A typical evaluation algorithm would deal with this task by optimizing the time transcurred between receiving the input and producing the output. This is not helpful for a wide array of evaluation tasks that are of interest when processing large amounts of data. (ejemplo con numeros)
