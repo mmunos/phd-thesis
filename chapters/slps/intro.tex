@@ -8,13 +8,13 @@
 %	\item Contributions.
 %\end{enumerate}
 
-A \emph{constant-delay enumeration algorithm} is an efficient solution to an enumeration problem: given an instance of the problem, the algorithm performs a preprocessing phase to build some indices, to then continue with an enumeration phase where it retrieves each output, one by one, taking constant time (i.e., delay) between consecutive outcomes.
-These algorithms provide a strong guarantee of efficiency since a user knows that, after the preprocessing phase, she will access the output as if we have already computed it. 
-For these reasons, constant-delay algorithms have attracted researchers' attention, finding sophisticated solutions to several query evaluation problems. Starting with Durand and Grandjean's work~\cite{DurandG07}, researchers have found constant-delay algorithms for various classes of conjunctive queries~\cite{BaganDG07,CarmeliZBKS20}, FO queries over sparse structures~\cite{KazanaS11,SchweikardtSV18}, and MSO queries over words and trees~\cite{Bagan06,AmarilliBJM17}.
-
-The enumeration problem over documents (i.e., strings) has been studied extensively under the framework of document spanners~\cite{FaginKRV15}. A constant-delay algorithm for evaluating deterministic regular spanners was first presented in~\cite{FlorenzanoRUVV20} and extended to non-deterministic in~\cite{AmarilliBMN21}. After these results, people have studied the enumeration problem of document spanners in the context of ranked enumeration~\cite{DoleschalKMP22,BourhisGJR21}, nested documents,
-%~\cite{MunozR22}, 
-or  grammars~\cite{Peterfreund21}. 
+%A \emph{constant-delay enumeration algorithm} is an efficient solution to an enumeration problem: given an instance of the problem, the algorithm performs a preprocessing phase to build some indices, to then continue with an enumeration phase where it retrieves each output, one by one, taking constant time (i.e., delay) between consecutive outcomes.
+%These algorithms provide a strong guarantee of efficiency since a user knows that, after the preprocessing phase, she will access the output as if we have already computed it. 
+%For these reasons, constant-delay algorithms have attracted researchers' attention, finding sophisticated solutions to several query evaluation problems. Starting with Durand and Grandjean's work~\cite{DurandG07}, researchers have found constant-delay algorithms for various classes of conjunctive queries~\cite{BaganDG07,CarmeliZBKS20}, FO queries over sparse structures~\cite{KazanaS11,SchweikardtSV18}, and MSO queries over words and trees~\cite{Bagan06,AmarilliBJM17}.
+%
+%The enumeration problem over documents (i.e., strings) has been studied extensively under the framework of document spanners~\cite{FaginKRV15}. A constant-delay algorithm for evaluating deterministic regular spanners was first presented in~\cite{FlorenzanoRUVV20} and extended to non-deterministic in~\cite{AmarilliBMN21}. After these results, people have studied the enumeration problem of document spanners in the context of ranked enumeration~\cite{DoleschalKMP22,BourhisGJR21}, nested documents,
+%%~\cite{MunozR22}, 
+%or  grammars~\cite{Peterfreund21}. 
 Recently, Schmid and Schweikardt~\cite{SchmidS21,SchmidS22} studied the evaluation problem for regular spanners over a document compressed by a Straight-line Program (SLP). In this setting, one encodes a document through a context-free grammar that produces a single string (i.e., the document itself). This mechanism allows highly compressible documents, in some instances allowing logarithmic space compared to the uncompressed copy.
 The enumeration problem consists now of evaluating a regular spanner over an SLP-compressed document. In~\cite{SchmidS21}, the authors provided a logarithmic-delay (over the uncompressed document) algorithm for the 
 %evaluation 
