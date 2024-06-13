@@ -49,9 +49,48 @@ We say that an algorithm has {\it constant-delay} if the delay between any two c
 
 As an example, consider the task of receiving a list of numbers, such as $L = [5, 7, 2, 12]$, and producing a list of pairs $(x_1,y_1),(x_2,y_2),\ldots,(x_n,y_n)$ in which $x_1,x_2,\ldots,x_n$ is the sorted list, and each $y_i$ is the difference between $x_i$ and $x_{i+1}$. For the said $L$, the desired set of outputs could be $\{(2,3), (5,2), (7,5),(12,\infty)\}$. A constant-delay algorithm may simply sort the list, read it sequentially and produce each value along with the difference. Now, consider the task of again receiving a list of numbers, but now instead of printing the difference between two numbers, we ask for the numbers that are present in that gap. For the input $L$, the output set would be $\{(2,3,4),(5,6),(7,8,9,10,11),(12,\infty)\}$. In this case, there is no reasonable way of solving this with a constant-delay algorithm, since the size of a single output could be arbitrarily large, even for a list of size 2. However, sorting the list, traversing it linearly and writing down the gaps as they are seen is a perfectly valid solution that satisfies output-linear delay.
 
-Solving this type of enumeration task is a fundamental problem in database systems, and this is the main theme of this thesis: constructing efficient algorithms to evaluate queries over great volumes of data with output-linear delay.
+Solving this type of enumeration task is a fundamental problem in database systems, and this is the main topic of this thesis: finding efficient algorithms to evaluate queries over great volumes of data with output-linear delay.
 
-In many practical cases, the way these large volumes of data are contained is in documents that have a pre-established recursive structure. It may be hierarchical -- like XML and JSON documents -- or program-like -- such as some forms of compressed text [REFERENCIA A SLPS y LZ77]. These documents are designed to be read by computers, and the human's role is to use a suitable language to write the query. When a single document is huge, and queries are simple enough, it makes sense to use a language based on regular expressions, such as XPath in the case of XML, or regex themselves for compressed text. As an example for XML, consider a document that contains information about writers and their works using the hierarchy {\tt writer->book->[name, year, etc]}. An XPath query that produces all books published in the year 1984 might look as follows: $Q = \texttt{//writer/book[year = 1984]}$. For compressed text, regular expressions are not sought after only for the simplicity of the syntax but also of the evaluation, which can be translated straightforwardly to work on the compressed file itself [REFERENCIA A SLP y regex].
+In many practical cases, the way these large volumes of data are contained is in documents that have a pre-established recursive structure. It may be hierarchical, like XML and JSON documents, or program-like, as in some forms of compressed text [REFERENCIA A SLPS y LZ77]. These documents are designed to be read by computers, and query languages become an even more crucial link between the user and the data. When a single document is huge, and queries are simple enough, it makes sense to use a language based on regular expressions, such as XPath in the case of XML, or regex themselves for the case of compressed text. In the case of compressed text, regular expressions are not sought after only for the simplicity of the syntax, but also because evaluating one requires a simple structure that can even be used to work on the compressed file itself [REFERENCIA A SLP y regex].
+
+As an example of XML and XPath, consider the following document that contains information about musical artists and albums satisfying the hierarchy {\tt Artist->Album->} {\tt [Title, Year]}:
+
+\begin{multicols}{2}
+	\begin{small}
+	\begin{verbatim}
+<Document>
+  <Artist>
+    <Name>Los Tres</Name>
+    <Album>
+      <Title>Los Tres</Title>
+      <Year>1991</Year>
+    </Album>
+    <Album>
+      <Title>Fome</Title>
+      <Year>1997</Year>
+    </Album>
+  </Artist>
+  <Artist>
+    <Name>La Ley</Name>
+    <Album>
+      <Title>Invisible</Title>
+      <Year>1995</Year>
+    </Album>
+  </Artist>
+  <Artist>
+    <Name>Tiro de Gracia</Name>
+    <Album>
+      <Title>Ser Humano!!</Title>
+      <Year>1997</Year>
+    </Album>
+  </Artist>
+</Document>
+	\end{verbatim}
+	\end{small}
+\end{multicols}
+
+
+An XPath query that produces all albums in this document released in the year 1997 might look as follows: $Q = \texttt{//Artist/Album[Year = 1997]}$. This would output info about both albums {\it Fome} and {\it Ser Humano!!}.
 
 Document Spanners [cita benny] is a specially relevant model for queries based on regular expressions. In the area of Information Extraction -- the field of blabl ablblablabla -- the sub-area of rule-based Information Extraction studies bla blabl bla bl bal, where Document Spanners were proposed as a suitable formalism.  In its more fundamental definition, a Document Spanner is a function that maps a document to an output set that contains tuples of {\it spans}, which are pairs of positions in the document. They can easily model tasks of converting plain or semi-structured text into a relational database. Inside these, we find {\it Regular Spanners}, which are defined by extending regular expressions (or finite-state automata) with symbols that mark the beginning and ending of a span. A more powerful model are the {\it Core Spanners}, which extend Regular Spanners with operators from relational algebra, such as projection, complement, selection of a spanner and joins between them. 
 
