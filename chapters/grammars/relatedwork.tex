@@ -1,0 +1,18 @@
+We have explained how our work is set in the context of document spanners~\cite{FaginKRV15}, and in particular of enumeration results for regular spanners~\cite{FlorenzanoRUVV18,amarilli2019constant}. A recent survey of much of this literature can be found in Peterfreund's PhD thesis~\cite{peterfreund2019complexity}. The most related work to ours is the more recent introduction of extraction grammars by Peterfreund~\cite{Peterfreund21}, which we already discussed.
+%Another related work is~\cite{icdt2020nested}, by some authors of the present
+%paper. 
+%This paper studies enumeration for spanners over nested documents,
+%defined as visibly pushdown transducers. 
+%
+
+There are also some other extensions of regular spanners that are reminiscent of CFGs, e.g., core spanners (featuring equality) or generalized core spanners (with difference) already introduced in~\cite{FaginKRV15}, or Datalog evaluated over regular spanners as in~\cite{peterfreund2019recursive}. However, to our knowledge, there are no known constant-delay enumeration algorithms in these contexts.
+
+Our study of enumeration for annotated grammars is also reminiscent of
+enumeration results for queries over trees expressed as tree automata. An
+algorithm for this was given by Bagan~\cite{bagan2006mso} with linear-time
+preprocessing and constant-delay in data complexity, for deterministic tree
+automata, and this was extended in~\cite{amarilli2019enumeration} to
+nondeterministic automata. However, this is again more restricted:
+evaluating a tree automaton on a tree amounts to evaluating a \emph{visibly
+	pushdown} automaton over a string representation of the tree, which is again
+more restrictive than general context-free grammars.

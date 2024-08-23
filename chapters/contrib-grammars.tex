@@ -1,7 +1,82 @@
-Second, we introduce annotated grammars, an extension of context-free grammars which allows annotations on terminals. We study the enumeration problem for annotated grammars: fixing a grammar, and given a string as input, enumerate all annotations of the string that form a word derivable from the grammar. 
 
-The first result in this chapter is an algorithm for unambiguous annotated grammars, which preprocesses the input string in cubic time and enumerates all annotations with output-linear delay. 
+A natural way to address extraction over structured data is to move from finite automata to \emph{context-free grammars}
+(CFGs). Context-free grammars are a well-known formalism: they extend regular
+expressions and are commonly used, e.g., in programming language
+design. Common verification tasks on textual representations of tree
+documents can be expressed using CFGs, and so can parsing tasks, e.g.,
+to extract subexpressions from source code data. However, CFGs do not
+describe \emph{captures}, i.e., they do not specify how to extract the
+parts of interest of an input document, and thus cannot be used
+directly for information extraction.
 
-We then study how we can reduce the preprocessing time while keeping the same delay bound, by making additional assumptions on the grammar. Specifically, we present a class of grammars which only have one derivation shape for all outputs, for which we can enumerate with quadratic time preprocessing. 
+%
+%
 
-We also give classes that generalize regular spanners for which linear time preprocessing is enough.
+This question of information extraction with grammars was studied by Peterfreund in very recent work~\cite{Peterfreund21}. This paper proposed a formalism of \emph{extraction grammars}, which are CFGs extended via special terminals that describe the endpoints of spans.
+Further, it presents an algorithm to enumerate the mappings captured by
+\emph{unambiguous} extraction grammars on an input document.
+However, while the algorithm achieves constant-delay, the preprocessing bound is significantly worse than in the case of regular spanners: it is quintic in the document, and exponential in the number of variables of the grammar. This complexity is also worse than CFG parsing, e.g., the standard CYK parsing algorithm runs in cubic time in the input string.
+
+%
+%
+%
+
+Our goal in this chapter is to study the enumeration problem for CFGs while
+achieving better complexities. Our algorithms ensure a constant-delay
+guarantee when outputs have constant size, and more generally ensure
+\emph{output-linear} delay when this is not the case: the delay is linear in the
+size of each produced solution. Within this delay bound, the preprocessing
+time has lower complexity: it is at worse cubic in the
+input document, and improves to quadratic or even linear time for restricted
+classes. We achieve these results by proposing a new formalism to extend CFGs, called
+\emph{annotated grammars}, on which we impose an unambiguity restriction similar
+to that of~\cite{Peterfreund21}. Let us present our specific contributions.
+
+\paragraph{Contributions}
+Our first contribution is to introduce \emph{annotated grammars} (Section~\ref{gram:sec:models}).
+They are a natural extension of CFGs, where terminals are optionally annotated by the information that we wish to extract.
+We then study the problem, given an annotated grammar $\cG$ and document~$s$, of
+enumerating all annotations of~$s$ that are derived by~$\cG$.
+This captures the enumeration problems for regular spanners~\cite{FlorenzanoRUVV18,amarilli2020constant}, nested words,
+%~\cite{icdt2020nested}
+and
+even the extraction grammars of~\cite{Peterfreund21} (we explain this in Section~\ref{gram:sec:spanners}). 
+%
+%
+As we explain, we aim for \emph{output-linear delay}, which is the best
+possible delay in our setting where the solutions to output may have
+non-constant size. 
+
+Our second contribution is to study the enumeration problem for \emph{unambiguous} annotated grammars (Section~\ref{gram:sec:cubic}),
+that do not produce multiple times the same annotation of an input string. This is a natural restriction to avoid duplicate results, %
+which is also made in~\cite{Peterfreund21}. 
+%
+For such grammars, 
+%
+we present an algorithm to enumerate the annotations produced by a grammar $\cG$ on a string~$s$ with output-linear delay (independent from~$\cG$ or~$s$), after a preprocessing time of $\cO(|\cG| \cdot |s|^3)$, i.e., cubic time in~$s$, and linear time in~$\cG$. 
+%
+This improves over the result of~\cite{Peterfreund21} whose preprocessing is quintic. 
+Our algorithm has a modular design: it follows a standard design of a CFG
+parsing algorithm, but uses the abstract data structure
+of Chapter~\ref{ch1}
+%
+to represent
+the sets of annotations and combine them with operators in a way that allows for output-linear enumeration. 
+We further show a conditional lower bound on the best preprocessing time that can achieve output-linear delay, by reducing from the standard task of checking membership to a CFG, and using the lower bound of~\cite{AbboudBW18}. We show that the preprocessing time must be $\Omega(|s|^{\omega-c})$ for every $c > 0$, where $\omega$ is
+%
+the Boolean matrix multiplication exponent.
+
+Our third contribution is to improve the preprocessing time by imposing a different requirement on grammars. Thus, we introduce \emph{rigid} annotated grammars (Section~\ref{gram:sec:quadratic}) where, for every input string, all annotations on the string are intuitively produced by parse trees that have the same shape. In contrast with general annotated grammars, we show that rigid annotated grammars can always be made unambiguous, so that our algorithm applies to them. But we also show that, under this restriction, the data complexity of our algorithm goes down from cubic to quadratic time.
+%
+Further, achieving sub-quadratic preprocessing time would imply a sub-quadratic algorithm to test membership to an unambiguous CFG, which is an open problem.
+%
+
+%
+%
+
+Our last contribution shows how we can, in certain cases, achieve linear-time preprocessing complexity and output-linear delay (Section~\ref{gram:sec:linear}). This is the complexity of enumeration for regular spanners, and is by definition the best possible. We show that the same complexity can be achieved, beyond regular spanners, for a subclass of rigid grammars, intuitively defined by a determinism requirement. We define it via the formalism of \emph{pushdown annotators} (PDAnn for short), which are the analogue of pushdown automata for CFGs, or the extraction pushdown automata of~\cite{Peterfreund21}. We show that PDAnn are equally expressive to annotated grammars, and that rigid CFGs correspond to a natural class of PDAnns where all runs have the same sequence of stack heights. Moreover, 
+we show that we can enumerate with linear-time preprocessing and output-linear delay in the case of \emph{profiled-deterministic} PDAnn, where the sequence of stack heights can be computed deterministically over the run: this generalizes regular spanners and visibly-pushdown automata.
+
+%    This paper is the extended version of the work published at
+%    PODS'22~\cite{amarilli2022efficientPODS}. It includes complete proofs of
+%    all results in the appendix.

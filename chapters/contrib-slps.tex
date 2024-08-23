@@ -1,7 +1,31 @@
-Third, we study the problem of enumerating results from a query over a compressed document. The model we use for compression are straight-line programs (SLPs), which are defined by a context-free grammar that produces a single string. For our queries, we use a model called Annotated Automata, an extension of regular automata that allows annotations on letters. This model extends the notion of regular spanners as it allows arbitrarily long outputs. 
+%Strategy
+%\begin{enumerate}
+%	\item Relevance of Enumeration.
+%	\item Document spanners and enumeration.
+%	\item Extension to SLP-compressed documents. 
+%	\item Drawbacks of this work.
+%	\item Contributions.
+%\end{enumerate}
 
-The main result in this chapter is an algorithm that evaluates such a query by enumerating all results with output-linear delay after a preprocessing phase which takes linear time on the size of the SLP, and cubic time over the size of the automaton. We achieve this through a persistent data structure named Enumerable Compact Sets with Shifts which guarantees output-linear delay under certain restrictions.
-These results imply constant-delay enumeration algorithms in the context of regular spanners. 
+%A \emph{constant-delay enumeration algorithm} is an efficient solution to an enumeration problem: given an instance of the problem, the algorithm performs a preprocessing phase to build some indices, to then continue with an enumeration phase where it retrieves each output, one by one, taking constant time (i.e., delay) between consecutive outcomes.
+%These algorithms provide a strong guarantee of efficiency since a user knows that, after the preprocessing phase, she will access the output as if we have already computed it. 
+%For these reasons, constant-delay algorithms have attracted researchers' attention, finding sophisticated solutions to several query evaluation problems. Starting with Durand and Grandjean's work~\cite{DurandG07}, researchers have found constant-delay algorithms for various classes of conjunctive queries~\cite{BaganDG07,CarmeliZBKS20}, FO queries over sparse structures~\cite{KazanaS11,SchweikardtSV18}, and MSO queries over words and trees~\cite{Bagan06,AmarilliBJM17}.
+%
+%The enumeration problem over documents (i.e., strings) has been studied extensively under the framework of document spanners~\cite{FaginKRV15}. A constant-delay algorithm for evaluating deterministic regular spanners was first presented in~\cite{FlorenzanoRUVV20} and extended to non-deterministic in~\cite{AmarilliBMN21}. After these results, people have studied the enumeration problem of document spanners in the context of ranked enumeration~\cite{DoleschalKMP22,BourhisGJR21}, nested documents,
+%%~\cite{MunozR22}, 
+%or  grammars~\cite{Peterfreund21}. 
+Recently, Schmid and Schweikardt~\cite{SchmidS21,SchmidS22} studied the evaluation problem for regular spanners over a document compressed by a Straight-line Program (SLP). In this setting, one encodes a document through a context-free grammar that produces a single string (i.e., the document itself). This mechanism allows highly compressible documents, in some instances allowing logarithmic space compared to the uncompressed copy.
+The enumeration problem consists now of evaluating a regular spanner over an SLP-compressed document. In~\cite{SchmidS21}, the authors provided a logarithmic-delay (over the uncompressed document) algorithm for the 
+%evaluation 
+problem, and in~\cite{SchmidS22}, they extended this setting to edit operations over SLP documents, maintaining the delay. In particular, these works left open whether one can solve the enumeration problem of regular spanners over SLP-compressed documents with a constant-delay guarantee. 
 
-Further, we use an extension of annotated automata which utilizes succinctly encoded annotations to save an exponential factor from previous results that dealt with constant-delay enumeration over variable-set automata.
-Lastly, we extend our results to allow complex document editing while maintaining the constant delay guarantee.
+In this chapter, we extend the understanding of the evaluation problem over SLP-compressed documents in several directions. 
+\begin{enumerate}
+	\item We study the evaluation problem of \emph{annotated automata} (AnnA) over SLP-compressed documents. These automata are a general model for defining regular enumeration problems, which strictly generalizes the model of extended variable-set automaton used in~\cite{SchmidS21}. 
+	\item We provide an output-linear delay enumeration algorithm for the problem of evaluating an unambiguous AnnA over an SLP-compressed document. In particular, this result implies a constant-delay enumeration algorithm for evaluating extended variable-set automaton, giving a positive answer to the open problem left in~\cite{SchmidS21}.
+	\item We show that this result extends to what we call a \emph{succinctly} annotated automaton, a generalization of AnnA whose annotations are succinctly encoded by an enumeration scheme. We develop an output-linear delay enumeration algorithm for this model, showing a constant-delay algorithm for sequential  (non-extended) vset automata, strictly generalizing the work in~\cite{SchmidS21}.
+	\item Finally, we show that one can maintain these algorithmic results when dealing with complex document editing as in~\cite{SchmidS22}.
+\end{enumerate}
+
+The main technical result in this chapter is to show that the Enumerable Compact Sets presented in Chapter~\ref{ch1} can be extended to deal with shift operators (called \dsabbr). This extension allows us to compactly represent the outputs and ``shift'' the results in constant time, which is to add or subtract a common value to all elements in a set. 
+Then, by using matrices with \dsabbr nodes, we can follow a bottom-up evaluation of the annotated automaton over the grammar (similar to~\cite{SchmidS21}) to enumerate all outputs with output-linear delay. The combination of annotated automata and \dsabbrs considerably simplifies the algorithm presentation, reaching a better delay bound.
