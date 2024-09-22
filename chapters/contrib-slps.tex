@@ -20,12 +20,15 @@ The enumeration problem consists now of evaluating a regular spanner over an SLP
 problem, and in~\cite{SchmidS22}, they extended this setting to edit operations over SLP documents, maintaining the delay. In particular, these works left open whether one can solve the enumeration problem of regular spanners over SLP-compressed documents with a constant-delay guarantee. 
 
 In this chapter, we extend the understanding of the evaluation problem over SLP-compressed documents in several directions. 
-\begin{enumerate}
-	\item We study the evaluation problem of \emph{annotated automata} (AnnA) over SLP-compressed documents. These automata are a general model for defining regular enumeration problems, which strictly generalizes the model of extended variable-set automaton used in~\cite{SchmidS21}. 
-	\item We provide an output-linear delay enumeration algorithm for the problem of evaluating an unambiguous AnnA over an SLP-compressed document. In particular, this result implies a constant-delay enumeration algorithm for evaluating extended variable-set automaton, giving a positive answer to the open problem left in~\cite{SchmidS21}.
-	\item We show that this result extends to what we call a \emph{succinctly} annotated automaton, a generalization of AnnA whose annotations are succinctly encoded by an enumeration scheme. We develop an output-linear delay enumeration algorithm for this model, showing a constant-delay algorithm for sequential  (non-extended) vset automata, strictly generalizing the work in~\cite{SchmidS21}.
-	\item Finally, we show that one can maintain these algorithmic results when dealing with complex document editing as in~\cite{SchmidS22}.
-\end{enumerate}
+
+We study the evaluation problem of \emph{annotated automata} (AnnA) over SLP-compressed documents. These automata are a general model for defining regular enumeration problems, which strictly generalizes the model of extended variable-set automaton used in~\cite{SchmidS21}. 
+
+We provide an output-linear delay enumeration algorithm for the problem of evaluating an unambiguous AnnA over an SLP-compressed document. In particular, this result implies a constant-delay enumeration algorithm for evaluating extended variable-set automaton, giving a positive answer to the open problem left in~\cite{SchmidS21}.
+
+We show that this result extends to what we call a \emph{succinctly} annotated automaton, a generalization of AnnA whose annotations are succinctly encoded by an enumeration scheme. We develop an output-linear delay enumeration algorithm for this model, showing a constant-delay algorithm for sequential  (non-extended) vset automata, strictly generalizing the work in~\cite{SchmidS21}.
+
+Finally, we show that one can maintain these algorithmic results when dealing with complex document editing as in~\cite{SchmidS22}.
+
 
 The main technical result in this chapter is to show that the Enumerable Compact Sets presented in Chapter~\ref{ch1} can be extended to deal with shift operators (called \dsabbr). This extension allows us to compactly represent the outputs and ``shift'' the results in constant time, which is to add or subtract a common value to all elements in a set. 
 Then, by using matrices with \dsabbr nodes, we can follow a bottom-up evaluation of the annotated automaton over the grammar (similar to~\cite{SchmidS21}) to enumerate all outputs with output-linear delay. The combination of annotated automata and \dsabbrs considerably simplifies the algorithm presentation, reaching a better delay bound.

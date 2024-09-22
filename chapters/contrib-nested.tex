@@ -1,11 +1,13 @@
 Streaming query evaluation~\cite{altinel2000efficient,babcock2002models} is the task of processing queries over data streams in one pass and with a limited amount of resources. This approach is especially useful on the web, where servers share data, and they have to extract the relevant content as they receive it. For structuring the data, the de facto structure on the web is nested documents, like XML or JSON. For querying, servers use languages designed for these purposes, like XPath, XQuery, or JSON query languages.
 As an illustrative example, suppose our data server (e.g., a Web API) is continuously receiving XML documents like:
-\smallskip
+%\smallskip
 \begin{center}
+	\begin{small}
 	\texttt{
 		<doc> <a> <b/> <c/> <b/> </a> <c> <b/> <b/> </c> </doc> ...}
+	\end{small}
 \end{center}
-\smallskip
+%\smallskip
 %\vspace{-1mm}
 and for each document it has to evaluate the query $\cQ = \texttt{//a/b}$ (i.e., to extract all $b$-tags that are surrounded by an $a$-tag). The streaming query evaluation problem consists of reading these documents and finding all $b$-tags without storing the entire document on memory, that is, by making one pass over the data and spending constant time per tag. In our example, we need to retrieve the 3rd and 5th tags as soon as the last tag $\texttt{</doc>}$ is received. One could consider here that the server has to read an infinite stream and perform the query evaluation continuously, where it must enumerate partial outputs as soon as one of the XML documents ends.
 %Therefore, the streaming evaluation of these queries over nested documents requires reading the data and producing all the answers as efficiently as possible.}
