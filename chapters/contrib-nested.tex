@@ -24,7 +24,7 @@ Therefore, \vpanns allow considering the streaming query evaluation from a more 
 
 We study the evaluation of \vpann over a nested document in a streaming fashion. Specifically, we want to find a streaming algorithm that reads the document sequentially and spends as little time as possible per input symbol. 
 Furthermore, whenever needed, the algorithm can enumerate all outputs with output-linear delay. %, a refined notion of constant-delay for varied size results.  
-The main contribution in this chapter is an algorithm with such characteristics for the class of unambiguous \vpanns. We can extend this algorithm to all \vpanns by determinization (i.e., in data complexity). 
+The main contribution in this chapter is an algorithm with such characteristics for the class of unambiguous \vpanns. We can extend this algorithm to all \vpanns by determinization (preserving its data complexity). 
 Regarding memory usage, we bound the amount of memory used in terms of the nesting of the document and the output weight. We show that our algorithm is worst-case optimal in the sense that there are instances where the maximum amount of memory required by any streaming algorithm is at least one of these two measures.
 Finally, we present some examples that show how our result can be applied to the streaming evaluation of XML and JSON query languages.
 Further, we show an application of our results in the context of information extraction by document spanners~\cite{FaginKRV15}.

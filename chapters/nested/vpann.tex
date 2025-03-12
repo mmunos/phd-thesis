@@ -60,7 +60,7 @@ $$
 \sem{\cT}(w) \ = \ \{ \out(\rho) \, \mid \, \text{$\rho$ is an accepting run of $\cT$ over $w$}\}.
 $$
 
-As is usual with automata, VPAnn are depicted as directed graphs. We represent an open transition $(x,\op{s},\oout, y,\gamma)$ by an edge from state $x$ to state $y$ with the label $\op{s} / \gamma:\oout$, a close transition $(x,\op{s},\oout,\gamma,y)$ with the label $\op{s} \,\! ,\,\!  \gamma:\oout$, and a neutral transition $(x,s,\oout,y)$ with the label $s:\oout$. If the transition is non-annotating (e.g., $(x,\op{s}, y,\gamma)$), we omit the `$: \oout$' .
+As is usual with automata, VPAnn are depicted as directed graphs. We represent an open transition $(x,\op{s},\oout, y,\gamma)$ by an edge from state $x$ to state $y$ with the label $\op{s} / \gamma:\oout$, a close transition $(x,\cl{s},\oout,\gamma,y)$ with the label $\op{s} \,\! ,\,\!  \gamma:\oout$, and a neutral transition $(x,s,\oout,y)$ with the label $s:\oout$. If the transition is non-annotating (e.g., $(x,\op{s}, y,\gamma)$), we omit the `$: \oout$' .
 
 %Strictly speaking, our definition of \vpann is not the same as the one studied in~\cite{FiliotRRST18}. In our definition of \vpann each output element is a tuple  $(\oout,i)$ where $\oout$ is the symbol and $i$ is the output position, where for a standard \vpann~\cite{FiliotRRST18} an output element is just the symbol $\oout$. Although our algorithm could be extended for standard \vpanns, for application purposes it is better to have a \edit{richer} output as the one presented here.
 
@@ -146,7 +146,7 @@ As is usual with automata, VPAnn are depicted as directed graphs. We represent a
 Strictly speaking, our definition of \vpann is richer than the one studied in~\cite{FiliotRRST18}. In our definition of \vpann each output element is a tuple  $(\oout,i)$ where $\oout$ is the symbol and $i$ is the output position, where for a standard VPT~\cite{FiliotRRST18} an output element is just the symbol $\oout$. 
 The extension presented here is indeed important for practical applications like in document spanners~\cite{FlorenzanoRUVV20,AmarilliBMN19} or in XML query evaluation~\cite{BarYossefFJ05, ShalemB08}, as we show next.
 
-\paragraph{Expressiveness of \vpannnames} How useful are \vpann as a computational model for representing queries over nested words? To motivate this question, recall the XPath query $\cQ = \texttt{//a/b}$ presented in the introduction, whose outputs are all pairs of nested tags \texttt{<b/>} and \texttt{<b/>} inside some nested tags \texttt{<a/>} and \texttt{<a/>}. In Figure~\ref{nested:fig-xpath-vpt-small} we show a \vpann equivalent to $\cQ$. The \vpann processes an XML document by moving non-deterministically from $q_0$ to $q_1$ when it reads an open tag \texttt{<a>} and then to $q_2$ when it reads an open tag \texttt{<b>} and marks it with $\downarrow$. Then it moves to $q_3$ when it reads the matching close tag \texttt{<b/>} marking it with $\downarrow$, and it moves to an accepting state when it reads the corresponding close tag \texttt{<a/>}. The reader can easily check that this \vpann marks all pairs of $b$-tags satisfying $\cQ$.  
+\paragraph{Expressiveness of \vpannnames} How useful are \vpann as a computational model for representing queries over nested words? To motivate this question, recall the XPath query $\cQ = \texttt{//a/b}$ presented in the introduction, whose outputs are all pairs of nested tags \texttt{<b>} and \texttt{</b>} inside some nested tags \texttt{<a>} and \texttt{</a>}. In Figure~\ref{nested:fig-xpath-vpt-small} we show a \vpann equivalent to $\cQ$. The \vpann processes an XML document by moving non-deterministically from $q_0$ to $q_1$ when it reads an open tag \texttt{<a>} and then to $q_2$ when it reads an open tag \texttt{<b>} and marks it with $\downarrow$. Then it moves to $q_3$ when it reads the matching close tag \texttt{</b>} marking it with $\downarrow$, and it moves to an accepting state when it reads the corresponding close tag \texttt{</a>}. The reader can easily check that this \vpann marks all pairs of $b$-tags satisfying $\cQ$.  
 
 \input{./figures/nested/xpathvptsmall2}
 
@@ -235,7 +235,7 @@ The definition is in line with the notion of I/O-deterministic variable automata
 In the next result, we show that for every \vpann $\cT$ there exists an equivalent I/O-deterministic \vpann and, therefore, an equivalent I/O-unambiguous \vpann. 
 
 \begin{proposition} \label{nested:vpawo:det}
-	For every \vpann $\cT$ there exists an I/O-deterministic \vpann $\cT'$ of size $\cO(2^{|Q|^2|\Gamma|})$ such that $\br{\cT}(w) = \br{\cT'}(w)$ for every $w\in\wnS$.
+	For every \vpann $\cT$ there exists an I/O-deterministic \vpann $\cT\,'$ of size $\cO(2^{|Q|^2|\Gamma|})$ such that $\br{\cT}(w) = \br{\cT\,'}(w)$ for every $w\in\wnS$.
 \end{proposition}
 \begin{proof}
 	\input{./proofs/nested/app-prop-det}

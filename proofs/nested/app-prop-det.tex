@@ -1,7 +1,7 @@
 
 Let $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$.
 	For the sake of presentation, assume that $\Delta$ contains only transitions with an output symbol, the proof can be extended straightforwardly to include transitions with no output symbol.
-	We will construct an I/O-deterministic \vpann $\cT' = ( Q', \Sigma, \Gamma', \oalph, \delta^\dets, S_{I}, F')$ as follows.
+	We will construct an I/O-deterministic \vpann $\cT\,' = ( Q', \Sigma, \Gamma', \oalph, \delta^\dets, S_{I}, F')$ as follows.
 	Let $Q' = 2^{Q\times Q}$ and $\Gamma' = 2^{Q\times\Gamma\times Q}$. 
 	Let $S_I = \{(q,q)\mid q\in \qinit\}$ and let $F' = \{S\mid (p,q)\in S\text{ for some }p\in I \text{ and } q\in F \}$. 
 	Let $\delta$ be defined as follows:
@@ -22,7 +22,7 @@ Let $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$.
 	\end{itemize}
 	One can immediately check that this automaton is I/O-deterministic since the transition relation is given as a partial function.
 	
-	We will prove that $\cT$ and $\cT'$ are equivalent by induction on well-nested words. To aid our proof, we will introduce a couple of ideas. First, we extend the definition of a run to include sequences that start on an arbitary configuration. Also, given a run 
+	We will prove that $\cT$ and $\cT\,'$ are equivalent by induction on well-nested words. To aid our proof, we will introduce a couple of ideas. First, we extend the definition of a run to include sequences that start on an arbitary configuration. Also, given a run 
 	$$
 	\rho = (q_1, \sigma_1) \xrightarrow{b_1} (q_2, \sigma_2) \xrightarrow{b_2} \cdots  \xrightarrow{b_n} (q_{n+1}, \sigma_{n+1}),
 	$$
@@ -37,33 +37,33 @@ Let $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$.
 	We define $\cT_{q}$ as the \vpann that simulates $\cT$ by starting on the configuration $(q,\eps)$. 
 	Note that for a run $\rho = (q_1, \sigma_1) \xrightarrow{b_1} \cdots  \xrightarrow{b_n} (q_{n+1}, \sigma_{n+1})$ of $\cT$ over $w = s_1\cdots s_n$ and a well-nested span $\spanc{i}{j}$, the subrun $\rho\spanc{i}{j}$ is one of the runs of $\cT_{q}$ over $w\spanc{i}{j}$ modulo $\sigma_i$, which is present in all of the stacks in $\rho$ as a common suffix.
 	
-	We shall prove first that $\br{\cT}(w) \subseteq \br{\cT'}(w)$ for every well-nested word $w$. This is done with the help of the following result.
+	We shall prove first that $\br{\cT}(w) \subseteq \br{\cT\,'}(w)$ for every well-nested word $w$. This is done with the help of the following result.
 	
 	\begin{claim}
-		For a well-nested word $w$, output $\mu$, states $p,q\subseteq Q$, and a set $S$ that contains $(p,q)$, if there is a run of $\cT_q$ over $w$ with output $\mu$ such that its last state is $q'$, the (only) run of $\cT'_{S}$ over $w$ with output $\mu$ ends in a state $S'$ which contains $(p,q')$.
+		For a well-nested word $w$, output $\mu$, states $p,q\subseteq Q$, and a set $S$ that contains $(p,q)$, if there is a run of $\cT_q$ over $w$ with output $\mu$ such that its last state is $q'$, the (only) run of $\cT\,'_{S}$ over $w$ with output $\mu$ ends in a state $S'$ which contains $(p,q')$.
 	\end{claim}
 	
 	\begin{proof}
 		We will prove the claim by induction on $w$. If $w = \eps$, the proof is trivial since $q = q'$. If $w = a\in\noS$ the proof follows straightforwardly from the construction of $\delta$.
 		
 		If $w,v\in\wnS$, let $p,q\in Q$, let $S$ be a set that contains $(p,q)$, and let $\rho$ be a run of $\cT_q$ over $wv$ with output $\mu\cdot\kappa$, which ends in a state $q'$, for some $\mu$ and $\kappa$. 
-		Our goal is to prove that the run $\rho'$ of $\cT'_S$ over $w\cdot v$ with output $\mu\cdot \kappa$ as output ends in a state that contains $(p,q')$. 
+		Our goal is to prove that the run $\rho'$ of $\cT\,'_S$ over $w\cdot v$ with output $\mu\cdot \kappa$ as output ends in a state that contains $(p,q')$. 
 		Let $n = \vert w\vert$, $m = \vert v \vert$, and let $q^w$ be the last state of the subrun $\rho[1,n+1\rangle$. 
 		Consider as well $\rho[n+1,n+m+1\rangle$, which is a run of $\cT_{q^w}$ over $v$ with output $\kappa$ that ends in $q'$. 
 		From the hypothesis two conditions follow: 
-		(1) In the run of $\cT'_S$ over $w$ with output $\mu$, the last state $S'$ contains $(p,q^w)$, and 
-		(2) in the run of $\cT'_{S'}$ over $v$ that has $\kappa$ as output the last state contains $(p,q')$. 
+		(1) In the run of $\cT\,'_S$ over $w$ with output $\mu$, the last state $S'$ contains $(p,q^w)$, and 
+		(2) in the run of $\cT\,'_{S'}$ over $v$ that has $\kappa$ as output the last state contains $(p,q')$. 
 		It can be seen that $\rho'$ is the concatenation of these two runs, so this proves the claim.
 		
 		If $w\in\wnS$, $\op{a}\in\opS$, $\cl{b}\in\clS$, let $p,q\in Q$, $S$ be a set that contains $(p,q)$, and let $\rho$ be a run of $\cT_q$ over $\op{a}w\cl{b}$ with output $(\oout_1, 1)\mu(\oout_2, n+2)$ for some $\mu\in\oalph^*$, $\oout_1,\oout_2\in\oalph$, where $n = |w|$. 
 		Let $q, q_2, \ldots, q_{n+2}, q_{n+3}$ be the states of $\rho$ in order. 
-		Our goal is to prove that the run $\rho'$ of $\cT'_S$ over $\op{a}w\cl{b}$ with output $(\oout_1, 1)\mu(\oout_2, n+2)$ ends in a state that contains $(p,q_{n+3})$. 
+		Our goal is to prove that the run $\rho'$ of $\cT\,'_S$ over $\op{a}w\cl{b}$ with output $(\oout_1, 1)\mu(\oout_2, n+2)$ ends in a state that contains $(p,q_{n+3})$. 
 		Let $(q_2,\gamma)$ be the second configuration of $\rho$. 
 		This implies that $(q,\op{a},\oout_1,q_2,\gamma)\in\Delta$ and $(q_{n+2},\cl{b},\oout_2,\gamma,q_{n+3})\in\Delta$.
 		Let $S'$ and $T$ be such that $\delta(S,\op{a},\oout_1) = (S',T)$.
 		Therefore, $(q_2,q_2)\in S'$ and $(p,\gamma,q_2)\in T$.
 		Consider the subrun $\rho[2,n+2\rangle$, which can be found as a run of $\cT_{q_2}$ over $w$ with output $\mu$, modulo the stack suffix $\gamma$, and note that it ends in $q_{n+2}$.
-		Since $(q_2,q_2)\in S'$, from the hypothesis it follows that the run of $\cT'_{S'}$ over $w$ with output $\mu$ ends in a state $S''$ that contains $(q_2,q_{n+2})$.
+		Since $(q_2,q_2)\in S'$, from the hypothesis it follows that the run of $\cT\,'_{S'}$ over $w$ with output $\mu$ ends in a state $S''$ that contains $(q_2,q_{n+2})$.
 		This run starts on the configuration $(S',\eps)$ and ends in $(S'',\eps)$, so a run on the same automaton that starts on $(S',T)$ and reads the same symbols will end in $(S'', T)$, which is the case for the subrun $\rho'[2,n+2\rangle$.
 		Therefore, the construction of $\delta$ implies that $(p,q_{n+3})$ is contained in the last state of $\rho'$, which proves the claim.
 	\end{proof}
@@ -71,43 +71,43 @@ Let $\cT = (Q, \Sigma, \Gamma, \oalph, \Delta, \qinit, F)$.
 	Now let $w$ be a well-nested word and let $\mu \in \br{\cT}(w)$. Let $\rho$ be some accepting run of $\cT$ over $w$ with output $\mu$, and let $p^*\in I$ be its first state and $q^*\in F$ its ending state. 
 	Clearly, $\rho$ is also a run of $\cT_p$.
 	Now, let us use the claim over the set $S = S_{I}$ and states $p = q = p^*$, using the fact that $(p,p)\in S_{I}$.
-	We obtain that the run of $\cT'_{S_I}$ over $w$ with output $\mu$ ends in a state $S'$ which contains $(p,q)$ and so, is it accepting.
-	Since $\cT'_{S_I} = \cT'$, this proves that $\br{\cT}(w) \subseteq \br{\cT'}(w)$.
+	We obtain that the run of $\cT\,'_{S_I}$ over $w$ with output $\mu$ ends in a state $S'$ which contains $(p,q)$ and so, is it accepting.
+	Since $\cT\,'_{S_I} = \cT\,'$, this proves that $\br{\cT}(w) \subseteq \br{\cT\,'}(w)$.
 	
 	
-	To prove that $\br{\cT'}(w) \subseteq \br{\cT}(w)$ we use a similar result:
+	To prove that $\br{\cT\,'}(w) \subseteq \br{\cT}(w)$ we use a similar result:
 	
 	\begin{claim}
-		For a well-nested word $w$, output $\mu$, states $q,p,q'\subseteq Q$, and a set $S$ that contains $(p,q)$, if the run of $\cT'_S$ over $w$ with output $\mu$ ends on a state $S'$ that contains $(p,q')$, then there is a run of $\cT_q$ over $w$ with output $\mu$ such that its last state is $q'$.
+		For a well-nested word $w$, output $\mu$, states $q,p,q'\subseteq Q$, and a set $S$ that contains $(p,q)$, if the run of $\cT\,'_S$ over $w$ with output $\mu$ ends on a state $S'$ that contains $(p,q')$, then there is a run of $\cT_q$ over $w$ with output $\mu$ such that its last state is $q'$.
 	\end{claim}
 	\begin{proof}
 		We will prove the claim by induction on $w$.
 		If $w = \eps$, the proof is trivial since $q = q'$. If $w = a\in\noS$ the proof follows straightforwardly from the construction of $\delta$.
 		
-		If $w,v\in\wnS$, let $p,q,q'\in Q$, let $S$ be a set that contains $(p,q)$, and let $\rho$ be the run of $\cT'_S$ over $w\cdot v$ with output $\mu\cdot \kappa$, for some $\mu$ and $\kappa$, which ends in a state $S'$ that contains $(p,q')$. 
+		If $w,v\in\wnS$, let $p,q,q'\in Q$, let $S$ be a set that contains $(p,q)$, and let $\rho$ be the run of $\cT\,'_S$ over $w\cdot v$ with output $\mu\cdot \kappa$, for some $\mu$ and $\kappa$, which ends in a state $S'$ that contains $(p,q')$. 
 		Our goal is to prove that there is a run $\rho'$ of $\cT_q$ over $w\cdot v$ with output $\mu\cdot\kappa$ such that its last state is $q'$.
 		Let $n = \vert w\vert$, $m = \vert v \vert$, and let $S^w$ be the last state of the subrun $\rho[1,n+1\rangle$. 
-		Consider as well $\rho[n+1,n+m+1\rangle$, which is also a run of $\cT'_{S^w}$ over $v$ with output $\kappa$ that ends in $S'$.
-		From the construction of $\delta$, it is clear that if a non-empty state $S'$ follows from $S$ in a run of $\cT'$, then $S$ is not empty.
+		Consider as well $\rho[n+1,n+m+1\rangle$, which is also a run of $\cT\,'_{S^w}$ over $v$ with output $\kappa$ that ends in $S'$.
+		From the construction of $\delta$, it is clear that if a non-empty state $S'$ follows from $S$ in a run of $\cT\,'$, then $S$ is not empty.
 		Let $(p,q^w)\in S^w$.
 		From the hypothesis two conditions follow: 
 		(1) there is a run $\rho_1$ of $\cT_q$ over $w$ with output $\mu$ such that its last state is $q^w$
 		(2) there is a run $\rho_2$ of $\cT_{q^w}$ over $v$ with output $\kappa$ such that its last state is $q'$. 
 		We then construct $\rho'$ by concatenating $\rho_1$ and $\rho_2$ which ends in $q'$, and this proves the claim.
 		
-		If $w\in\wnS$, $\op{a}\in\opS$, $\cl{b}\in\clS$, let $p,q,q'\in Q$, $S$ be a set that contains $(p,q)$, and let $\rho$ be the run of $\cT'_S$ over $\op{a}w\cl{b}$ with output $(\oout_1, 1)\mu(\oout_2, n+2)$ for some $\mu$ and $\oout_1,\oout_2\in\oalph$, where $n = |w|$. 
+		If $w\in\wnS$, $\op{a}\in\opS$, $\cl{b}\in\clS$, let $p,q,q'\in Q$, $S$ be a set that contains $(p,q)$, and let $\rho$ be the run of $\cT\,'_S$ over $\op{a}w\cl{b}$ with output $(\oout_1, 1)\mu(\oout_2, n+2)$ for some $\mu$ and $\oout_1,\oout_2\in\oalph$, where $n = |w|$. 
 		Let $S, S_2, \ldots, S_{n+2}, S_{n+3}$ be the states of $\rho$ in order, and suppose there is a pair $(p,q')\in S_{n+3}$.
 		Our goal is to prove that there is a run $\rho'$ of $\cT_q$ over $\op{a}w\cl{b}$ with output $(\oout_1, 1)\mu(\oout_2, n+2)$ that ends in $q'$. 
 		Let $(S_2,T)$ be the second configuration of $\rho$.
 		From the construction of $\delta$, there exist $q_2,q_{n+2}\in Q$ and $\gamma\in\Gamma$ such that $(q_{n+2},\cl{b},\oout_2,\gamma,q_{n+3})\in\Delta$, $(p,\gamma,q_2)\in T$ and $(q_2,q_{n+2})\in S_{n+2}$.
 		Since $w$ is well-nested, this $T$ could only have been pushed after a step in the run with label $(\op{a},\oout_1)$, which implies that $(q,\op{a},\oout_1,q_2,\gamma)\in\Delta$. This, in turn, means that $(q_2,q_2)\in S_2$.
-		Let us consider the subrun $\rho[2,n+2\rangle$, which is also a run of $\cT'_{S_2}$ over $w$ with output $\mu$ that ends in $S_{n+2}$ modulo the common stack suffix $T$.
+		Let us consider the subrun $\rho[2,n+2\rangle$, which is also a run of $\cT\,'_{S_2}$ over $w$ with output $\mu$ that ends in $S_{n+2}$ modulo the common stack suffix $T$.
 		We now have that $(q_2,q_2)\in S_2$ and $(q_2,q_{n+2})\in S_{n+2}$, and so, from the hypothesis it follows that there is a run $\rho''$ of $\cT_{q_2}$ over $w$ with output $\mu$ and ending state $q_{n+2}$.
 		In a similar fashion as in the previous claim, we modify the run slightly to obtain one that starts and ends on the stack $\gamma$.
 		This new run can be easily extended with the transitions $(q,\op{a},\oout_1,q_2,\gamma),(q_{n+2},\cl{b},\oout_2,\gamma,q_{n+3})\in\Delta$, and as a result, we obtain a run $\rho'$ of $\cT_q$ that fulfils the conditions of the claim.
 	\end{proof}
-	Now, let $w$ be a well nested word and let $\mu\in \sem{\cT'}(w)$.
-	Let $\rho$ be a run of $\cT'$ over $w$ with output $\mu$ that ends in accepting state $F$, and let $p^*\in I$ and $q^*\in F$ be such that $(p^*,p^*)\in I$ and $(p^*,q^*)\in F$. Note that $\cT' = \cT'_{S_I}$, and by using the previous claim with $p = q = p^*$ and $q' = q^*$, we obtain that there is a run of $\cT_{p^*}$ over $w$ with output $\mu$ that ends in state in $q^*$. Clearly, this is also a run of $\cT$, so we obtain that $\mu\in\sem{\cT}(w)$. 
-	This proves that $\br{\cT'}(w) \subseteq \br{\cT}(w)$.
+	Now, let $w$ be a well nested word and let $\mu\in \sem{\cT\,'}(w)$.
+	Let $\rho$ be a run of $\cT\,'$ over $w$ with output $\mu$ that ends in accepting state $F$, and let $p^*\in I$ and $q^*\in F$ be such that $(p^*,p^*)\in I$ and $(p^*,q^*)\in F$. Note that $\cT\,' = \cT\,'_{S_I}$, and by using the previous claim with $p = q = p^*$ and $q' = q^*$, we obtain that there is a run of $\cT_{p^*}$ over $w$ with output $\mu$ that ends in state in $q^*$. Clearly, this is also a run of $\cT$, so we obtain that $\mu\in\sem{\cT}(w)$. 
+	This proves that $\br{\cT\,'}(w) \subseteq \br{\cT}(w)$.
 	
-	We conclude that $\br{\cT}(w) = \br{\cT'}(w)$ for every well-nested word $w$. \hfill \qed
+	We conclude that $\br{\cT}(w) = \br{\cT\,'}(w)$ for every well-nested word $w$. \hfill

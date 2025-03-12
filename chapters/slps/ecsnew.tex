@@ -58,7 +58,7 @@ $$
 		\draw[dashed] (3) to[out=-135,in=45] (4);
 		\draw (3) to[out=-45,in=135] (5);
 	\end{tikzpicture}
-	\caption{An example of an \dsabbr with output alphabet $\{x, y\}$. We use dashed and solid edges for the left  and right partial functions, respectively.}
+	\caption{An example of a \dsabbr with output alphabet $\{x, y\}$. We use dashed and solid edges for the left  and right partial functions, respectively.}
 	\label{slps:fig-ecsex}
 \end{figure}
 
@@ -85,7 +85,7 @@ A reasonable strategy to enumerate the set $\sem{\cD}(v)$ is to do a traversal o
 	\item[(i)] We say that $\D$ is \emph{duplicate-free} if $\D$ satisfies the following two properties: (1) for every union node $v$ it holds that $\sem{\D}(\ell(v))$ and $\sem{\D}(r(v))$ are disjoint, and (2) for every product node $v$ and for every $w \in \sem{\D}(v)$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \sem{\D}(\ell(v))$ and $w_2 \in \sem{\D}(r(v))$. 
 	
 	\item[(ii)] We define the notion of \emph{$k$-bounded}~\dsabbr{} as follows. 
-	Given an \dsabbr{} $\D$, define the (left) output-depth of a node $v\in V$, denoted by $\odepth_{\D}(v)$, recursively as follows:
+	Given a \dsabbr{} $\D$, define the (left) output-depth of a node $v\in V$, denoted by $\odepth_{\D}(v)$, recursively as follows:
 	$\odepth_{\D}(v) = 0$ whenever $\lambda(v)\in\infAlph$ or $\lambda(v) = \odot$, and $\odepth_{\D}(v) = \odepth_{\D}(\ell(v))+1$ whenever $\lambda(v) \in \{\cup\}\cup\int$.
 	Then, for $k\in\nat$ we say that 
 	$\D$ is $k$-bounded if $\odepth_{\D}(v)\leq k$ for all $v\in V$.

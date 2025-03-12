@@ -3,7 +3,7 @@
 
 \begin{proof}
 Let $\D = (\infAlph, V, \ell, r, \lambda)$ be a duplicate-free and $k$-bounded \dsabbr{}.
-The algorithm that we present is a depth-first traversal of the DAG, done in a recursive fashion to ensure that after retrieving some output $w$, the next one $w'$ can be printed in $O(k\cdot (|w| + |w'|))$ time. The entire procedure is detailed in Algorithm~\ref{nested:alg:enumeration}.
+The algorithm that we present is a depth-first traversal of the DAG, done in a recursive fashion to ensure that after retrieving some output $w$, the next one $w'$ can be printed in $O(k\cdot (|w| + |w'|))$ time. We will show this easier bound first, and then show how this implies $O(k'\cdot |w'|)$ delay by the end of the proof. The entire procedure is detailed in Algorithm~\ref{nested:alg:enumeration}.
 
 \input{./algorithms/nested/enumalg-cris}
 

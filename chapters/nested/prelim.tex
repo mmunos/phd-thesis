@@ -33,7 +33,7 @@ where each $q_j \in Q$ and $\sigma_j\in\Gamma^{*}$ for every $j\in[1,n]$, $q_1\i
 (1) if $s_{i}\in\opS$, then there is $\gamma\in\Gamma$ such that $(q_i,s_{i},q_{i+1},\gamma) \in \Delta$ and $\sigma_{i+1} = \gamma\sigma_i$, 
 (2) if $s_{i}\in\clS$, then there is $\gamma\in\Gamma$ such that $(q_i,s_{i},\gamma,q_{i+1}) \in \Delta$ and $\sigma_{i} = \gamma\sigma_{i+1}$, and
 (3) if $s_{i}\in\noS$, then $(q_i,s_{i},q_{i+1}) \in \Delta$ and $\sigma_{i+1} = \sigma_i$.
-A run $\rho$ is \emph{accepting} if $q_{n+1}\in F$. A well-nested word $w\in\wnS$ is \emph{accepted by} a \vpa $\cA$ if there is an accepting run of $\cA$ on $w$. The \emph{language} $\cL(\cA)$ is the set of well-nested words accepted by $\cA$. Note that if $\rho$ is an accepting run of $\cA$ on a well-nested word $w$, then $\sigma_{n+1} = \eps$. A set of well-nested words $\cL \subseteq \wnS$ is called a \emph{visibly pushdown language} if there exists a \vpa $\cA$ such that $\cL = \cL(\cA)$.
+A run $\rho$ is \emph{accepting} if $q_{n+1}\in F$. A well-nested word $w\in\wnS$ is \emph{accepted by} a \vpa $\cA$ if there is an accepting run of $\cA$ on $w$. The \emph{language} $\cL(\cA)$ is the set of well-nested words accepted by $\cA$. Note that if $\rho$ is a run of $\cA$ on a well-nested word $w$, then $\sigma_{n+1} = \eps$. A set of well-nested words $\cL \subseteq \wnS$ is called a \emph{visibly pushdown language} if there exists a \vpa $\cA$ such that $\cL = \cL(\cA)$.
 
 A \vpa $\cA = (Q, \Sigma, \Gamma, \delta, \qinit, F)$ is said to be \emph{deterministic} if $|\qinit| =1$ and $\delta$ is a function subset of the set $(Q\,\times\opS \to Q\times \Gamma) \cup
 (Q\times\clS\times\Gamma \to Q)\cup

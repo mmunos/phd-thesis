@@ -9,7 +9,7 @@ Formally, a ref-word is just a string $r\in (\Sigma \cup \varcaptures{X})^*$. A 
 In other words, a valid ref-word defines a correct match of opening and closing captures. Moreover, each $x \in X$ induces a unique factorization of $r$ of the form $r = r_x^p \cdot \varop{x} \, \cdot \, r_x \, \cdot\, \varcl{x} \cdot r_x^s$. 
 This factorization defines an $(X,d)$-mapping as follows. 
 Let $\splain: (\Sigma \cup \varcaptures{X})^* \rightarrow \Sigma^*$ be the morphism that removes the captures from ref-words, namely, $\splain(a) = a$ when $a \in \Sigma$ and $\splain(c) = \eps$ when $c \in \varcaptures{X}$.
-We extend $\splain$ to operate over strings in the obvious way.
+We extend $\splain$ to operate homomorphically over strings.
 Furthermore, let $r$ be a valid ref-word for $X$, $d$ be a document, and assume that $\splain(r) = d$.
 Then we define the $(X,d)$-mapping $\smap^r$ such that $\smap^r(x) = \spanc{i}{j}$ iff $r = r_x^p \cdot \varop{x} \, \cdot \, r_x \, \cdot\, \varcl{x} \cdot r_x^s$, $i = |\splain(r_x^p)|+1$, and $j = i + |\splain(r_x)|$. 
 

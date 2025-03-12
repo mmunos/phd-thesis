@@ -3,7 +3,7 @@ For dealing with $\eps$-nodes, we need to revisit the notions of output depth, $
 \begin{enumerate}
 	\item $\lambda(v) = \eps$, or 
 	\item $\lambda(v) \neq \eps$, $v$ is a safe node, and  $\lambda(u) \neq \eps$ for any node $u$ which is reachable from $v$, or 
-	\item $\lambda(v) = \cup$, $\lambda(\ell(v)) = \eps$, and $r(v)$ satisfies (2). 
+	\item $\lambda(v) = \cup$, $\lambda(\ell(v)) = \eps$, and $r(v)$ satisfies (ii). 
 \end{enumerate}
 In other words, $\eps$ can only occur as the left child of an $\eps$-safe node or being the node itself. 
 
@@ -16,8 +16,8 @@ Since both $v_1$ and $v_2$ may fall in one of three cases above, we define $\pro
 	\item If $\eps\not\in\cL_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
 	\item If $\lambda(v_1) = \eps$ and $\eps\not\in\cL_{\D}(v_2)$, we define $v' = v_2$, and $\D' = \D$.
 	\item If $\lambda(v_1) = \eps$ and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
-	\item If $\lambda(v_1) = \eps$ and $v_2$ is in case (3), we define $v' = v_2$, and $\D' = \D$.
-	\item If $v_1$ is in case (3) and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
+	\item If $\lambda(v_1) = \eps$ and $v_2$ is in case (iii), we define $v' = v_2$, and $\D' = \D$.
+	\item If $v_1$ is in case (iii) and $\lambda(v_2) = \eps$, we define $v' = v_1$, and $\D' = \D$.
 \end{itemize}
 
 \input{./figures/nested/prodfigura}
@@ -25,9 +25,9 @@ Since both $v_1$ and $v_2$ may fall in one of three cases above, we define $\pro
 The other three cases are more involved and they are presented graphically in Figure~\ref{nested:fig-prod-multi-gadget}. 
 Formally, they are defined as follows:
 \begin{itemize}
-	\item[(a)] If $\eps\not\in\cL_{\D}(v_1)$ and $v_2$ is in case (3), then $V' = V\cup\{v',v''\}$, $\ell'(v') = v''$, $r'(v') = v_1$, $\ell(v'') = v_1$,  $r(v'') = r(v_2)$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
-	\item[(b)] If $v_1$ is in case (3) and $\eps\not\in\cL_{\D}(v_1)$, then $V' = V\cup\{v',v''\}$,  $\ell'(v') = v''$, $r'(v') = v_2$, $\ell(v'') = r(v_1)$,  $r(v'') = v_2$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
-	\item[(c)] If both $v_1$ and $v_2$ are in case (3), we do a slightly more delicate construction. 
+	\item[(a)] If $\eps\not\in\cL_{\D}(v_1)$ and $v_2$ is in case (iii), then $V' = V\cup\{v',v''\}$, $\ell'(v') = v''$, $r'(v') = v_1$, $\ell(v'') = v_1$,  $r(v'') = r(v_2)$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
+	\item[(b)] If $v_1$ is in case (iii) and $\eps\not\in\cL_{\D}(v_1)$, then $V' = V\cup\{v',v''\}$,  $\ell'(v') = v''$, $r'(v') = v_2$, $\ell(v'') = r(v_1)$,  $r(v'') = v_2$, $\lambda'(v') = \cup$ and $\lambda'(v'') = \odot$. 
+	\item[(c)] If both $v_1$ and $v_2$ are in case (iii), we do a slightly more delicate construction. 
 	First, we define a $\cD''$ with $V'' = V\cup\{v^{3},v^{4}\}$, $\ell''(v^3) = v^4$, $r''(v^3) = r(v_2)$, $\ell''(v^4) = r(v_1)$, $r''(v^4) = r(v_2)$, $\lambda''(v^3) = \cup$, $\lambda''(v^4) = \odot$.
 	Now, let $(\cD^3, v^2) \gets \union(\cD'', r(v_1), v_3)$.
 	Lastly, let $V' = V^3 \cup \{v^{*}, v'\}$, $\ell'(v') = v^*$, $r(v') = v_2$, $\lambda(v') = \cup$ and $v^* = \eps$.
@@ -40,13 +40,13 @@ define $\union(\D,v_1, v_2) \to (\D',v')$ as:
 \begin{itemize}
 	\item If $\eps\not\in\cL_{\D}(v_1)$ and $\eps\not\in\cL_{\D}(v_2)$, we use the construction given for a regular \dsabbr.
 	\item If $\eps\not\in\cL_{\D}(v_1)$ and $\lambda(v_2) = \eps$, we define $V' = V \cup\{v'\}$ and $\lambda'(v') = \cup$. We connect $\ell'(v') = v_2$ and $r'(v') = v_1$.
-	\item If $\eps\not\in\cL_{\D}(v_1)$ and $v_2$ is in case (3), let $(\D'',v'') = \union(\D,v_1,r(v_2))$ as defined for a regular~\dsabbr. We define $V' = V'' \cup\{v'\}$, and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$.
+	\item If $\eps\not\in\cL_{\D}(v_1)$ and $v_2$ is in case (iii), let $(\D'',v'') = \union(\D,v_1,r(v_2))$ as defined for a regular~\dsabbr. We define $V' = V'' \cup\{v'\}$, and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$.
 	\item If $\lambda(v_1) = \eps$ and $\eps\not\in\cL_{\D}(v_2)$, we define $V' = V \cup\{v'\}$ and $\lambda'(v') = \cup$. We connect $\ell'(v') = v_1$ and $r'(v') = v_2$.
 	\item If $\lambda(v_1) = \eps$ and $\lambda(v_2) = \eps$, we define $\D' = \D$ and $v' = v_1$.
-	\item If $\lambda(v_1) = \eps$ and $v_2$ is in case (3), we define $\D' = \D$ and $v' = v_2$.
-	\item (*) If $v_1$ is in case (3) and $\eps\not\in\cL_{\D}(v_2)$, let $(\D'',v'') = \union(\D,r(v_1),v_2)$ as defined for a regular \dsabbr.  We define $V' = V'' \cup\{v'\}$ and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$. 
-	\item If $v_1$ is in case (3) and $\lambda(v_2) = \eps$, we define $\D' = \D$ and $v' = v_1$.
-	\item If both $v_1$ and $v_2$ are in case (3), let $(\D',v') = \union(\D,v_1,r(v_2))$ by using the construction of the case marked with (*).
+	\item If $\lambda(v_1) = \eps$ and $v_2$ is in case (iii), we define $\D' = \D$ and $v' = v_2$.
+	\item (*) If $v_1$ is in case (iii) and $\eps\not\in\cL_{\D}(v_2)$, let $(\D'',v'') = \union(\D,r(v_1),v_2)$ as defined for a regular \dsabbr.  We define $V' = V'' \cup\{v'\}$ and $\lambda'(v') = \cup$ where $\lambda'$ is an extension of $\lambda''$. We connect $\ell'(v') = \ell(v_2)$ and $r'(v') = v''$. 
+	\item If $v_1$ is in case (iii) and $\lambda(v_2) = \eps$, we define $\D' = \D$ and $v' = v_1$.
+	\item If both $v_1$ and $v_2$ are in case (iii), let $(\D',v') = \union(\D,v_1,r(v_2))$ by using the construction of the case marked with (*).
 \end{itemize}
 %Whenever $\D''$ is mentioned it is assumed to be equal to $(\Sigma, V'', I'', \ell'', r'', \lambda'')$.
 It is straightforward to check that each operation behaves as expected. 

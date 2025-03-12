@@ -1,4 +1,12 @@
-El resumen debe contener entre 100 y 300 palabras. El resumen debe ser escrito en ingl\'es y espa\~nol.  En el caso de tesis de doctorado, el formato de la p\'agina del resumen es distinta, por favor verifique la plantilla entregada por la Direcci\'on de Postrgrado.\
+\noindent Los algoritmos de enumeración para consultas de extracción de datos son especialmente relevantes en los sistemas de hoy en día, donde los datos alcanzan tamaños extremadamente grandes y, a veces, tienen poca o ninguna organización.
+Esta tesis propone un marco teórico de enumeración para consultas de extracción de datos que se pueden modelar mediante diferentes lenguajes formales y, en algunos casos, sobre datos comprimidos. Esto se hace mediante el desarrollo de una estructura de datos de enumeración llamada {\em Enumerable Compact Sets} (Conjuntos Comprimidos Enumerables en inglés), que proporciona un conjunto de operaciones básicas sobre conjuntos, cada uno implementable en tiempo constante, cuyo resultado es una representación concisa del conjunto de resultados que luego se puede enumerar de manera eficiente.
 
-\vfill
-\noindent {\bf Palabras Claves}: plantilla de tesis, escritura de documentos, {\bf (Colocar aqu\'i las palabras claves relevantes y estr\'ictamente relacionadas al tema de la tesis)}.
+\noindent En el primer capítulo, esta tesis entrega un algoritmo para enumerar los resultados de una consulta que ha sido modelada por un autómata de palabras anidadas, sobre un documento anidado. Este algoritmo está diseñado para funcionar en un entorno de {\em streaming} y requiere un tiempo independiente al tamaño de los datos (constante en {\em data complexity}) en cada símbolo de entrada.
+
+\noindent En el segundo capítulo, detallamos tres algoritmos de enumeración para consultas que se modelan mediante gramáticas libres de contexto. Tratamos los casos de gramáticas no-ambiguas, rígidas y deterministas, que requieren tiempo cúbico, cuadrático y lineal sobre los datos, respectivamente.
+
+\noindent En el tercer capítulo, mostramos la enumeración sobre documentos comprimidos mediante un algoritmo que recibe una consulta en lenguaje regular y un documento que se representa concisamente como un programa {\em straight-line}. La enumeración se puede realizar después del preprocesamiento en tiempo lineal en el tamaño de la representación compacta.
+
+\noindent Esta tesis también sirve como prueba de concepto del modelo de {\em Annotated Automata} (Autómatas anotados en inglés). Este modelo considera satisfactoriamente reducciones eficientes desde {\em Document Spanners} y permite la construcción de algoritmos que consideramos más intuitivos y fáciles de implementar. Vale decir que todos nuestros resultados también son aplicables a Document Spanners.
+
+\noindent {\bf Keywords}: Estructuras de datos y algoritmos, lenguajes formales y teoría de autómatas, lógica en ciencias de la computación.

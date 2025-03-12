@@ -26,7 +26,7 @@ Although $\sem{\D}(v)$ is very large, the goal is to enumerate all of its elemen
 	\framebox{
 		\begin{tabular}{rl}
 			\textbf{Problem:} & $\enumds$\\
-			\textbf{Input:} & An \dsabbr{} $\D = (\infAlph, V, \ell, r, \lambda)$ and $v \in V$.  \\
+			\textbf{Input:} & A \dsabbr{} $\D = (\infAlph, V, \ell, r, \lambda)$ and $v \in V$.  \\
 			\textbf{Output:} & Enumerate the set $\sem{\D}(v)$ without repetitions. \\
 		\end{tabular}
 	}
@@ -39,7 +39,7 @@ However, to be able to do this without repetitions and output-linear delay, we n
 	\item We say that $\D$ is \emph{duplicate-free} if $\D$ satisfies the following two properties: (1) for every union node $v$ it holds that $\sem{\D}(\ell(v))$ and $\sem{\D}(r(v))$ are disjoint, and (2) for every product node $v$ and for every $w \in \sem{\D}(v)$, there exists a unique way to decompose $w = w_1 \cdot w_2$ such that $w_1 \in \sem{\D}(\ell(v))$ and $w_2 \in \sem{\D}(r(v))$. 
 	
 	\item We define the notion of \emph{$k$-bounded}~\dsabbr{} as follows. 
-	Given an \dsabbr{} $\D$, define the (left) output-depth of a node $v\in V$, denoted by $\odepth_{\D}(v)$, recursively as follows:
+	Given a \dsabbr{} $\D$, define the (left) output-depth of a node $v\in V$, denoted by $\odepth_{\D}(v)$, recursively as follows:
 	$\odepth_{\D}(v) = 0$ whenever $\lambda(v)\in\infAlph$ or $\lambda(v) = \odot$, and $\odepth_{\D}(v) = \odepth_{\D}(\ell(v))+1$ whenever $\lambda(v) = \cup$.
 	Then, for $k\in\nat$ we say that $\D$ is $k$-bounded if $\odepth_{\D}(v)\leq k$ for all $v\in V$.
 \end{enumerate}
@@ -63,11 +63,11 @@ The enumeration algorithm above does not require any preprocessing over $\D$. By
 %Therefore, from now we assume that all \dsabbr{} are unambiguous and $k$-bounded for some \edit{fixed}~$k$.
 
 \paragraph{Operations allowed by an ECS}
-The next step is to provide a set of operations that allow extending an \dsabbr{} $\D$ while maintaining $k$-boundedness. Furthermore, we require these operations to be \emph{fully-persistent}: a data structure is called fully-persistent if every version can be both accessed and modified~\cite{driscoll1986making}. In other words, the previous version of the data structure is always available after each operation.
+The next step is to provide a set of operations that allow extending a \dsabbr{} $\D$ while maintaining $k$-boundedness. Furthermore, we require these operations to be \emph{fully-persistent}: a data structure is called fully-persistent if every version can be both accessed and modified~\cite{driscoll1986making}. In other words, the previous version of the data structure is always available after each operation.
 To satisfy the last requirement, the strategy will consist in extending $\D$ to $\D'$ for each operation, by adding new nodes and maintaining the previous nodes unmodified. Then $\cL_{\D'}(v) = \cL_{\D}(v)$ for each node $v \in V$, and so, the data structure will be fully-persistent. 
 
 %\cristian{Martin: Cambie la presentación/definición de las operaciones de $O := \mathsf{op}(I)$ a $\mathsf{op}(I) \rightarrow O$ explicando la notación. Por favor, revisa esta notación y actualiza la presentación de las operaciones en el apendice (cuando definimos $\epsilon$-ECS.} 
-Fix an \dsabbr{} $\D = (\infAlph, V, \ell, r, \lambda)$. In the following, we say that $\D' = (\infAlph, V', \ell', r', \lambda')$ is an \emph{extension} of $\D$ if, and only if, $\mathsf{X} \subseteq \mathsf{X}'$ for every $\mathsf{X} \in \{V, \ell, r, \lambda\}$. Further, we write $\mathsf{op}(I) \rightarrow O$ to define the signature of an operation $\mathsf{op}$ where $I$ is the input and $O$ is the output. 
+Fix a \dsabbr{} $\D = (\infAlph, V, \ell, r, \lambda)$. In the following, we say that $\D' = (\infAlph, V', \ell', r', \lambda')$ is an \emph{extension} of $\D$ if, and only if, $\mathsf{X} \subseteq \mathsf{X}'$ for every $\mathsf{X} \in \{V, \ell, r, \lambda\}$. Further, we write $\mathsf{op}(I) \rightarrow O$ to define the signature of an operation $\mathsf{op}$ where $I$ is the input and $O$ is the output. 
 Then for any $a \in \infAlph$ and $v_1, \ldots, v_4 \in V$, we define the operations:
 \[
 \begin{array}{rclrclrcl}
@@ -130,7 +130,7 @@ Finally, $\D'$ is 2-bounded whenever $\D$ is $2$-bounded. This is straightforwar
 	\vspace{-3mm}
 \end{figure}
 
-By the previous discussion, if we start with an \dsabbr\ $\D$ which is 2-bounded (or empty) and we apply the $\add$, $\prod$, or $\union$ operators between safe nodes (which also produce safe nodes), then the result is 2-bounded as well. Finally, by Proposition~\ref{nested:ds:lindelay}, the result can be enumerated with output-linear delay.
+By the previous discussion, if we start with a \dsabbr\ $\D$ which is 2-bounded (or empty) and we apply the $\add$, $\prod$, or $\union$ operators between safe nodes (which also produce safe nodes), then the result is 2-bounded as well. Finally, by Proposition~\ref{nested:ds:lindelay}, the result can be enumerated with output-linear delay.
 
 \begin{theorem}\label{nested:theo:data-structure}
 	The operations $\add$, $\prod$, and $\union$ require constant time and are fully-persistent. Furthermore, if we start from an empty \dsabbr\ $\D$ and apply $\add$, $\prod$, or $\union$ operations over safe nodes, the partial results $(\D', v')$ satisfy that $v'$ is always a safe node and the set $\L_{\D'}(v)$ can be enumerated with output-linear delay for every node $v$.
@@ -139,11 +139,11 @@ By the previous discussion, if we start with an \dsabbr\ $\D$ which is 2-bounded
 We want to remark that restricting the operations over safe nodes does not limit the final user of the data structure. Indeed, since we will usually start from an empty \dsabbr\ and apply these operations over previously returned nodes, the whole algorithm will always use safe nodes during its computation, satisfying the conditions of Theorem~\ref{nested:theo:data-structure}. 
 
 \paragraph{Extending ECS with $\eps$-nodes}
-For technical reasons, our algorithm of the next section needs a slight extension of \dsabbr{} by allowing leaves that produce the empty string $\eps$. Let $\eps\not\in\infAlph$ be a symbol representing the empty string (i.e. $w\cdot\eps = \eps\cdot w = w$). We define an \dsname{} with $\eps$ (called \dsepsabbr) as a tuple $\D = (\infAlph, V, \ell, r, \lambda)$ defined identically to an \dsabbr{} except that:
+For technical reasons, our algorithm of the next section needs a slight extension of \dsabbr{} by allowing leaves that produce the empty string $\eps$. Let $\eps\not\in\infAlph$ be a symbol representing the empty string (i.e. $w\cdot\eps = \eps\cdot w = w$). We define an \dsname{} with $\eps$ (called \dsepsabbr) as a tuple $\D = (\infAlph, V, \ell, r, \lambda)$ defined identically to a \dsabbr{} except that:
 \[
 \lambda\colon V\to\infAlph\cup\{\cup, \odot,\eps\}
 \] 
-and $\lambda(v)\in\{\cup,\odot\}$ if, and only, both $\ell(v)$ and $r(v)$ are defined. Further, $\sem{\D}(v) = \{\epsilon\}$ whenever $\lambda(v) = \eps$. The duplicate-free restriction is the same for \dsepsabbr and one has to slightly extend $k$-boundedness to consider $\epsilon$-nodes. %, giving an ``infinite'' depth to a node if its left node can produce $\epsilon$.}
+and $\lambda(v)\in\{\cup,\odot\}$ if, and only if, both $\ell(v)$ and $r(v)$ are defined. Further, $\sem{\D}(v) = \{\epsilon\}$ whenever $\lambda(v) = \eps$. The duplicate-free restriction is the same for \dsepsabbr and one has to slightly extend $k$-boundedness to consider $\epsilon$-nodes. %, giving an ``infinite'' depth to a node if its left node can produce $\epsilon$.}
 However, to support the $\prod$ and $\union$ operations in constant time and to maintain the $k$-boundedness invariant, we need to extend the notion of safe nodes, called \emph{$\epsilon$-safe}, and the gadgets for $\prod$ and $\union$. We summarize all these details in the proof of the following theorem which is a straightforward extension of Theorem~\ref{nested:theo:data-structure}.
 
 %Given space restrictions, we show these extensions in the appendix and state here the main result, that will be used in the next section.
