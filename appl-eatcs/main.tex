@@ -1,0 +1,74 @@
+% !TeX spellcheck = en_GB
+
+\documentclass[a4paper,UKenglish]{lipics-v2021}
+
+%\documentclass[a4paper,UKenglish,cleveref,autoref,thm-restate]{lipics-v2021}
+
+\title{Output-linear enumeration for
+extensions of MSO (Extended Abstract)}
+\author{Martín Muñoz}{Doctorate in Computer Science, by the Department of Computer Science at Pontificia Universidad Católica de Chile}{munoz@cril.fr}{}{}
+
+\newtheoremstyle{empty}
+  {\topsep}   % ABOVESPACE
+  {\topsep}   % BELOWSPACE
+  {\itshape}  % BODYFONT
+  {}       % INDENT (empty value is the same as 0pt)
+  {\bfseries} % HEADFONT
+  {}         % HEADPUNCT
+  {5pt plus 1pt minus 1pt} % HEADSPACE
+  {\textcolor{darkgray}{$\blacktriangleright$}}          % CUSTOM-HEAD-SPEC
+
+\newtheorem*{theorem*}{Theorem}
+
+\theoremstyle{empty}
+\newtheorem*{statement*}{}
+
+\begin{document}
+	
+	\maketitle
+	
+
+	\section{Introduction}\label{sec:introduction}
+	
+	In this thesis, we develop a framework for output-linear delay enumeration for different languages of queries built from Monadic Second Order (MSO).
+	
+	
+	\paragraph*{State of the art before the dissertation}
+	The study of enumeration for queries build out of formal languages can be traced back to Bagan's seminal work~\cite{Bagan06}. Since then, enumeration algorithms for queries saw some attention in general theory~\cite{bagan2007acyclic, Courcelle09, AmarilliBJM17, Niewerth18}, and since the 2010s, in database theory~\cite{Segoufin13, SchweikardtSV18, BerkholzGS20}.
+	In the years preceding this thesis, the Document Spanners framework was proposed as a formalism for information extraction~\cite{FaginKRV15}, and this led the database theory community to see some interest in enumeration for formal queries~\cite{FlorenzanoRUVV20, AmarilliBMN19, liatpaper, SchmidS21}.
+	% The study of enumeration for queries build out of formal languages had consistently yielded results in database theory in the preceding years.
+	% Some of the works in this line of researchhave been framed in terms of Document Spanners~\cite{FaginKRV15}, which had been proposed as a formalism for information extraction, and saw some attention in database theory during the latter half of the decade.
+	In parallel, some relevant works studied this including an incremental evaluation approach~\cite{Niewerth18, AmarilliBMN19pods, AmarilliBM18, SchmidS22}.
+	
+	To pinpoint some of the works most relevant to this thesis, the work by Amarilli et. al.~\cite{AmarilliBJM17} studies enumeration for MSO queries on trees. The way it does incremental evaluation is by allowing updates on the tree after the enumeration data structure has been built. The updates modify the data structure directly, and take logarithmic time.
+	
+	% This is an exceedingly technical result and yields a very powerful algorithm for enumeration on trees. The point in which we saw possible improvement was in the incremental evaluation aspect, as it features logtime updates on the enumeration data structure---which, they prove, is more or less unavoidable. Nonetheless, we saw a possible improvement by restricting the updates. 
+	
+	% We framed the task in terms of enumeration on a stream of the encoded tree, and obtained an algorithm that updates the data structure in constant time as every new symbol is being read.
+	
+	A second relevant work was by Peterfreund~\cite{liatpaper}, in which she proposes a formalism for document spanners built from context-free grammars. She designs an algorithm for constant-delay enumeration for query defined by an unambiguous context-free grammar that requires quintic time on the size of the input document.
+	
+	The third relevant work is by Schmid and Schweikardt~\cite{SchmidS21}. Here, they design an algorithm that receives a query built from a deterministic word automaton, and a document that has been compressed as a straight-line program. The algorithm takes linear time in the compressed document, yet the enumeration has delay that is logarithmic in the size of the \emph{uncompressed} document.
+	
+	
+	\paragraph*{Contributions}
+
+	
+	\section{Enumerable Compact Sets} 
+	
+	\section{Enumeration for nested queries}
+	
+	\section{Enumeration for context free grammars}
+	
+	\section{Enumeration on SLP-compressed documents}
+	
+	\section{Conclusions}
+	
+	
+	
+	\bibliographystyle{abbrv}
+	\bibliography{biblio}
+	
+	%\input{../sections/prev-appendix.tex}
+	
+\end{document}
