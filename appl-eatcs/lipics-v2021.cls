@@ -146,7 +146,6 @@
     \vtop{\hsize\textwidth
       \nobreakspace\par
       \@Copyright
-      \vspace{-20mm}
       \ifx\@EventLongTitle\@empty\else\@EventLongTitle.\\\fi
       \ifx\@EventEditors\@empty\else
         \@Eds: \@EventEditors
@@ -236,12 +235,12 @@
 \setlength\headheight{3mm}
 \setlength\headsep   {10mm}
 \setlength\footskip{3mm}
-\setlength\textwidth{165mm}%140mm
-\setlength\textheight{250mm}%222mm
-\setlength\oddsidemargin{22mm}%32mm
-\setlength\evensidemargin{28mm}%38mm
+\setlength\textwidth{140mm}
+\setlength\textheight{222mm}
+\setlength\oddsidemargin{32mm}
+\setlength\evensidemargin{38mm}
 \setlength\marginparwidth{25mm}
-\setlength\topmargin{6mm}%13mm
+\setlength\topmargin{13mm}
 \setlength{\skip\footins}{2\baselineskip \@plus 4\p@ \@minus 2\p@}
 \def\@listi{\leftmargin\leftmargini
             \parsep\z@ \@plus\p@
@@ -270,9 +269,7 @@
     \def\@oddfoot{\hfil
                   \rlap{%
                     \vtop{%
-                      \vskip5mm
-                      \hskip-7mm
-                      %\vskip10mm
+                      \vskip10mm
                       \colorbox{lipicsYellow}
                                     {\@tempdima\evensidemargin
                                      \advance\@tempdima1in

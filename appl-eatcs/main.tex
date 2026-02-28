@@ -1,73 +1,443 @@
 % !TeX spellcheck = en_GB
 
-\documentclass[a4paper,UKenglish]{lipics-v2021}
+\documentclass{article}
+
+\usepackage{fullpage}
+\usepackage{amsthm}
+\usepackage{stmaryrd}
+
+\newtheorem{thm}{Theorem}[section]
+
+
+\newcommand{\vpannname}{visibly pushdown annotator}
+\newcommand{\vpannnames}{visibly pushdown annotators}
+\newcommand{\vpann}{VPAnn}
+\newcommand{\vpanns}{VPAnn}
+
+\newcommand{\cQ}{\mathcal{Q}}
+\newcommand{\cA}{\mathcal{A}}
+\newcommand{\cT}{\mathcal{T}}
+\newcommand{\cG}{\mathcal{G}}
+\newcommand{\cO}{\mathcal{O}}
+\newcommand{\cP}{\mathcal{P}}
+
+\newcommand{\dsabbr}{Shift-ECS}
+\newcommand{\dsabbrs}{Shift-ECSs}
 
 %\documentclass[a4paper,UKenglish,cleveref,autoref,thm-restate]{lipics-v2021}
 
 \title{Output-linear enumeration for
 extensions of MSO (Extended Abstract)}
-\author{Martín Muñoz}{Doctorate in Computer Science, by the Department of Computer Science at Pontificia Universidad Católica de Chile}{munoz@cril.fr}{}{}
+\author{Martín Muñoz}
+\date{}
+%{Doctorate in Computer Science, awarded by Pontificia Universidad Católica de Chile, Department of Computer Science}{munoz@cril.fr}{}{}
 
-\newtheoremstyle{empty}
-  {\topsep}   % ABOVESPACE
-  {\topsep}   % BELOWSPACE
-  {\itshape}  % BODYFONT
-  {}       % INDENT (empty value is the same as 0pt)
-  {\bfseries} % HEADFONT
-  {}         % HEADPUNCT
-  {5pt plus 1pt minus 1pt} % HEADSPACE
-  {\textcolor{darkgray}{$\blacktriangleright$}}          % CUSTOM-HEAD-SPEC
-
-\newtheorem*{theorem*}{Theorem}
-
-\theoremstyle{empty}
-\newtheorem*{statement*}{}
+%\newtheoremstyle{empty}
+%  {\topsep}   % ABOVESPACE
+%  {\topsep}   % BELOWSPACE
+%  {\itshape}  % BODYFONT
+%  {}       % INDENT (empty value is the same as 0pt)
+%  {\bfseries} % HEADFONT
+%  {}         % HEADPUNCT
+%  {5pt plus 1pt minus 1pt} % HEADSPACE
+%  {\textcolor{darkgray}{$\blacktriangleright$}}          % CUSTOM-HEAD-SPEC
+%
+%\newtheorem*{theorem*}{Theorem}
+%
+%\theoremstyle{empty}
+%\newtheorem*{statement*}{}
 
 \begin{document}
 	
 	\maketitle
+	\begin{center}
+	Thesis submitted for the degree of Doctor in Engineering Sciences, Computer Science area -- Pontificia Universidad Católica de Chile.
+\small
+
+\end{center}
 	
 
 	\section{Introduction}\label{sec:introduction}
 	
-	In this thesis, we develop a framework for output-linear delay enumeration for different languages of queries built from Monadic Second Order (MSO).
+	In database research, one of the fundamental problems is computing the results of a query. The standard formalization is to express it in terms of a query $Q$, a data element $D$, and defining $Q(D)$ to be the desired set of results; to evaluate the query means obtaining this set.
+	Any algorithm that solves this task will take a certain amount of time that depends on $Q$ and $D$, and the standard way of measuring it is by counting the number of steps taken from the moment the algorithm begins, until the last output is printed.
 	
-	
-	\paragraph*{State of the art before the dissertation}
-	The study of enumeration for queries build out of formal languages can be traced back to Bagan's seminal work~\cite{Bagan06}. Since then, enumeration algorithms for queries saw some attention in general theory~\cite{bagan2007acyclic, Courcelle09, AmarilliBJM17, Niewerth18}, and since the 2010s, in database theory~\cite{Segoufin13, SchweikardtSV18, BerkholzGS20}.
-	In the years preceding this thesis, the Document Spanners framework was proposed as a formalism for information extraction~\cite{FaginKRV15}, and this led the database theory community to see some interest in enumeration for formal queries~\cite{FlorenzanoRUVV20, AmarilliBMN19, liatpaper, SchmidS21}.
-	% The study of enumeration for queries build out of formal languages had consistently yielded results in database theory in the preceding years.
-	% Some of the works in this line of researchhave been framed in terms of Document Spanners~\cite{FaginKRV15}, which had been proposed as a formalism for information extraction, and saw some attention in database theory during the latter half of the decade.
-	In parallel, some relevant works studied this including an incremental evaluation approach~\cite{Niewerth18, AmarilliBMN19pods, AmarilliBM18, SchmidS22}.
-	
-	To pinpoint some of the works most relevant to this thesis, the work by Amarilli et. al.~\cite{AmarilliBJM17} studies enumeration for MSO queries on trees. The way it does incremental evaluation is by allowing updates on the tree after the enumeration data structure has been built. The updates modify the data structure directly, and take logarithmic time.
-	
-	% This is an exceedingly technical result and yields a very powerful algorithm for enumeration on trees. The point in which we saw possible improvement was in the incremental evaluation aspect, as it features logtime updates on the enumeration data structure---which, they prove, is more or less unavoidable. Nonetheless, we saw a possible improvement by restricting the updates. 
-	
-	% We framed the task in terms of enumeration on a stream of the encoded tree, and obtained an algorithm that updates the data structure in constant time as every new symbol is being read.
-	
-	A second relevant work was by Peterfreund~\cite{liatpaper}, in which she proposes a formalism for document spanners built from context-free grammars. She designs an algorithm for constant-delay enumeration for query defined by an unambiguous context-free grammar that requires quintic time on the size of the input document.
-	
-	The third relevant work is by Schmid and Schweikardt~\cite{SchmidS21}. Here, they design an algorithm that receives a query built from a deterministic word automaton, and a document that has been compressed as a straight-line program. The algorithm takes linear time in the compressed document, yet the enumeration has delay that is logarithmic in the size of the \emph{uncompressed} document.
-	
-	
-	\paragraph*{Contributions}
+The aforementioned model is reasonable whenever the overall output size is small, e.g., when the output is simply true or false, or a numeric value. 
+%However, for tasks in which one can expect a large amount of outputs, which occur quite naturally in many data management problems, it makes sense to treat the output printing phase separately. %Naturally, the best execution time one can expect for this phase is linear in the size of the entire output set, so the overall running time that we will set as our goal is given by $|D| + |Q(D)|$. Here we are using the standard notation $|x|$ to refer to the size of an adequate encoding of $x$.
+However, there are many cases in which an evaluation problem can have a large output set. For instance, one may be interested not only in all elements in the data that satisfy a certain condition, but in tuples or subsets of them. Or perhaps the data may not fit in memory: it could be given in a streaming fashion or it could be compressed, and this implies that even an output set that has size linear in the raw data is too large. 
+An obvious problem here is that producing all outputs can take unreasonably long, but a more subtle one is that when one measures the running time of an algorithm, the cost of writing the outputs hides the cost of actually doing the calculations to obtain them. For this reason, a significant line of research on query evaluation has adopted the perspective of {\it enumeration algorithms}~\cite{Bagan06}. Instead of explicitly producing all results, the task is to enumerate them, in any order and without repetition. The cost of the algorithm is then measured across two dimensions: the {\it preprocessing time}, which is the time needed to read the input and prepare an enumeration data structure; and the {\it delay}, the worst-case time that can elapse between any two solutions while enumerating using the data structure.
+
+
+In enumeration algorithms, there is an even finer complexity yardstick:
+We say that an algorithm has {\it constant-delay}~\cite{Segoufin13} if the delay between any two consecutive outputs is constant. One can think of this as an enumeration phase in which the outputs are produced in a fixed pace, never stopping until the last output is produced. 
+Starting with the work of Durand and Grandjean~\cite{durand2007first}, researchers have designed
+constant-delay algorithms for several query evaluation problems, e.g., the evaluation of some queries over relational databases~\cite{bagan2007acyclic,kara2020trade}, query evaluation over dynamic data~\cite{berkholz2017answering,idris2017dynamic}, query evaluation over graph data~\cite{hartig2018semantics,kroll2016complexity}, among others~\cite{Segoufin13}. 
+
+One kind of queries for which enumeration algorithms have been especially successful are those described in Monadic Second Order, owing to their link to formal languages.
+This line of study can be traced back to Bagan's seminal work~\cite{Bagan06} which already presented an enumeration algorithm for MSO queries over trees with linear-time preprocessing that has {\em output-linear} delay\footnote{Bagan calls this {\em linear delay}, yet, in enumeration literature, this name is often reserved for delay that is linear in the data.}. This is a refinement of constant delay which only requires the time between two outputs to be linear in the size of the second one---and, we believe, is the correct one to deal with MSO queries. The natural way to define MSO query is with a free second-order variable $X$, and the desired results are all assignments to $X$ that satisfy $\varphi(X)\models D$ for an input $D$; and indeed, each of these assignments could have linear size in $D$.
+
+Since Bagan's work, enumeration algorithms for formal queries saw some attention in general theory~\cite{bagan2007acyclic, Courcelle09, AmarilliBJM17, Niewerth18}.
+In the years preceding this thesis, the Document Spanners framework was proposed as a formalism for information extraction~\cite{FaginKRV15}, and this led the database theory community to find a considerable amount interest in enumeration for formal queries~\cite{FlorenzanoRUVV20, AmarilliBMN19, liatpaper, SchmidS21}.
+% The study of enumeration for queries build out of formal languages had consistently yielded results in database theory in the preceding years.
+% Some of the works in this line of researchhave been framed in terms of Document Spanners~\cite{FaginKRV15}, which had been proposed as a formalism for information extraction, and saw some attention in database theory during the latter half of the decade.
+In parallel, some relevant works studied this topic while also including an incremental evaluation approach~\cite{Niewerth18, AmarilliBMN19pods, AmarilliBM18, SchmidS22}, namely, building an enumeration data structure for the query-data pair, and allow local updates in the data that can be translated into local modifications in the structure.
+
+
+
+% However, this delay guarantee is not a reasonable one unless every output is expected to have constant size. Instead, in a lot of cases it makes more sense to set as a goal what we call {\it output-linear delay}~\cite{FlorenzanoRUVV20}. This is a relaxation of constant-delay which only requires the delay between two outputs to be linear in the size of the earlier one.
+
+%One area where enumeration algorithms have been especially successful is the field of information extraction, where {\em document spanners} have been proposed as a suitable formalism~\cite{FaginKRV15}. Information extraction captures the family of data management tasks where the data is a document, i.e, a string of characters, and the query is a description of the information that should be extracted from the text. A document spanner formalizes this idea by defining a function that maps documents to sets of {\em mappings}, which themselves map variables to substrings of the document (called {\em spans}). The enumeration problem is then to enumerate all mappings of a spanner on an input document.
+%The work by Florenzano et al.~\cite{FlorenzanoRUVV20} showed that, if the spanner is described by a finite automaton, then the task could be solved with output-linear delay after a preprocessing that is linear in the document, and polynomial in the spanner if the automaton is deterministic; this was extended in~\cite{amarilli2019constant} to allow comparable bounds for nondeterministic finite automata.
+
+\paragraph{Contribution}
+This dissertation extends the state of the art in enumeration algorithms for queries built from formal languages and MSO. 
+To this end, in this thesis we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
+These are: (1.) Automata over streams of nested documents, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
+Each of these is explored in one of the main three chapters of the thesis, whose results we explain in more detail below.
+
+
+Besides the results themselves, the conceptual contributions are two-fold. First, we propose a novel algorithmic data structure suited for enumeration called Enumerable Compact Sets (ECS). It is based on d-DNNF circuits and leverages their suitability for enumeration~\cite{AmarilliBJM17}. The specifications are rather straightforward. Structurally, it is a binary DAG whose nodes serve as indices of abstract sets of answers, and which are separated into output nodes, union nodes and product nodes. Output nodes are leaves in the structure, and they index a singleton set of an output symbol; union nodes connect to other two nodes and its set is defined as the union of the its two children; and product nodes connect to a left and right child, and its set is defined as the set obtained by concatenating any answer in its left child with any answer in its right child. On top of this, it is embedded with an interface which allows three constant-time for three kinds of operations: first, one can add a single symbol to the ECS, which creates an output node; second, one can add a node which represents the union of two existing nodes in the ECS; and third, one can add a node which represents the product of two existing nodes in the ECS. Lastly, the data structure describes an enumeration algorithm for each node type that requires no further preprocessing time, and it guarantees output-linear delay enumeration of its set. The only additional condition is that every operation has to be performed on two nodes that satisfy a {\em duplicate-free} condition---meaning that the respective sets of answers did not overlap.
+
+There exists a naive way of implementing this interface, which is to simply create a node and connect it to the two existing nodes. However, this implementation forsakes the sought enumeration bounds. Consider the following sequence of operations: add eight symbols $a_1,\ldots,a_8$ to the ECS, and the singleton of each one becomes associated to the nodes $u_1,\ldots,u_8$, respectively; then build a binary tree out of them, by defining $u_9$ as the union of $u_1$ and $u_2$, then $u_{10}$ as the union of $u_3$ and $u_4$; and so on until $u_{15}$ is the root of the tree. If we are allowed no further preprocessing from this point, then enumerating the set associated to $u_{15}$ with output-linear delay (in this case, constant delay) is virtually impossible. This example illustrates why the node types and the interface of allowed operations need to be defined separately; and also the algorithmic challenge in implementing this while satisfying all the requirements. Indeed, the success that ECS has seen in improving the state of the art is partly due to this possibility being a blind spot in the literature. 
+We attribute most of its success in the interface itself, which allows an intuitive connection between boolean queries and queries with second-order predicates.
+
+
+% Enumeration tasks have seen a great deal of attention in database research, and this is the main topic of this thesis: finding efficient algorithms to evaluate queries over great volumes of data with output-linear delay. In particular, we will sometimes restrict ourselves to evaluation tasks where the data part of the query is presented with certain recursive structures---namely, nested documents, and program-like documents. For some tasks, we allow a more standard plain-text structure.
+
+% Let us now discuss the presentation aspect for the {\em query} part of a task. That is, the query languages that we will deal with in this thesis: these are all extensions to Monadic Second Order Logic. The logic in itself is of immense theoretical importance, but in actual data extraction tasks it is rarely used as-is. The reader might be more familiar with a query language which is equivalent in expressive power to Monadic Second Order over documents---that is, regular expressions. In database systems and data extraction tasks, regular expressions (regex for short) have long been a favoured choice for theoreticians, developers and users alike. 
+
+% When a single document is huge, and queries are simple enough, it makes sense to use a language based on regular expressions, such as XPath in the case of XML. 
+% In the case of compressed text, one can use a plain regular expression, and process it using some of the known algorithms that evaluate it on the compressed file itself~\cite{Lohrey12}. Among these solutions, one uses regular spanners (i.e. document spanners based on regular expressions) over compressed documents to enumerate with delay that is logarithmic in the size of the uncompressed document~\cite{SchmidS21}.
+
+% There are evaluation tasks in which regular expressions are not powerful enough, and the data document does not have a pre-established structure. The immediate extension to regular expressions and MSO that also allows the query itself to infer this very structure are context-free grammars. Some scenarios in which this type of queries have been famously used are code parsing and verification on nested documents---both scenarios where the data itself would ideally satisfy a desired structure, but this is not a-priori guaranteed. 
+
+% Grammars by themselves do not describe how to capture substrings, so they are not immediately suited for extracting data. One model that has been proposed to bridge this gap is based on document spanners and is called Extraction Grammars~\cite{Peterfreund21}. These are defined by context-free grammars which allow beginning and ending position marks in its syntax. 
+% In same work, we also find a relevant enumeration result. It shows constant-delay enumeration after a preprocessing that takes quintic time on the size of the document.
+ 
+%Having discussed some scenarios where one would want to extract data using queries that are based on regex and their extensions, we note that each used an ad-hoc extension of the yes/no query language to capture the desired outputs. We contrast this with MSO, which has the ability to define queries that extract sets of positions in an input document in a natural fashion. This is especially useful for us, as this ability implies there is a generic adaptation from yes/no evaluation into queries with several, complex outputs, for every extension of MSO.
+ 
+ The second conceptual contribution is the notion of {\em annotations} as a way of translating second-order answers from MSO queries onto formal languages.
+ We formalize this notion in the {\it Annotator} model, which also translates other rule-based binary query languages, such as context-free grammars, into query languages with complex outputs. It does so by continuing to use the same type of binary model that describes the query while adding a second dimension to the alphabet that describes the data---we use these as the symbols the model will treat as letters. For instance, the underlying binary model of an annotator may accept words such as  $(a,x)bb(a,y)$ or $a(b,x)(b,y)a$, and if we give the word $abba$ to the annotator, it will define an output set that includes the strings $(x,1)(y,4)$ and $(x,2)(y,3)$. The first string represents the idea that if we extend $abba$ by appending an $x$ to the first position, and a $y$ to the fourth position, the resulting word is accepted by the model, and the second string  represents the analogous idea.
+ In terms of notation, for an annotator $\cA$, which is any formalism that describes a language of annotated words, we write $\llbracket \cA \rrbracket$ for a function that maps any non-annotated word to the set of strings that represent these strings.
+
+We have found that some of the relevant models for document spanners that extend a binary query language into a complex one---as is the case for Regular Spanners~\cite{FlorenzanoRUVV20} and Extraction Grammars~\cite{liatpaper}---can be reduced into an annotator with only a minor blowup. More importantly, we believe that this change makes the evaluation algorithms simpler, and that it is a reason behind our finding improvements in the best-known bounds for them.
+
+The goal of the thesis can also be summarized as exploring the power of the Annotator model, and providing efficient enumeration algorithms for the ways it can be used to deal with known query languages. It is worth noting that while many of the query languages studied in the literature were restricted to outputs with a fixed size, annotators by default do not impose any such restriction, so all of our results are given in the best-possible delay bound that this circumstance allows; namely, output-linear delay.
+
+% To this end, in this thesis we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
+% These are: (1.) Automata over streams of nested documents, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
+
+\subsection{Nested streaming queries}
+
+The first chapter concerns enumeration for nested queries. Its main result is a streaming enumeration algorithm for MSO queries on nested documents (namely, the encoding of an unranked tree) which enumerates with output-linear delay. 
+
+To describe the result, we define what is the streaming enumeration problem for a given query language. 
+This is specified for inputs that are received one symbol at a time. The way we measure the preprocessing phase is by its update-time, which is the time spent doing any modifications in the enumeration data structure before receiving the next symbol in the stream. The length of the streamed document is not known in advance, and the enumeration phase should be performed at the end of the stream with no further preprocessing.
+
+The precise annotator formalism that we use is called a {\em visibly pushdown annotator} (VPAnn). As specified in the general annotator framework, this is simply a visibly pushdown automaton $\cT$ on annotated words. Given a nested document $d$, the set of answers that we enumerate is $\llbracket \cT \rrbracket(d)$: namely, the set of strings that represent some annotation that can be done to $d$ so that the resulting annotated word is accepted by $\cT$. There is an equivalence between visibly pushdown annotators and MSO queries on nested words, which carries from the equivalence between visibly pushdown automata and tree automata~\cite{alur2004visibly}.
+
+The algorithm is framed as a streaming algorithm which requires constant time per read symbol; so altogether, it requires linear-time preprocessing, matching the bounds of MSO queries on trees in the literature~\cite{Bagan06, AmarilliBMN19}. The main improvement in the best-known results is in the incremental evaluation aspect, since the resulting enumeration data structure admits constant time updates when remitted to appending one new symbol to the document. There was existing work that does incremental evaluation by structurally changed the tree~\cite{AmarilliBMN19}, yet this work does general updates in logtime. 
+
+The main result of the chapter can be stated as follows.
+\begin{thm}
+	The streaming enumeration problem for an unambiguous VPAnn $\cT$ can be solved with update-time $\cO(|\cT|^3)$ and output-linear delay. For the class of all VPAnn, it can be solved with update-time $\cO(2^{|\cT|^3})$ and output-linear delay. 
+\end{thm} 
+
+This chapter spanned one conference paper, published in ICDT'22~\cite{icdt22}, and the journal version of the paper, published in TODS~\cite{todspaper}.
+
+%Streaming query evaluation~\cite{altinel2000efficient,babcock2002models} is the task of processing queries over data streams in one pass and with a limited amount of resources. This approach is especially useful on the web, where servers share data, and they have to extract the relevant content as they receive it. For structuring the data, the de facto structure on the web is nested documents, like XML or JSON. For querying, servers use languages designed for these purposes, like XPath, XQuery, or JSON query languages.
+%As an illustrative example, suppose our data server (e.g., a Web API) is continuously receiving XML documents like:
+%%\smallskip
+%\begin{center}
+%	\begin{small}
+%	\texttt{
+%		<doc> <a> <b/> <c/> <b/> </a> <c> <b/> <b/> </c> </doc> ...}
+%	\end{small}
+%\end{center}
+%%\smallskip
+%%\vspace{-1mm}
+%and for each document it has to evaluate the query $\mathcal{Q} = \texttt{//a/b}$ (i.e., to extract all $b$-tags that are surrounded by an $a$-tag). The streaming query evaluation problem consists of reading these documents and finding all $b$-tags without storing the entire document on memory, that is, by making one pass over the data and spending constant time per tag. In our example, we need to retrieve the 3rd and 5th tags as soon as the last tag $\texttt{</doc>}$ is received. One could consider here that the server has to read an infinite stream and perform the query evaluation continuously, where it must enumerate partial outputs as soon as one of the XML documents ends.
+%%Therefore, the streaming evaluation of these queries over nested documents requires reading the data and producing all the answers as efficiently as possible.}
+%
+%Researchers have studied the streaming query evaluation problem in the past, focusing on reducing the processing time or memory usage (see, e.g. \cite{BarYossefFJ07}). Hence, they spent less effort on understanding the enumeration time of such a problem, with respect to delay guarantees between outputs.
+%Constant-delay enumeration is a new notion of efficiency for retrieving outputs~\cite{DurandG07,Segoufin13}.
+%Given an instance of the problem, a constant-delay enumeration algorithm performs a preprocessing phase over the instance to build some indices and then continues with an enumeration phase. It retrieves each output, one by one, taking a delay that is constant between any two consecutive outcomes. These algorithms provide a strong guarantee of efficiency since a user knows that, after the preprocessing phase, {she} will access the output as if {the algorithm had} already computed {it}. These techniques have attracted researchers' attention, finding sophisticated solutions to several query evaluation problems~\cite{BaganDG07,BerkholzGS20,Bagan06,AmarilliBJM17,FlorenzanoRUVV20,AmarilliBMN19}. 
+%
+%In this chapter, we investigate the streaming query evaluation problem over nested documents by including enumeration guarantees, like constant delay. We study the evaluation of queries given by \vpannnames (\vpanns) over nested documents.  These machines are an ``output extension'' of visibly pushdown automata, %, a model for streaming evaluation over nested documents. 
+%{and have the same expressive power as MSO over nested documents. 
+%In particular, \vpanns can define queries like $\cQ$ above or any fragment of query languages for XML or JSON included in MSO.}
+%Therefore, \vpanns allow considering the streaming query evaluation from a more general perspective, without getting married to a specific language (e.g., XPath). 
+%%Furthermore, they are general enough to understand the regular behavior of such query languages and, at the same time, they are expressive enough for defining outputs. 
+%
+%We study the evaluation of \vpann over a nested document in a streaming fashion. Specifically, we want to find a streaming algorithm that reads the document sequentially and spends as little time as possible per input symbol. 
+%Furthermore, whenever needed, the algorithm can enumerate all outputs with output-linear delay. %, a refined notion of constant-delay for varied size results.  
+%The main contribution in this chapter is an algorithm with such characteristics for the class of unambiguous \vpanns. We can extend this algorithm to all \vpanns by determinization (preserving its data complexity). 
+%Regarding memory usage, we bound the amount of memory used in terms of the nesting of the document and the output weight. We show that our algorithm is worst-case optimal in the sense that there are instances where the maximum amount of memory required by any streaming algorithm is at least one of these two measures.
+%Finally, we present some examples that show how our result can be applied to the streaming evaluation of XML and JSON query languages.
+%Further, we show an application of our results in the context of information extraction by document spanners~\cite{FaginKRV15}.
+
+%We base our approach on a fully-persistent data structure~\cite{driscoll1986making} called an Enumerable Compact Set (ECS) and an algorithm that mimics the abstract machine's execution. We present this algorithm as a sequence of pseudo-code instructions that could be of special interest for practical purposes. Moreover, we believe that the presentation helps to think on further optimizations and better understand constant-delay algorithms over nested documents.  
+
+%Our main result applies to the streaming evaluation of XML and JSON query languages. 
+%In the appendix, we also show an application in the context of document spanners~\cite{FaginKRV15}.}
+
+
+\subsection{Annotated Grammars}
+
+
+The second chapter about enumeration for context-free grammars. We propose the formalism of {\em annotated grammars}, which is an annotator that allows expressing queries with complex inputs on a grammar. The task is to enumerate the set $\llbracket \cG \rrbracket(w)$ for any non-annotated input word $w$. We show an algorithm for queries specified with an unambiguous annotated grammars; namely, for every word-annotation pair, the grammar has at most derivation tree.
+
+Then, we study a particular class of annotated grammar, which we call {\em rigid}. These are annotated grammars for which any input word may only have the same derivation tree {\em shape} for every valid annotation. This can be understood in terms of leftmost derivation sequences, as every annotation will result in the same sequence, modulo replacing nonterminals by other nonterminals.
+
+Lastly, we explore pushdown annotators, which are pushdown automata on annotated words. We study the class of {\em profile-deterministic} pushdown annotators. Intuitively, this means that for every word, the shape of the stack is the same for every valid annotation, and moreover, it can be deduced deterministically by reading the word.
+
+
+The results in this chapter can be summarized as follows:
+
+\begin{thm}
+\begin{enumerate}
+	\item Given an unambiguous annotated grammar $\cG$ and an input string
+        $w$, we can enumerate $\llbracket \cG \rrbracket(w)$ with preprocessing in $\cO(|w|^3
+        \dot
+        |\cG|)$, and output-linear delay.
+        \item Given a rigid unambiguous annotated grammar $\cG$ and an input string
+        $w$, we can enumerate $\llbracket \cG \rrbracket(w)$ with preprocessing in $\cO(|w|^2
+        \dot
+        |\cG|)$, and output-linear delay.
+        \item Given a profile-deterministic pushdown annotator $\cP$ and an input string
+        $w$, we can enumerate $\llbracket \cP \rrbracket(w)$ with preprocessing in $\cO(|w|
+        \dot
+        |\cG|)$, and output-linear delay.
+        \end{enumerate}
+        %
+\end{thm}	
+
+%The main result is an algorithm for output-linear delay enumeration after cubic-time preprocessing. 
+We also show how this result directly applies to the Context-Free Spanners and the Extraction Grammars formalisms proposed in a work Peterfreund~\cite{liatpaper}, and improves on its result that solved enumeration with quintic-time preprocessing. 
+
+This chapter spanned one conference paper, published in PODS'22~\cite{pods22}.
+
+
+
+%A natural way to address extraction over structured data is to move from finite automata to \emph{context-free grammars}
+%(CFGs). Context-free grammars are a well-known formalism: they extend regular
+%expressions and are commonly used, e.g., in programming language
+%design. Common verification tasks on textual representations of tree
+%documents can be expressed using CFGs, and so can parsing tasks, e.g.,
+%to extract subexpressions from source code data. However, CFGs do not
+%describe \emph{captures}, i.e., they do not specify how to extract the
+%parts of interest of an input document, and thus cannot be used
+%directly for information extraction.
+%
+%%
+%%
+%
+%This question of information extraction with grammars was studied by Peterfreund in very recent work~\cite{Peterfreund21}. This paper proposed a formalism of \emph{extraction grammars}, which are CFGs extended via special terminals that describe the endpoints of spans.
+%Further, it presents an algorithm to enumerate the mappings captured by
+%\emph{unambiguous} extraction grammars on an input document.
+%However, while the algorithm achieves constant-delay, the preprocessing bound is significantly worse than in the case of regular spanners: it is quintic in the document, and exponential in the number of variables of the grammar. This complexity is also worse than CFG parsing, e.g., the standard CYK parsing algorithm runs in cubic time in the input string.
+
+%
+%
+%
+
+%Our goal in this chapter is to study the enumeration problem for CFGs while
+%achieving better complexities. Our algorithms ensure a constant-delay
+%guarantee when outputs have constant size, and more generally ensure
+%\emph{output-linear} delay when this is not the case: the delay is linear in the
+%size of each produced solution. Within this delay bound, the preprocessing
+%time has lower complexity: it is at worse cubic in the
+%input document, and improves to quadratic or even linear time for restricted
+%classes. We achieve these results by proposing a new formalism to extend CFGs, called
+%\emph{annotated grammars}, on which we impose an unambiguity restriction similar
+%to that of~\cite{Peterfreund21}. Let us present our specific contributions.
+%
+%%\paragraph{Contributions}
+%Our first contribution is to introduce \emph{annotated grammars} (Section~\ref{gram:sec:models}).
+%They are a natural extension of CFGs, where terminals are optionally annotated by the information that we wish to extract.
+%We then study the problem, given an annotated grammar $\cG$ and document~$s$, of
+%enumerating all annotations of~$s$ that are derived by~$\cG$.
+%This captures the enumeration problems for regular spanners~\cite{FlorenzanoRUVV18,amarilli2020constant}, nested words,
+%%~\cite{icdt2020nested}
+%and
+%even the extraction grammars of~\cite{Peterfreund21}.
+%%
+%%
+%As we explain, we aim for \emph{output-linear delay}, which is the best
+%possible delay in our setting where the solutions to output may have
+%non-constant size. 
+%
+%Our second contribution is to study the enumeration problem for \emph{unambiguous} annotated grammars,
+%that do not produce multiple times the same annotation of an input string. This is a natural restriction to avoid duplicate results, %
+%which is also made in~\cite{Peterfreund21}. 
+%%
+%For such grammars, 
+%%
+%we present an algorithm to enumerate the annotations produced by a grammar $\cG$ on a string~$s$ with output-linear delay (independent from~$\cG$ or~$s$), after a preprocessing time of $\cO(|\cG| \cdot |s|^3)$, i.e., cubic time in~$s$, and linear time in~$\cG$. 
+%%
+%This improves over the result of~\cite{Peterfreund21} whose preprocessing is quintic. 
+%Our algorithm has a modular design: it follows a standard design of a CFG
+%parsing algorithm, but uses the abstract data structure
+%of Chapter~\ref{ch1}
+%%
+%to represent
+%the sets of annotations and combine them with operators in a way that allows for output-linear enumeration. 
+%We further show a conditional lower bound on the best preprocessing time that can achieve output-linear delay, by reducing from the standard task of checking membership to a CFG, and using the lower bound of~\cite{AbboudBW18}. We show that the preprocessing time must be $\Omega(|s|^{\omega-c})$ for every $c > 0$, where $\omega$ is
+%%
+%the Boolean matrix multiplication exponent.
+%
+%Our third contribution is to improve the preprocessing time by imposing a different requirement on grammars. Thus, we introduce \emph{rigid} annotated grammars where, for every input string, all annotations on the string are intuitively produced by parse trees that have the same shape. In contrast with general annotated grammars, we show that rigid annotated grammars can always be made unambiguous, so that our algorithm applies to them. But we also show that, under this restriction, the data complexity of our algorithm goes down from cubic to quadratic time.
+%%
+%Further, achieving sub-quadratic preprocessing time would imply a sub-quadratic algorithm to test membership to an unambiguous CFG, which is an open problem.
+%%
+%
+%%
+%%
+%
+%Our last contribution shows how we can, in certain cases, achieve linear-time preprocessing complexity and output-linear delay (Section~\ref{gram:sec:linear}). This is the complexity of enumeration for regular spanners, and is by definition the best possible. We show that the same complexity can be achieved, beyond regular spanners, for a subclass of rigid grammars, intuitively defined by a determinism requirement. We define it via the formalism of \emph{pushdown annotators} (PDAnn for short), which are the analogue of pushdown automata for CFGs, or the extraction pushdown automata of~\cite{Peterfreund21}. We show that PDAnn are equally expressive to annotated grammars, and that rigid CFGs correspond to a natural class of PDAnns where all runs have the same sequence of stack heights. Moreover, 
+%we show that we can enumerate with linear-time preprocessing and output-linear delay in the case of \emph{profiled-deterministic} PDAnn, where the sequence of stack heights can be computed deterministically over the run: this generalizes regular spanners and visibly-pushdown automata.
+
+%    This paper is the extended version of the work published at
+%    PODS'22~\cite{amarilli2022efficientPODS}. It includes complete proofs of
+%    all results in the appendix.
+
+
+\subsection{Queries over compressed documents}
+
+The third chapter deals with enumeration on compressed documents. Specifically, the model of word compression that is used are straight-line programs: this is a grammar-based compression scheme which encodes a word as a context-free grammar that has only one output. The query is modeled by an {\em annotated automaton}, a regular word automaton for annotated words.
+
+This chapter also contains an additional conceptual contribution to solve the problem. We show a way to adapt the ECS data structure to include a certain operator {\em shift}. This is structurally represented by a new node type, the {\em shift} node, which has only one child and contains a constant $k$. The set it represents is precisely the set of answer in its child, except every value contained in every answer is incremented by $k$.
+
+The main result in the chapter is thus,
+
+\begin{thm}
+	Given an unambiguous regular annotator $\cA$ and a word $w$ compressed by an SLP $S$, we can enumerate the set $\llbracket \cA\rrbracket(w)$ with preprocessing in $O(|\cA|^3 \times |S|)$ and output-linear delay.
+\end{thm}
+
+This result improves, and also can be seen as an adaptation of, one by Schmid and Schweikardt~\cite{SchmidS21}. They solve the same task---albeit defined for regular spanners---, but with logarithmic delay in the uncompressed document. 
+
+We also describe how to adapt a framework for incremental evaluation in the context of complex document editing, which was also formalized by Schmid and Schweikardt~\cite{SchmidS22}.
+
+This chapter spanned one conference paper, published in ICDT'23~\cite{icdt23}, and the journal version of the paper, published in TODS~\cite{lmcspaper}.
+
+%Strategy
+%\begin{enumerate}
+%	\item Relevance of Enumeration.
+%	\item Document spanners and enumeration.
+%	\item Extension to SLP-compressed documents. 
+%	\item Drawbacks of this work.
+%	\item Contributions.
+%\end{enumerate}
+
+%A \emph{constant-delay enumeration algorithm} is an efficient solution to an enumeration problem: given an instance of the problem, the algorithm performs a preprocessing phase to build some indices, to then continue with an enumeration phase where it retrieves each output, one by one, taking constant time (i.e., delay) between consecutive outcomes.
+%These algorithms provide a strong guarantee of efficiency since a user knows that, after the preprocessing phase, she will access the output as if we have already computed it. 
+%For these reasons, constant-delay algorithms have attracted researchers' attention, finding sophisticated solutions to several query evaluation problems. Starting with Durand and Grandjean's work~\cite{DurandG07}, researchers have found constant-delay algorithms for various classes of conjunctive queries~\cite{BaganDG07,CarmeliZBKS20}, FO queries over sparse structures~\cite{KazanaS11,SchweikardtSV18}, and MSO queries over words and trees~\cite{Bagan06,AmarilliBJM17}.
+%
+%The enumeration problem over documents (i.e., strings) has been studied extensively under the framework of document spanners~\cite{FaginKRV15}. A constant-delay algorithm for evaluating deterministic regular spanners was first presented in~\cite{FlorenzanoRUVV20} and extended to non-deterministic in~\cite{AmarilliBMN21}. After these results, people have studied the enumeration problem of document spanners in the context of ranked enumeration~\cite{DoleschalKMP22,BourhisGJR21}, nested documents,
+%%~\cite{MunozR22}, 
+%or  grammars~\cite{Peterfreund21}. 
+%Recently, Schmid and Schweikardt~\cite{SchmidS21,SchmidS22} studied the evaluation problem for regular spanners over a document compressed by a Straight-line Program (SLP). In this setting, one encodes a document through a context-free grammar that produces a single string (i.e., the document itself). This mechanism allows highly compressible documents, in some instances allowing logarithmic space compared to the uncompressed copy.
+%The enumeration problem consists now of evaluating a regular spanner over an SLP-compressed document. In~\cite{SchmidS21}, the authors provided a logarithmic-delay (over the uncompressed document) algorithm for the 
+%%evaluation 
+%problem, and in~\cite{SchmidS22}, they extended this setting to edit operations over SLP documents, maintaining the delay. In particular, these works left open whether one can solve the enumeration problem of regular spanners over SLP-compressed documents with a constant-delay guarantee. 
+%
+%In this chapter, we extend the understanding of the evaluation problem over SLP-compressed documents in several directions. 
+%
+%We study the evaluation problem of \emph{annotated automata} (AnnA) over SLP-compressed documents. These automata are a general model for defining regular enumeration problems, which strictly generalizes the model of extended variable-set automaton used in~\cite{SchmidS21}. 
+%
+%We provide an output-linear delay enumeration algorithm for the problem of evaluating an unambiguous AnnA over an SLP-compressed document. In particular, this result implies a constant-delay enumeration algorithm for evaluating extended variable-set automaton, giving a positive answer to the open problem left in~\cite{SchmidS21}.
+%
+%We show that this result extends to what we call a \emph{succinctly} annotated automaton, a generalization of AnnA whose annotations are succinctly encoded by an enumeration scheme. We develop an output-linear delay enumeration algorithm for this model, showing a constant-delay algorithm for sequential  (non-extended) vset automata, strictly generalizing the work in~\cite{SchmidS21}.
+%
+%Finally, we show that one can maintain these algorithmic results when dealing with complex document editing as in~\cite{SchmidS22}.
+%
+%
+%The main technical result in this chapter is to show that Enumerable Compact Sets can be extended to deal with shift operators (called \dsabbr). This extension allows us to compactly represent the outputs and ``shift'' the results in constant time, which is to add or subtract a common value to all elements in a set. 
+%Then, by using matrices with \dsabbr nodes, we can follow a bottom-up evaluation of the annotated automaton over the grammar (similar to~\cite{SchmidS21}) to enumerate all outputs with output-linear delay. The combination of annotated automata and \dsabbrs considerably simplifies the algorithm presentation, reaching a better delay bound.
+
 
 	
-	\section{Enumerable Compact Sets} 
 	
-	\section{Enumeration for nested queries}
 	
-	\section{Enumeration for context free grammars}
-	
-	\section{Enumeration on SLP-compressed documents}
-	
-	\section{Conclusions}
+%	This thesis proposes an enumeration framework for queries in different restrictions and extensions of Monadic Second Order (MSO).
+%	
+%	The way we approach query enumeration is a standard one for queries which may feature a large number of outputs. The task is defined in two phases: first, a preprocessing phase that receives the query and the input data, and second, an enumeration phase in which the outputs specified by the query are produced one by one. 
+%	Algorithms that solve this task are commonly measured in terms of (1) the time taken by the preprocessing stage, (2) and (3) the maximum difference in time between any two consecutive outputs, which is called the {\em delay} of the enumeration process.
+%	
+%	As an example of a query that can be approached like this, consider a formula with a free second-order variable $\varphi(X)$ expressed in MSO on words of an alphabet $\Sigma$ and an input word $w \in \Sigma^*$. The desired output set would be $\llbracket \varphi \rrbracket(w) := \{X\mid w \models \varphi(X)\}$.
+%	The way this would be solved as an enumeration problem is by first processing $\varphi$ and $w$ and building a data structure that stores all possible outputs concisely, and then prints each one with {\em output-linear delay}. 
+%	A first solution for this problem was proposed by Bagan~\cite{Bagan06}---as a particular case of MSO on trees---, and then a refinement in the context of Document Spanners was proposed~\cite{FlorenzanoRUVV18}.
+%	
+%	%The way this could be solved as an enumeration algorithm is by first converting the MSO formula into a regular word automaton, reading the input word, and building a recursive index that associates a partial set of outputs of every prefix to a state in the automaton. This solution 
+%	
+%	The interest of measuring an evaluation problem across these terms is to have a finer understanding of its complexity; if the process was simply measured from beginning to end, the enumeration phase would dominate 
+%	
+%	is a particular way to approach evaluation for queries which can render a 
+%	
+%	As studied in blabla, we focus on enumeration tasks on MSO-related queries where the outputs are monadic predicates. As such, every output could have linear size in the input, so we bound our enumeration not by constant-delay, but a more refined measure called output-linear delay. 
+%	
+%	We develop a data structure inspired by d-DNNF circuits that we call Enumerable Compact Sets.
+%	The data structure contains nodes that serve as a recursive indexing scheme for sets of strings.
+%	Nodes can describe singleton sets of symbols, unions of these sets, and the cross-product concatenation of these sets.
+%	The result that serves as the backbone of this thesis is describing how to add nodes into the data structure in such a way that for every node, the set of strings that it indexes can be enumerated with output-linear delay.
+%	
+%	
+%	\paragraph*{State of the art at the time of the dissertation}
+%	The study of enumeration for queries build out of formal languages can be traced back to Bagan's seminal work~\cite{Bagan06} which already presented an output-linear delay enumeration algorithm for MSO queries over trees that required linear-time preprocessing. Since then, enumeration algorithms for formal queries saw some attention in general theory~\cite{bagan2007acyclic, Courcelle09, AmarilliBJM17, Niewerth18}; whereas in database theory, enumeration for queries in general have been studied since the 2010s~\cite{Segoufin13, SchweikardtSV18, BerkholzGS20}.
+%	In the years preceding this thesis, the Document Spanners framework was proposed as a formalism for information extraction~\cite{FaginKRV15}, and this led the database theory community to see some interest in enumeration for formal queries~\cite{FlorenzanoRUVV20, AmarilliBMN19, liatpaper, SchmidS21}.
+%	% The study of enumeration for queries build out of formal languages had consistently yielded results in database theory in the preceding years.
+%	% Some of the works in this line of researchhave been framed in terms of Document Spanners~\cite{FaginKRV15}, which had been proposed as a formalism for information extraction, and saw some attention in database theory during the latter half of the decade.
+%	In parallel, some relevant works studied this topic while also including an incremental evaluation approach~\cite{Niewerth18, AmarilliBMN19pods, AmarilliBM18, SchmidS22}.
+%	
+%	To pinpoint some of the works most relevant to this thesis, the work by Amarilli et. al.~\cite{AmarilliBJM17} studies enumeration for MSO queries on trees. It features incremental evaluation by allowing updates on the tree after the enumeration data structure has been built. The updates modify the data structure directly, and take logarithmic time.
+%	
+%	% This is an exceedingly technical result and yields a very powerful algorithm for enumeration on trees. The point in which we saw possible improvement was in the incremental evaluation aspect, as it features logtime updates on the enumeration data structure---which, they prove, is more or less unavoidable. Nonetheless, we saw a possible improvement by restricting the updates. 
+%	
+%	% We framed the task in terms of enumeration on a stream of the encoded tree, and obtained an algorithm that updates the data structure in constant time as every new symbol is being read.
+%	
+%	A second relevant work was by Peterfreund~\cite{liatpaper}, in which she proposes a formalism for document spanners built from context-free grammars. She designs an algorithm for constant-delay enumeration for queries defined by an unambiguous context-free grammar that requires quintic time on the size of the input document.
+%	
+%	%The third relevant work is by Schmid and Schweikardt~\cite{SchmidS21}. Here, they design an algorithm that receives a query built from a deterministic word automaton, and a document that has been compressed as a straight-line program. The algorithm takes linear time in the compressed document, yet the enumeration has delay that is logarithmic in the size of the \emph{uncompressed} document.
+%	
+%	
+%	\paragraph*{Contributions}
+%	
+%	In this thesis, we propose a data structure called Enumerable Compact Sets which is 
+%
+%	
+%%	\section{First Main Chapter - Enumerable Compact Sets} 
+%	
+%	\section{Enumeration for nested queries}
+%	
+%	In this chapter, we model queries on nested documents---these are documents that encode an unranked tree database---as Visibly Pushdown Transducers (VPT): a computational model that extends visibly pushdown automata with outputs and has the same expressive power as MSO over hierarchical documents. 
+%	We present an algorithm that enumerates these elements with constant-delay after processing the document stream in a single pass. 
+%	Furthermore, we show that this algorithm is worst-case optimal in terms of update-time per symbol and memory usage.
+%	
+%	\section{Enumeration for context free grammars}
+%	
+%	In this chapter, we introduce annotated grammars, an extension of context-free grammars which allows annotations on terminals. Our model extends the standard notion of regular spanners, and is more expressive than the extraction grammars recently introduced by Peterfreund. We study the enumeration problem for annotated grammars: fixing a grammar, and given a string as input, enumerate all annotations of the string that form a word derivable from the grammar. Our first result is an algorithm for unambiguous annotated grammars, which preprocesses the input string in cubic time and enumerates all annotations with output-linear delay. This improves over Peterfreund's result, which needs quintic time preprocessing to achieve this delay bound. We then study how we can reduce the preprocessing time while keeping the same delay bound, by making additional assumptions on the grammar. Specifically, we present a class of grammars which only have one derivation shape for all outputs, for which we can enumerate with quadratic time preprocessing. We also give classes that generalize regular spanners for which linear time preprocessing suffices.
+%	
+%	\section{Enumeration on SLP-compressed documents}
+%	
+%	In this chapter, we study the problem of enumerating results from a query over a compressed document. 
+%	The model we use for compression are straight-line programs (SLPs), which are defined by a context-free grammar that produces a single string. 
+%	For our queries, we use a model called Annotated Automata, an extension of regular automata that allows annotations on letters. 
+%	This model extends the notion of Regular Spanners as it allows arbitrarily long outputs. 
+%	Our main result is an algorithm that evaluates such a query by enumerating all results with output-linear delay after a preprocessing phase which takes linear time on the size of the SLP, and cubic time over the size of the automaton. 
+%	This is an improvement over Schmid and Schweikardt's result, which, with the same preprocessing time, enumerates with a delay that is logarithmic on the size of the uncompressed document. 
+%	We achieve this through a persistent data structure named Enumerable Compact Sets with Shifts which guarantees output-linear delay under certain restrictions. 
+%	These results imply constant-delay enumeration algorithms in the context of regular spanners. 
+%	Further, we use an extension of annotated automata which utilizes succinctly encoded annotations to save an exponential factor from previous results that dealt with constant-delay enumeration over vset automata. 
+%	Lastly, we extend our results in the same fashion Schmid and Schweikardt did to allow complex document editing while maintaining the constant delay guarantee.
+%
+%	
+%	\section{Conclusions}
 	
 	
 	
 	\bibliographystyle{abbrv}
-	\bibliography{biblio}
+	{\footnotesize
+	\bibliography{biblio.bib}}
 	
 	%\input{../sections/prev-appendix.tex}
 	
