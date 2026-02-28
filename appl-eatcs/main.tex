@@ -5,8 +5,11 @@
 \usepackage{fullpage}
 \usepackage{amsthm}
 \usepackage{stmaryrd}
+\usepackage{multicol}
 
-\newtheorem{thm}{Theorem}[section]
+
+\newtheorem{thm}{Theorem}[]
+\newtheorem{prop}{Proposition}[]
 
 
 \newcommand{\vpannname}{visibly pushdown annotator}
@@ -54,10 +57,11 @@ extensions of MSO (Extended Abstract)}
 	Thesis submitted for the degree of Doctor in Engineering Sciences, Computer Science area -- Pontificia Universidad Católica de Chile.
 \small
 
-\end{center}
+\end{center}	
+\begin{multicols}{2}
 	
 
-	\section{Introduction}\label{sec:introduction}
+	\section*{Introduction}\label{sec:introduction}
 	
 	In database research, one of the fundamental problems is computing the results of a query. The standard formalization is to express it in terms of a query $Q$, a data element $D$, and defining $Q(D)$ to be the desired set of results; to evaluate the query means obtaining this set.
 	Any algorithm that solves this task will take a certain amount of time that depends on $Q$ and $D$, and the standard way of measuring it is by counting the number of steps taken from the moment the algorithm begins, until the last output is printed.
@@ -90,16 +94,25 @@ In parallel, some relevant works studied this topic while also including an incr
 %The work by Florenzano et al.~\cite{FlorenzanoRUVV20} showed that, if the spanner is described by a finite automaton, then the task could be solved with output-linear delay after a preprocessing that is linear in the document, and polynomial in the spanner if the automaton is deterministic; this was extended in~\cite{amarilli2019constant} to allow comparable bounds for nondeterministic finite automata.
 
 \paragraph{Contribution}
-This dissertation extends the state of the art in enumeration algorithms for queries built from formal languages and MSO. 
-To this end, in this thesis we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
+This dissertation extends the state of the art in enumeration algorithms for queries described with formal languages and MSO. 
+To this end, we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
 These are: (1.) Automata over streams of nested documents, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
-Each of these is explored in one of the main three chapters of the thesis, whose results we explain in more detail below.
+Each of these is explored in one of the main three chapters of the thesis, whose results we explain in more detail in the next sections.
 
 
-Besides the results themselves, the conceptual contributions are two-fold. First, we propose a novel algorithmic data structure suited for enumeration called Enumerable Compact Sets (ECS). It is based on d-DNNF circuits and leverages their suitability for enumeration~\cite{AmarilliBJM17}. The specifications are rather straightforward. Structurally, it is a binary DAG whose nodes serve as indices of abstract sets of answers, and which are separated into output nodes, union nodes and product nodes. Output nodes are leaves in the structure, and they index a singleton set of an output symbol; union nodes connect to other two nodes and its set is defined as the union of the its two children; and product nodes connect to a left and right child, and its set is defined as the set obtained by concatenating any answer in its left child with any answer in its right child. On top of this, it is embedded with an interface which allows three constant-time for three kinds of operations: first, one can add a single symbol to the ECS, which creates an output node; second, one can add a node which represents the union of two existing nodes in the ECS; and third, one can add a node which represents the product of two existing nodes in the ECS. Lastly, the data structure describes an enumeration algorithm for each node type that requires no further preprocessing time, and it guarantees output-linear delay enumeration of its set. The only additional condition is that every operation has to be performed on two nodes that satisfy a {\em duplicate-free} condition---meaning that the respective sets of answers did not overlap.
+Besides the results themselves, the conceptual contributions are two-fold. First, we propose a novel algorithmic data structure suited for enumeration called Enumerable Compact Sets (ECS). It is based on d-DNNF circuits and leverages their suitability for enumeration~\cite{AmarilliBJM17}. 
 
-There exists a naive way of implementing this interface, which is to simply create a node and connect it to the two existing nodes. However, this implementation forsakes the sought enumeration bounds. Consider the following sequence of operations: add eight symbols $a_1,\ldots,a_8$ to the ECS, and the singleton of each one becomes associated to the nodes $u_1,\ldots,u_8$, respectively; then build a binary tree out of them, by defining $u_9$ as the union of $u_1$ and $u_2$, then $u_{10}$ as the union of $u_3$ and $u_4$; and so on until $u_{15}$ is the root of the tree. If we are allowed no further preprocessing from this point, then enumerating the set associated to $u_{15}$ with output-linear delay (in this case, constant delay) is virtually impossible. This example illustrates why the node types and the interface of allowed operations need to be defined separately; and also the algorithmic challenge in implementing this while satisfying all the requirements. Indeed, the success that ECS has seen in improving the state of the art is partly due to this possibility being a blind spot in the literature. 
-We attribute most of its success in the interface itself, which allows an intuitive connection between boolean queries and queries with second-order predicates.
+The specifications are arguably natural. Structurally, it is a binary DAG whose nodes index implicit sets of answers, and which are separated into {\em output nodes}, {\em union nodes} and {\em product nodes}. 
+Output nodes are leaves in the structure, and they index the singleton set of an output symbol; union nodes connect to two children, and its set is defined as the union of the sets in the children; and product nodes connect to a left and right child, and its set is defined as the set obtained by concatenating any answer in its left child with any answer in its right child. 
+
+On top of its structure, an ECS is embedded with an interface that allows three operations: (1), one can add a single symbol to the ECS, which creates an output node; (2 one can add a node which represents the union of two existing nodes in the ECS; and (3) one can add a node which represents the product of two existing nodes in the ECS. As an added specification, all of these operations take constant time.
+
+Lastly, the data structure describes an enumeration algorithm for each node type that requires no further preprocessing time, and it guarantees output-linear delay enumeration of its set. We impose one additional condition to ensure this guarantee: each of the described operations has to be performed on two nodes that satisfy a {\em duplicate-free} condition---intuitively meaning that their respective sets of answers do not overlap.
+
+There exists a naive way of implementing this interface, which is to simply create a node and connect it to the two existing nodes. However, this implementation forsakes the enumeration bounds. Consider the following sequence of operations: add eight symbols $a_1,\ldots,a_8$ to the ECS, so that the singleton of each one becomes associated to nodes $u_1,\ldots,u_8$, respectively; then, build a balanced binary tree out of them, by defining $u_9$ as the union of $u_1$ and $u_2$, then $u_{10}$ as the union of $u_3$ and $u_4$, and so on, until $u_{15}$ is the root of the tree, and represents the set $\{a_1,\ldots,a_8\}$. If we are allowed no further preprocessing from this point, then enumerating this set from $u_{15}$ with output-linear delay (in this case, constant delay) is virtually impossible. This example illustrates why the node types and the interface of allowed operations need to be defined separately; and also the algorithmic challenge in implementing this while satisfying all the requirements. 
+
+Indeed, the success that ECS has seen in extending best-known bounds in enumeration is partly due to this possibility being a blind spot in the literature. 
+Nonetheless, we attribute most of its success in the interface itself, which allows an intuitive connection between boolean queries and queries with second-order predicates.
 
 
 % Enumeration tasks have seen a great deal of attention in database research, and this is the main topic of this thesis: finding efficient algorithms to evaluate queries over great volumes of data with output-linear delay. In particular, we will sometimes restrict ourselves to evaluation tasks where the data part of the query is presented with certain recursive structures---namely, nested documents, and program-like documents. For some tasks, we allow a more standard plain-text structure.
@@ -117,31 +130,48 @@ We attribute most of its success in the interface itself, which allows an intuit
 %Having discussed some scenarios where one would want to extract data using queries that are based on regex and their extensions, we note that each used an ad-hoc extension of the yes/no query language to capture the desired outputs. We contrast this with MSO, which has the ability to define queries that extract sets of positions in an input document in a natural fashion. This is especially useful for us, as this ability implies there is a generic adaptation from yes/no evaluation into queries with several, complex outputs, for every extension of MSO.
  
  The second conceptual contribution is the notion of {\em annotations} as a way of translating second-order answers from MSO queries onto formal languages.
- We formalize this notion in the {\it Annotator} model, which also translates other rule-based binary query languages, such as context-free grammars, into query languages with complex outputs. It does so by continuing to use the same type of binary model that describes the query while adding a second dimension to the alphabet that describes the data---we use these as the symbols the model will treat as letters. For instance, the underlying binary model of an annotator may accept words such as  $(a,x)bb(a,y)$ or $a(b,x)(b,y)a$, and if we give the word $abba$ to the annotator, it will define an output set that includes the strings $(x,1)(y,4)$ and $(x,2)(y,3)$. The first string represents the idea that if we extend $abba$ by appending an $x$ to the first position, and a $y$ to the fourth position, the resulting word is accepted by the model, and the second string  represents the analogous idea.
- In terms of notation, for an annotator $\cA$, which is any formalism that describes a language of annotated words, we write $\llbracket \cA \rrbracket$ for a function that maps any non-annotated word to the set of strings that represent these strings.
+ We formalize this notion in the {\it Annotator} model, which adds a layer of separation between the formal models that describe the queries and the input data.
+ 
+An annotator describes languages of {\em annotated words}, which are words described with one dimension beyond the input alphabet; yet their semantics are defined for {\em non-annotated} words. Consider, for example, an input alphabet $\Sigma = \{a, b\}$. If a query is described with an annotator with an {\em output alphabet} $\Omega = \{X, Y\}$, then its formal model receives words from $(\Sigma \cup (\Sigma\times\Omega))^*$. As such, an input word could be $w = abba$, and one can {\em annotate} $w$ to obtain $(a,X)bb(a,Y)$, or $a(b,Y)(b,X)a$. If these annotated words are accepted by the annotator, then the semantics of the annotator would associate $w$ to the strings $(X, 1)(Y, 4)$ and $(Y, 2)(X, 3)$. The former string describes the idea ``annotate the first position with an $X$, and the fourth position with a $Y$''.
+
+For an annotator $\cA$ its semantics are indicated by the notation $\llbracket \cA \rrbracket$, which is a function that associates non-annotated words to annotation strings. In the example above, we would have that $\{(X, 1)(Y, 4), (Y, 2)(X, 3)\}\subseteq \llbracket \cA \rrbracket(w)$.
+ 
+% As such, an annotator built out of a finite word automaton---which we call an {\em annotated automaton}---will have transitions that read letters in the input alphabet, and transitions that read an ordered pair made of an input letter and an output symbol; similarly, an annotator built out of a visibly pushdown automaton---which we call a {\em visibly pushdown annotator}---will extend transitions in an analogous way; and also an annotator built out of a context-free grammar---which we call an {\em annotated grammar}---will have terminal symbols that can be just one letter in the input alphabet, of an input letter-output symbol pair.
+% 
+% In terms of notation, for an annotator $\cA$, which is any formalism that describes a language of annotated words, we write $\llbracket \cA \rrbracket$ for a function that maps any non-annotated word to the set of strings that represent these strings.
+ 
+To show the parallel between MSO queries and annotators, let us state the equivalence for MSO over words and an annotator build out of a finite word automaton---which in the dissertation is called an {\em annotated automaton}. First, we say that an MSO formula $\varphi(X_1,\ldots,X_k)$ over words in an alphabet $\Sigma$ and an annotated automaton $\cA$ over $\Sigma$ with output alphabet $2^{\{X_1,\ldots,X_k\}}$ are {\em equivalent} if for every word $w \in \Sigma^*$ it holds that: for every assignment $\sigma$ to $X_1,\ldots,X_k$ such that $\varphi(X_1,\ldots,X_k)\mid_\sigma\,\models w$ there exists an equivalent annotation string in $\llbracket \cA \rrbracket(w)$; and for every annotation string in $\llbracket \cA \rrbracket(w)$ there exists an equivalent assignment $\sigma$ to $X_1,\ldots,X_k$ such that $\varphi(X_1,\ldots,X_k)\mid_\sigma\,\models w$.
+ 
+\begin{prop}
+	Fix $k$ second-order variables $X_1,\ldots,X_k$. For any MSO formula $\varphi(X_1,\ldots,X_k)$ there is an equivalent annotated automaton $\cA$ with output alphabet $2^{\{X_1,\ldots,X_k\}}$; and for every annotated automaton with output alphabet $2^{\{X_1,\ldots,X_k\}}$ there exists an equivalent MSO formula $\varphi(X_1,\ldots,X_k)$ .
+\end{prop}
+ 
 
 We have found that some of the relevant models for document spanners that extend a binary query language into a complex one---as is the case for Regular Spanners~\cite{FlorenzanoRUVV20} and Extraction Grammars~\cite{liatpaper}---can be reduced into an annotator with only a minor blowup. More importantly, we believe that this change makes the evaluation algorithms simpler, and that it is a reason behind our finding improvements in the best-known bounds for them.
 
-The goal of the thesis can also be summarized as exploring the power of the Annotator model, and providing efficient enumeration algorithms for the ways it can be used to deal with known query languages. It is worth noting that while many of the query languages studied in the literature were restricted to outputs with a fixed size, annotators by default do not impose any such restriction, so all of our results are given in the best-possible delay bound that this circumstance allows; namely, output-linear delay.
+The goal of the thesis can also be summarized as exploring the power of the {\em annotator} model, and providing efficient enumeration algorithms for the ways it can be used to deal with known query languages. It is worth noting that while many of the query languages studied in the literature were restricted to outputs with a fixed size, annotators by default do not impose any such restriction, so all of our results are given in the best-possible delay bound that this circumstance allows; namely, output-linear delay.
 
 % To this end, in this thesis we present three different formalisms for information extraction and then provide an efficient enumeration scheme for queries expressed in each of them. 
 % These are: (1.) Automata over streams of nested documents, (2.) context-free grammars which represent annotations in documents and (3.) regular automata over compressed documents. 
 
-\subsection{Nested streaming queries}
+\subsection*{1. Nested streaming queries}
 
-The first chapter concerns enumeration for nested queries. Its main result is a streaming enumeration algorithm for MSO queries on nested documents (namely, the encoding of an unranked tree) which enumerates with output-linear delay. 
+The task of streaming query evaluation has been studied extensively for semi-structured data. Particularly, for streamed encodings of tree-structured documents (mostly XML)~\cite{ChenDZ06, OlteanuFB04, KumarMV07, JosifovskiFB05, FiliotGRS19, GauwinNR08}. On the other hand, queries on trees that utilize the full power of MSO have rendered very powerful results~\cite{Bagan06} including some in incremental evaluation~\cite{amarilli2019enumeration}.  However, a lot of the focus in the tree streaming literature been put in optimizing space requirements~\cite{Barloy21, BarYossefFJ07}, so more complex enumeration queries were not considered.
 
-To describe the result, we define what is the streaming enumeration problem for a given query language. 
-This is specified for inputs that are received one symbol at a time. The way we measure the preprocessing phase is by its update-time, which is the time spent doing any modifications in the enumeration data structure before receiving the next symbol in the stream. The length of the streamed document is not known in advance, and the enumeration phase should be performed at the end of the stream with no further preprocessing.
+In the first main chapter of the dissertation, we study the problem of evaluating MSO queries on nested documents (namely, the encoding of an unranked tree). Our main result in the chapter is a streaming enumeration algorithm that enumerates with output-linear delay after a streaming preprocessing phase that requires constant-time processing per streamed symbol. The length of the streamed document is not known in advance, and the enumeration phase should be performed at the end of the stream with no further preprocessing.
+
+% To describe the result, we define what is the streaming enumeration problem for a given query language. 
+%This is specified for inputs that are received one symbol at a time. The way we measure the preprocessing phase is by its update-time, which is the time spent doing any modifications in the enumeration data structure before receiving the next symbol in the stream. The length of the streamed document is not known in advance, and the enumeration phase should be performed at the end of the stream with no further preprocessing.
 
 The precise annotator formalism that we use is called a {\em visibly pushdown annotator} (VPAnn). As specified in the general annotator framework, this is simply a visibly pushdown automaton $\cT$ on annotated words. Given a nested document $d$, the set of answers that we enumerate is $\llbracket \cT \rrbracket(d)$: namely, the set of strings that represent some annotation that can be done to $d$ so that the resulting annotated word is accepted by $\cT$. There is an equivalence between visibly pushdown annotators and MSO queries on nested words, which carries from the equivalence between visibly pushdown automata and tree automata~\cite{alur2004visibly}.
 
-The algorithm is framed as a streaming algorithm which requires constant time per read symbol; so altogether, it requires linear-time preprocessing, matching the bounds of MSO queries on trees in the literature~\cite{Bagan06, AmarilliBMN19}. The main improvement in the best-known results is in the incremental evaluation aspect, since the resulting enumeration data structure admits constant time updates when remitted to appending one new symbol to the document. There was existing work that does incremental evaluation by structurally changed the tree~\cite{AmarilliBMN19}, yet this work does general updates in logtime. 
+The algorithm is framed as a streaming algorithm which requires constant time per read symbol; so altogether, it requires linear-time preprocessing, matching the bounds of MSO queries on trees in the literature~\cite{Bagan06, AmarilliBMN19}:
 
-The main result of the chapter can be stated as follows.
 \begin{thm}
 	The streaming enumeration problem for an unambiguous VPAnn $\cT$ can be solved with update-time $\cO(|\cT|^3)$ and output-linear delay. For the class of all VPAnn, it can be solved with update-time $\cO(2^{|\cT|^3})$ and output-linear delay. 
 \end{thm} 
+
+This also subtly improves some best-known results in incremental evaluation literature, since the resulting enumeration data structure admits constant time updates when remitted to appending one new symbol to the document. There was existing work on enumeration that supports more general structural changes in the tree~\cite{AmarilliBMN19}, albeit in logtime. 
 
 This chapter spanned one conference paper, published in ICDT'22~\cite{icdt22}, and the journal version of the paper, published in TODS~\cite{todspaper}.
 
@@ -182,20 +212,20 @@ This chapter spanned one conference paper, published in ICDT'22~\cite{icdt22}, a
 %In the appendix, we also show an application in the context of document spanners~\cite{FaginKRV15}.}
 
 
-\subsection{Annotated Grammars}
+\subsection*{2. Annotated Grammars}
 
+As mentioned in the previous chapter, information extraction has been a popular research topic for regular languages on semi-structured data. Yet a natural question (and a useful one in the topics of verification of source code and natural language processing) is whether one can go a step up in the Chomsky hierarchy, and consider such queries on context-free grammars. The most relevant work in this line was an ICDT'21 paper by Peterfreund~\cite{liatpaper}, in which she presents a model for document spanners built out of grammars, which she calls {context-free spanners}. A restriction on these, called {\em extraction grammars} admit constant delay after quintic-time preprocessing.
 
-The second chapter about enumeration for context-free grammars. We propose the formalism of {\em annotated grammars}, which is an annotator that allows expressing queries with complex inputs on a grammar. The task is to enumerate the set $\llbracket \cG \rrbracket(w)$ for any non-annotated input word $w$. We show an algorithm for queries specified with an unambiguous annotated grammars; namely, for every word-annotation pair, the grammar has at most derivation tree.
+In the second main chapter of the dissertation, we study query enumeration for context-free grammars. We propose the formalism of {\em annotated grammars}, as the instantiation of the annotator framework on context-free grammars. The task is, given an annotated grammar $\cG$ and an input word $w$, enumerate the set $\llbracket \cG \rrbracket(w)$. We show an algorithm for queries specified with an unambiguous annotated grammars; namely, for every word-annotation pair, the grammar has at most one derivation tree.
 
-Then, we study a particular class of annotated grammar, which we call {\em rigid}. These are annotated grammars for which any input word may only have the same derivation tree {\em shape} for every valid annotation. This can be understood in terms of leftmost derivation sequences, as every annotation will result in the same sequence, modulo replacing nonterminals by other nonterminals.
+Then, we study a particular class of annotated grammar, which we call {\em rigid}. These are annotated grammars for which any input word may only have the same derivation tree {\em shape} across every valid annotation. This can be understood in terms of leftmost derivation sequences, as every annotation will result in the same sequence, modulo ignoring annotations and replacing nonterminals by other nonterminals.
 
-Lastly, we explore pushdown annotators, which are pushdown automata on annotated words. We study the class of {\em profile-deterministic} pushdown annotators. Intuitively, this means that for every word, the shape of the stack is the same for every valid annotation, and moreover, it can be deduced deterministically by reading the word.
+Lastly, we explore pushdown annotators, which are pushdown automata on annotated words. We study the class of {\em profile-deterministic} pushdown annotators. Intuitively, this means that for every word, the sequence of pushes and pops in the stack (modulo the stack symbols themselves) is the same across annotations, and moreover, it can be deduced deterministically when reading the word.
 
-
-The results in this chapter can be summarized as follows:
+For the proposed models, we obtain these bounds:
 
 \begin{thm}
-\begin{enumerate}
+\begin{itemize}
 	\item Given an unambiguous annotated grammar $\cG$ and an input string
         $w$, we can enumerate $\llbracket \cG \rrbracket(w)$ with preprocessing in $\cO(|w|^3
         \dot
@@ -208,12 +238,12 @@ The results in this chapter can be summarized as follows:
         $w$, we can enumerate $\llbracket \cP \rrbracket(w)$ with preprocessing in $\cO(|w|
         \dot
         |\cG|)$, and output-linear delay.
-        \end{enumerate}
+\end{itemize}
         %
 \end{thm}	
 
 %The main result is an algorithm for output-linear delay enumeration after cubic-time preprocessing. 
-We also show how this result directly applies to the Context-Free Spanners and the Extraction Grammars formalisms proposed in a work Peterfreund~\cite{liatpaper}, and improves on its result that solved enumeration with quintic-time preprocessing. 
+We also show how this result directly applies to context-free spanners and, particularly, extraction grammars. We describe a translation from an extraction grammar to an annotated grammar with reasonable blowup, which improves from the best known bound of quintic- to cubic-time preprocessing.
 
 This chapter spanned one conference paper, published in PODS'22~\cite{pods22}.
 
@@ -302,21 +332,20 @@ This chapter spanned one conference paper, published in PODS'22~\cite{pods22}.
 %    all results in the appendix.
 
 
-\subsection{Queries over compressed documents}
+\subsection*{3. Queries over compressed documents}
 
-The third chapter deals with enumeration on compressed documents. Specifically, the model of word compression that is used are straight-line programs: this is a grammar-based compression scheme which encodes a word as a context-free grammar that has only one output. The query is modeled by an {\em annotated automaton}, a regular word automaton for annotated words.
+The line of research of algorithms in compressed data has seen a lot of attention, mostly by the string processing community. Grammar-based compression has been used extensively~\cite{KiefferY00, Rytter02, ClaudeN11} and the study of algorithms on grammar-compressed data has been quite fruitful, as can be seen in a survey by Markus Lohrey~\cite{Lohrey12}. The specific form of grammar compression presented here are SLPs, a grammar-based compression scheme which encodes a word as a context-free grammar that has only one output.
 
-This chapter also contains an additional conceptual contribution to solve the problem. We show a way to adapt the ECS data structure to include a certain operator {\em shift}. This is structurally represented by a new node type, the {\em shift} node, which has only one child and contains a constant $k$. The set it represents is precisely the set of answer in its child, except every value contained in every answer is incremented by $k$.
+Previous to this dissertation, Schmid and Schweikardt saw the potential of complex MSO queries when evaluated on an SLP-compressed document and began a short line of research in the topic. In PODS'21, they presented an algorithm that evaluates a regular spanner on an SLP-compressed document, and enumerates the result with preprocessing that is linear in the compression scheme~\cite{SchmidS21}; it has somewhat efficient delay, logarithmic on the uncompressed document. The next year, in PODS'22, they extend this result to SLP-compressed document databases. They show how to perform efficient {\em complex document editing} on the database, and how to reflect these changes on the enumeration data structure with the same bounds~\cite{SchmidS22}.
 
-The main result in the chapter is thus,
+In the third chapter of the dissertation, we adapt the results from~\cite{SchmidS21, SchmidS22} to utilize the ECS data structure, and improve the logarithmic delay bound into constant-delay. We frame this in the annotator model, namely, as an result on  {\em annotated automata}:
 
 \begin{thm}
-	Given an unambiguous regular annotator $\cA$ and a word $w$ compressed by an SLP $S$, we can enumerate the set $\llbracket \cA\rrbracket(w)$ with preprocessing in $O(|\cA|^3 \times |S|)$ and output-linear delay.
+	Given an unambiguous annotated automaton $\cA$ and a word $w$ compressed by an SLP $S$, we can enumerate the set $\llbracket \cA\rrbracket(w)$ with preprocessing in $O(|\cA|^3 \times |S|)$ and output-linear delay.
 \end{thm}
 
-This result improves, and also can be seen as an adaptation of, one by Schmid and Schweikardt~\cite{SchmidS21}. They solve the same task---albeit defined for regular spanners---, but with logarithmic delay in the uncompressed document. 
 
-We also describe how to adapt a framework for incremental evaluation in the context of complex document editing, which was also formalized by Schmid and Schweikardt~\cite{SchmidS22}.
+This chapter also contains an additional conceptual contribution to solve the problem. We show a way to adapt the ECS data structure to include a certain operator {\em shift}. This is structurally represented by a new node type, the {\em shift} node, which has only one child and contains a constant $k$. The set it represents is the set of answer in its child, except every value contained in every answer is incremented by $k$.
 
 This chapter spanned one conference paper, published in ICDT'23~\cite{icdt23}, and the journal version of the paper, published in TODS~\cite{lmcspaper}.
 
@@ -434,10 +463,11 @@ This chapter spanned one conference paper, published in ICDT'23~\cite{icdt23}, a
 %	\section{Conclusions}
 	
 	
-	
+
 	\bibliographystyle{abbrv}
 	{\footnotesize
 	\bibliography{biblio.bib}}
+	\end{multicols}
 	
 	%\input{../sections/prev-appendix.tex}
 	
